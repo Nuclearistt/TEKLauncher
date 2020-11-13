@@ -1,0 +1,59 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="TEKLauncher.Controls.Slider" Loaded="LoadedHandler" SizeChanged="SizeChangedHandler">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Name="Text" Width="30" Foreground="{DynamicResource YellowBrush}" FontSize="24" VerticalAlignment="Center"/>
+        <Grid Grid.Column="1" Name="Root">
+            <Rectangle Name="MainLine" Height="3" Margin="15, 0, 0, 0" Fill="{DynamicResource DarkGrayBrush}" HorizontalAlignment="Left"/>
+            <Rectangle Width="{Binding ElementName=Mark, Path=Margin.Left}" Height="5" Margin="15, 0, 0, 0" Fill="{DynamicResource DarkOrangeBrush}" HorizontalAlignment="Left"/>
+            <Ellipse Name="Mark" Width="30" Height="30" Fill="#FFA000" HorizontalAlignment="Left" PreviewMouseDown="MouseDownHandler" PreviewMouseUp="MouseUpHandler">
+                <Ellipse.RenderTransform>
+                    <ScaleTransform CenterX="15" CenterY="15" ScaleX="1" ScaleY="{Binding ElementName=Mark, Path=RenderTransform.ScaleX}"/>
+                </Ellipse.RenderTransform>
+                <Ellipse.Style>
+                    <Style TargetType="Ellipse">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetProperty="Fill.(SolidColorBrush.Color)">
+                                            <ColorAnimation To="Yellow" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetProperty="Fill.(SolidColorBrush.Color)">
+                                            <ColorAnimation To="{StaticResource Orange}" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <EventTrigger RoutedEvent="PreviewMouseDown">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetProperty="RenderTransform.(ScaleTransform.ScaleX)">
+                                            <DoubleAnimation From="1" To="0.8" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="PreviewMouseUp">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetProperty="RenderTransform.(ScaleTransform.ScaleX)">
+                                            <DoubleAnimation From="0.8" To="1" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Ellipse.Style>
+            </Ellipse>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,40 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="TEKLauncher.Controls.ModItem" Margin="0, 15, 0, 0">
+    <Border Padding="10" Background="{DynamicResource DarkestDarkBrush}" CornerRadius="25">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Image Name="Preview" Width="96" Height="96"/>
+                <StackPanel Margin="10, 0, 0, 0" VerticalAlignment="Center">
+                    <TextBlock Name="ModName" Foreground="{DynamicResource BrightBrush}" FontSize="22"/>
+                    <TextBlock Name="SecondaryName" Foreground="{DynamicResource GrayBrush}" FontSize="16"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Name="ModID" Margin="0, 10, 0, 0" Foreground="{DynamicResource BrightGrayBrush}" FontSize="18"/>
+                        <Button Style="{StaticResource IconButton}" Width="20" Margin="5, 0, 0, 0" Tag="Copy" Click="CopyID"/>
+                        <Button Style="{StaticResource IconButton}" Width="20" Margin="5, 0, 0, 0" Tag="Follow" Click="Follow"/>
+                    </StackPanel>
+                    <StackPanel Name="OBlock" Orientation="Horizontal" Visibility="Collapsed">
+                        <TextBlock Name="OriginalID" Foreground="{DynamicResource GrayBrush}" FontSize="14"/>
+                        <Button Style="{StaticResource IconButton}" Width="16" Margin="5, 0, 0, 0" Tag="Copy" Click="CopyOID"/>
+                        <Button Style="{StaticResource IconButton}" Width="16" Margin="5, 0, 0, 0" Tag="Follow" Click="FollowO"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <StackPanel Margin="10, 0, 0, 0" VerticalAlignment="Center">
+                    <TextBlock Name="InstalledStatus" FontSize="18"/>
+                    <TextBlock Name="SubscribedStatus" FontSize="18"/>
+                </StackPanel>
+                <Button Style="{StaticResource IconButton}" Name="UpdateButton" Width="35" Margin="5, 0, 0, 0" VerticalAlignment="Center" Visibility="Collapsed" Tag="Update" Click="Update"/>
+                <Button Style="{StaticResource IconButton}" Name="ValidateButton" Width="35" Margin="5, 0, 0, 0" VerticalAlignment="Center" Visibility="Collapsed" Tag="Validate" Click="Validate"/>
+                <Button Style="{StaticResource IconButton}" Name="SubscribeButton" Width="35" Margin="5, 0, 0, 0" VerticalAlignment="Center" Visibility="Collapsed" Tag="Subscribe" Click="Subscribe"/>
+                <Button Style="{StaticResource IconButton}" Name="InstallButton" Width="35" Margin="5, 0, 0, 0" VerticalAlignment="Center" Visibility="Collapsed" Tag="Install" Click="Install"/>
+                <Button Style="{StaticResource IconButton}" Name="UninstallButton" Width="35" Margin="5, 0, 0, 0" VerticalAlignment="Center" Tag="Delete" Click="Uninstall"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

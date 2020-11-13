@@ -1,0 +1,19 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:Controls="clr-namespace:TEKLauncher.Controls" x:Class="TEKLauncher.Controls.MenuBlock" Loaded="LoadedHandler">
+    <Grid Background="{DynamicResource DarkestDarkBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="9"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Border Name="Line" Width="3" Height="{Binding ActualHeight, ElementName=Play}" Background="{DynamicResource BrightBrush}" HorizontalAlignment="Center" VerticalAlignment="Top" CornerRadius="1.5"/>
+        <StackPanel Grid.Column="1" Name="ItemsStack">
+            <Controls:MenuRadioButton x:Name="Play" Source="Play"/>
+            <Controls:MenuRadioButton x:Name="Servers" Source="Servers"/>
+            <Controls:MenuRadioButton x:Name="DLCs" Source="DLCs"/>
+            <Controls:MenuRadioButton x:Name="Mods" Source="Mods"/>
+            <Controls:MenuRadioButton x:Name="Settings" Source="Settings"/>
+            <Controls:MenuRadioButton x:Name="Launcher" Source="Cluster"/>
+            <Controls:MenuRadioButton x:Name="About" Source="About"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

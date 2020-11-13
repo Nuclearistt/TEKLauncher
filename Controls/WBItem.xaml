@@ -1,0 +1,24 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="TEKLauncher.Controls.WBItem" Margin="0, 15, 0, 0">
+    <Border Padding="10" Background="{DynamicResource DarkestDarkBrush}" CornerRadius="25">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Image Name="Preview" Width="96" Height="96"/>
+                <StackPanel Margin="10, 0, 0, 0" VerticalAlignment="Center">
+                    <TextBlock Name="ModName" Foreground="{DynamicResource BrightBrush}" FontSize="22"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Name="ModID" Margin="0, 10, 0, 0" Foreground="{DynamicResource BrightGrayBrush}" FontSize="18"/>
+                        <Button Style="{StaticResource IconButton}" Width="20" Margin="5, 0, 0, 0" Tag="Copy" Click="CopyID"/>
+                        <Button Style="{StaticResource IconButton}" Width="20" Margin="5, 0, 0, 0" Tag="Follow" Click="Follow"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <Button Grid.Column="2" Name="InstallButton" Margin="10, 0, 10, 0" VerticalAlignment="Center" Content="Install" Click="Install"/>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,17 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="TEKLauncher.Controls.LoadingSpinner">
+    <Path Width="15" Height="15" Stroke="{DynamicResource BrightBrush}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M2,7.5a3.7,3.4-4.2,0110.6-1">
+        <Path.RenderTransform>
+            <RotateTransform CenterX="7.5" CenterY="7.5" Angle="0"/>
+        </Path.RenderTransform>
+        <Path.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard TargetProperty="RenderTransform.(RotateTransform.Angle)">
+                        <DoubleAnimation From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Path.Triggers>
+    </Path>
+</UserControl>

@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+  <PropertyGroup>
+    <ProjectGuid>{D8D09C9C-835F-478D-8180-E8817A3B76CB}</ProjectGuid>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>False</Prefer32Bit>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <OutputType>WinExe</OutputType>
+    <StartupObject>TEKLauncher.App</StartupObject>
+    <AssemblyName>TEKLauncher</AssemblyName>
+    <RootNamespace>TEKLauncher</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
+    <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
+    <Deterministic>True</Deterministic>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>SigningKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <FileAlignment>512</FileAlignment>
+    <WarningLevel>4</WarningLevel>
+    <ErrorReport>Prompt</ErrorReport>
+    <LangVersion>7.3</LangVersion>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <IntermediateOutputPath>Intermediate\</IntermediateOutputPath>
+    <OutputPath>Output\</OutputPath>
+    <PostBuildEvent>call "C:\Windows Kits\10\App Certification Kit\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a "C:\Users\Nuclearist\VS Projects\TEKLauncher\Output\TEKLauncher.exe"</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <DebugType>PDBOnly</DebugType>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugType>Full</DebugType>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp"/>
+    <Reference Include="PresentationCore"/>
+    <Reference Include="PresentationFramework"/>
+    <Reference Include="System"/>
+    <Reference Include="System.Net.Http"/>
+    <Reference Include="System.Windows.Forms"/>
+    <Reference Include="System.Xaml"/>
+    <Reference Include="System.Xml"/>
+    <Reference Include="WindowsBase"/>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="Controls\*.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Pages\*.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\*.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\*.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CommunismMode.cs"/>
+    <Compile Include="ARK\*"/>
+    <Compile Include="Controls\ClusterItem.cs">
+      <DependentUpon>ClusterItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\DLCItem.cs">
+      <DependentUpon>DLCItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\LoadingSpinner.cs">
+      <DependentUpon>LoadingSpinner.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MenuBlock.cs">
+      <DependentUpon>MenuBlock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MenuRadioButton.cs">
+      <DependentUpon>MenuRadioButton.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ModItem.cs">
+      <DependentUpon>ModItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Notification.cs">
+      <DependentUpon>Notification.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PathSelector.cs">
+      <DependentUpon>PathSelector.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ProgressBar.cs">
+      <DependentUpon>ProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ServerItem.cs">
+      <DependentUpon>ServerItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Slider.cs">
+      <DependentUpon>Slider.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VectorImage.cs">
+      <DependentUpon>VectorImage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\WindowControlsBlock.cs">
+      <DependentUpon>WindowControlsBlock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\WBItem.cs">
+      <DependentUpon>WBItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Data\*"/>
+    <Compile Include="Net\*"/>
+    <Compile Include="Pages\AboutPage.cs">
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ClusterPage.cs">
+      <DependentUpon>ClusterPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\DLCsPage.cs">
+      <DependentUpon>DLCsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\LauncherPage.cs">
+      <DependentUpon>LauncherPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ModInstallerPage.cs">
+      <DependentUpon>ModInstallerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ModsPage.cs">
+      <DependentUpon>ModsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\PlayPage.cs">
+      <DependentUpon>PlayPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\ServersPage.cs">
+      <DependentUpon>ServersPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SettingsPage.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\WorkshopBrowserPage.cs">
+      <DependentUpon>WorkshopBrowserPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs"/>
+    <Compile Include="Servers\*"/>
+    <Compile Include="SteamInterop\**"/>
+    <Compile Include="UI\*.cs"/>
+    <Compile Include="Utils\**"/>
+    <Compile Include="Windows\ChangelogWindow.cs">
+      <DependentUpon>ChangelogWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\CrashWindow.cs">
+      <DependentUpon>CrashWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\MainWindow.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\MessageWindow.cs">
+      <DependentUpon>MessageWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ModUninstallerWindow.cs">
+      <DependentUpon>ModUninstallerWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\StartupWindow.cs">
+      <DependentUpon>StartupWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\UpdaterWindow.cs">
+      <DependentUpon>UpdaterWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ValidatorWindow.cs">
+      <DependentUpon>ValidatorWindow.xaml</DependentUpon>
+    </Compile>
+    <Resource Include="Resources\**"/>
+    <None Include="App.config"/>
+    <None Include="app.manifest"/>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+</Project>

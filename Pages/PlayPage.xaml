@@ -1,0 +1,110 @@
+﻿<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:Controls="clr-namespace:TEKLauncher.Controls" x:Class="TEKLauncher.Pages.PlayPage">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="18*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="8*"/>
+            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition Width="15*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Image Grid.ColumnSpan="5" Name="Image" Stretch="Fill"/>
+        <CheckBox Grid.Row="1" Grid.Column="1" Name="RunAsAdminCB" Content="Run game as admin" Checked="SwitchRunAsAdmin" Unchecked="SwitchRunAsAdmin"/>
+        <CheckBox Grid.Row="2" Grid.Column="1" Name="PlayCrackedCB" Content="Play cracked" Checked="SwitchPlayCracked" Unchecked="SwitchPlayCracked"/>
+        <CheckBox Grid.Row="3" Grid.Column="1" Name="UseBattlEyeCB" Content="Use BattlEye" Checked="SwitchUseBattlEye" Unchecked="SwitchUseBattlEye"/>
+        <Button Grid.Row="2" Grid.Column="2" Click="LaunchGame">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Focusable" Value="False"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Name="ElementBorder" Padding="10, 0, 10, 0" Background="{DynamicResource DarkestDarkBrush}" BorderBrush="{DynamicResource BrightBrush}" BorderThickness="1.5" CornerRadius="25">
+                                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                        <Controls:VectorImage x:Name="Icon" Source="Play"/>
+                                        <TextBlock Margin="15, 0, 0, 0" Foreground="{DynamicResource BrightBrush}" FontSize="30" VerticalAlignment="Center" Text="Play"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                                    <ColorAnimation To="{StaticResource Dark}" Duration="0:0:0.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                                    <ColorAnimation To="{StaticResource DarkestDark}" Duration="0:0:0.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="ElementBorder" Storyboard.TargetProperty="Background.(SolidColorBrush.Color)" To="{StaticResource Orange}" Duration="0:0:0.2"/>
+                                                    <ColorAnimation Storyboard.TargetName="Icon" Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)" To="{StaticResource Bright}" Duration="0:0:0.2"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard FillBehavior="Stop">
+                                                    <ColorAnimation Storyboard.TargetName="ElementBorder" Storyboard.TargetProperty="Background.(SolidColorBrush.Color)" To="{StaticResource Dark}" Duration="0:0:0.2"/>
+                                                    <ColorAnimation Storyboard.TargetName="Icon" Storyboard.TargetProperty="Foreground.(SolidColorBrush.Color)" To="{StaticResource Orange}" Duration="0:0:0.2"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Button.Style>
+        </Button>
+        <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal">
+            <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="22" VerticalAlignment="Center" Text="Game localization: "/>
+            <ComboBox Grid.Column="1" Name="Localizations" Width="280" SelectionChanged="SelectionChangedHandler">
+                <ComboBox.Items>
+                    <ComboBoxItem Content="Catalan"/>
+                    <ComboBoxItem Content="Czech"/>
+                    <ComboBoxItem Content="Danish"/>
+                    <ComboBoxItem Content="German"/>
+                    <ComboBoxItem Content="English"/>
+                    <ComboBoxItem Content="Spanish"/>
+                    <ComboBoxItem Content="Basque"/>
+                    <ComboBoxItem Content="Finnish"/>
+                    <ComboBoxItem Content="French"/>
+                    <ComboBoxItem Content="Hungarian"/>
+                    <ComboBoxItem Content="Italian"/>
+                    <ComboBoxItem Content="Japanese"/>
+                    <ComboBoxItem Content="Georgian"/>
+                    <ComboBoxItem Content="Korean"/>
+                    <ComboBoxItem Content="Dutch"/>
+                    <ComboBoxItem Content="Polish"/>
+                    <ComboBoxItem Content="Portuguese-Brazilian"/>
+                    <ComboBoxItem Content="Russian"/>
+                    <ComboBoxItem Content="Swedish"/>
+                    <ComboBoxItem Content="Thai"/>
+                    <ComboBoxItem Content="Turkish"/>
+                    <ComboBoxItem Content="Ukrainian"/>
+                    <ComboBoxItem Content="Chinese"/>
+                    <ComboBoxItem Content="Chinese (Simplified)"/>
+                    <ComboBoxItem Content="Chinese (Taiwan)"/>
+                </ComboBox.Items>
+            </ComboBox>
+        </StackPanel>
+        <TextBox Grid.Row="3" Grid.Column="3" Name="CustomLaunchParameters" Margin="40, 0, 20, 0" VerticalAlignment="Top" Tag="Custom launch parameters (aren't saved)"/>
+    </Grid>
+</Page>

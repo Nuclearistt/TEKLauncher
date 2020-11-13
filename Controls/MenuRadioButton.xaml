@@ -1,0 +1,64 @@
+﻿<RadioButton xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:Controls="clr-namespace:TEKLauncher.Controls" x:Class="TEKLauncher.Controls.MenuRadioButton" Focusable="False">
+    <RadioButton.Template>
+        <ControlTemplate TargetType="ToggleButton">
+            <Border Name="ElementBorder" Padding="10, 5, 10, 5" Background="{DynamicResource DarkerDarkBrush}">
+                <ContentPresenter VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                <ColorAnimation To="{StaticResource Darker}" Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                <ColorAnimation To="{StaticResource DarkerDark}" Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                <ColorAnimation To="{StaticResource DarkOrange}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)" FillBehavior="Stop">
+                                <ColorAnimation To="{StaticResource Darker}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                <ColorAnimation To="{StaticResource DarkGray}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)" FillBehavior="Stop">
+                                <ColorAnimation To="{StaticResource DarkerDark}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </RadioButton.Template>
+    <StackPanel Orientation="Horizontal">
+        <Controls:VectorImage Source="{Binding Source, RelativeSource={RelativeSource FindAncestor, AncestorType=Controls:MenuRadioButton}}"/>
+        <TextBlock Margin="25, 0, 0, 0" Foreground="{DynamicResource BrightestBrightBrush}" FontSize="30" VerticalAlignment="Center" Text="{Binding Name, RelativeSource={RelativeSource FindAncestor, AncestorType=Controls:MenuRadioButton}}"/>
+    </StackPanel>
+</RadioButton>

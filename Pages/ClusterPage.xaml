@@ -1,0 +1,208 @@
+﻿<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      x:Class="TEKLauncher.Pages.ClusterPage">
+    <Page.Resources>
+        <ControlTemplate x:Key="SubscribeButton" TargetType="Button">
+            <Border Padding="10, 3, 10, 3" Background="Transparent" BorderBrush="{TemplateBinding Foreground}" BorderThickness="2" CornerRadius="15">
+                <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetProperty="Foreground.(SolidColorBrush.Color)">
+                                <ColorAnimation To="{StaticResource DarkOrange}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetProperty="Foreground.(SolidColorBrush.Color)">
+                                <ColorAnimation To="{StaticResource BrightGray}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetProperty="Foreground.(SolidColorBrush.Color)">
+                                <ColorAnimation To="{StaticResource Orange}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetProperty="Foreground.(SolidColorBrush.Color)" FillBehavior="Stop">
+                                <ColorAnimation To="{StaticResource DarkOrange}" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard TargetProperty="Foreground.(SolidColorBrush.Color)">
+                                <ColorAnimation To="DarkGreen" Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+        <Style TargetType="RadioButton">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrightBrush}"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Name="ElementBorder" Margin="5, 10, 5, 10" Padding="10" Background="{DynamicResource DarkerDarkBrush}" CornerRadius="20">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                            <ColorAnimation To="{StaticResource Darker}" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                            <ColorAnimation To="{StaticResource DarkerDark}" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                            <ColorAnimation To="{StaticResource Orange}" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)" FillBehavior="Stop">
+                                            <ColorAnimation To="{StaticResource Darker}" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                            <ColorAnimation To="{StaticResource DarkGray}" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)" FillBehavior="Stop">
+                                            <ColorAnimation To="{StaticResource DarkerDark}" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="510"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.ColumnSpan="2" Margin="20, 0, 0, 0" Padding="5" Background="{DynamicResource DarkestDarkBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="25">
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                <Button Style="{StaticResource IconButton}" Width="50" Tag="Back" Click="GoBack"/>
+                <Button Style="{StaticResource IconButton}" Width="50" Margin="20, 0, 0, 0" Tag="Update" Click="Refresh"/>
+            </StackPanel>
+        </Border>
+        <Border Grid.Column="1" Padding="15, 5, 15, 5" Background="{DynamicResource DarkestDarkBrush}" HorizontalAlignment="Center" CornerRadius="0, 0, 30, 30">
+            <StackPanel>
+                <TextBlock Name="ClusterName" Foreground="{DynamicResource BrightBrush}" FontSize="26" HorizontalAlignment="Center"/>
+                <TextBlock Name="Hoster" Foreground="{DynamicResource BrightBrush}" FontSize="18" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+        <Border Grid.Row="2" Background="{DynamicResource DarkestDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="25">
+            <StackPanel Name="Menu" Margin="10">
+                <RadioButton Content="Servers" IsChecked="True" Checked="SwitchTab" Unchecked="SwitchTab"/>
+                <RadioButton Content="Information" Checked="SwitchTab" Unchecked="SwitchTab"/>
+                <RadioButton Name="ModsRadioButton" Content="Mods" Checked="SwitchTab" Unchecked="SwitchTab"/>
+                <Button Content="Join Discord" Click="JoinDiscord">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Focusable" Value="False"/>
+                            <Setter Property="Foreground" Value="{DynamicResource BrightBrush}"/>
+                            <Setter Property="FontSize" Value="24"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Name="ElementBorder" Margin="5, 10, 5, 10" Padding="10" Background="{DynamicResource DarkerDarkBrush}" CornerRadius="20">
+                                            <ContentPresenter/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Trigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                                            <ColorAnimation To="{StaticResource Darker}" Duration="0:0:0.2"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.EnterActions>
+                                                <Trigger.ExitActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                                            <ColorAnimation To="{StaticResource DarkerDark}" Duration="0:0:0.2"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.ExitActions>
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Trigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)">
+                                                            <ColorAnimation To="{StaticResource Cyan}" Duration="0:0:0.2"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.EnterActions>
+                                                <Trigger.ExitActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard TargetName="ElementBorder" TargetProperty="Background.(SolidColorBrush.Color)" FillBehavior="Stop">
+                                                            <ColorAnimation To="{StaticResource Darker}" Duration="0:0:0.2"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.ExitActions>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Border>
+        <ScrollViewer Grid.Row="2" Grid.Column="1" Name="ServersListViewer" Padding="0, 0, 10, 0">
+            <StackPanel Name="ServersList"/>
+        </ScrollViewer>
+        <StackPanel Grid.Row="2" Grid.Column="1" Name="InfoStack" Visibility="Collapsed"/>
+        <ScrollViewer Grid.Row="2" Grid.Column="1" Name="ModsListViewer" Visibility="Collapsed">
+            <StackPanel Name="ModsList"/>
+        </ScrollViewer>
+    </Grid>
+</Page>

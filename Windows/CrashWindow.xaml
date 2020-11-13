@@ -1,0 +1,41 @@
+﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Controls="clr-namespace:TEKLauncher.Controls" x:Class="TEKLauncher.Windows.CrashWindow" Title="Crash" Width="650"
+        Height="720" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Loaded="LoadedHandler">
+    <Border Margin="12.5" Background="Black" CornerRadius="25" UseLayoutRounding="True" MouseLeftButtonDown="Drag">
+        <Border.Effect>
+            <DropShadowEffect Color="{DynamicResource Bright}" BlurRadius="12.5" ShadowDepth="0"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid Margin="20, 0, 0, 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Foreground="{DynamicResource BrightestBrightBrush}" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" Text="Crash"/>
+                <Controls:WindowControlsBlock Grid.Column="2" Code="1" Close="Close"/>
+            </Grid>
+            <StackPanel Grid.Row="1" Margin="50, 0, 0, 0" Orientation="Horizontal">
+                <Controls:VectorImage VerticalAlignment="Center" Source="Error"/>
+                <TextBlock Margin="50, 0, 0, 0" Foreground="{DynamicResource BrightBrush}" FontSize="24" Text="Unexpected error has occured&#x0a;&#x0a;The launcher will be closed"/>
+            </StackPanel>
+            <TextBlock Grid.Row="2" Name="Status" Margin="20" Foreground="{DynamicResource YellowBrush}" FontSize="20" HorizontalAlignment="Center" Text="Attempting to upload crash data, please wait..."/>
+            <ScrollViewer Grid.Row="3" Margin="50, 0, 50, 50">
+                <StackPanel>
+                    <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Text="Type:"/>
+                    <TextBlock Name="Type" Foreground="{DynamicResource BrightGrayBrush}" FontFamily="../Resources/Fonts/#RobotoMono" FontSize="18" TextWrapping="Wrap"/>
+                    <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Text="Message:"/>
+                    <TextBlock Name="Message" Foreground="{DynamicResource BrightGrayBrush}" FontFamily="../Resources/Fonts/#RobotoMono" FontSize="18" TextWrapping="Wrap"/>
+                    <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Text="Stack trace:"/>
+                    <TextBlock Name="StackTrace" Foreground="{DynamicResource BrightGrayBrush}" FontFamily="../Resources/Fonts/#RobotoMono" FontSize="16" TextWrapping="Wrap"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Window>

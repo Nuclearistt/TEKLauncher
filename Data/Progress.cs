@@ -10,7 +10,7 @@ namespace TEKLauncher.Data
         internal Progress(ProgressUpdatedEventHandler ProgressUpdated) => this.ProgressUpdated = ProgressUpdated;
         private int SpeedUpdated;
         private long Difference, Previous;
-        internal long Current, ETA, Total;
+        internal long Current, Total;
         internal double Ratio;
         private readonly ProgressUpdatedEventHandler ProgressUpdated;
         internal string BytesProgress => ConvertBytes(Current);
@@ -29,7 +29,6 @@ namespace TEKLauncher.Data
                     Difference = 1L;
                 Previous = Current;
                 SpeedUpdated = CurrentTime;
-                ETA = (Total - Current) / Difference;
             }
             Application.Current.Dispatcher.Invoke(ProgressUpdated);
         }
@@ -43,7 +42,6 @@ namespace TEKLauncher.Data
                     Difference = 1L;
                 Previous = Current;
                 SpeedUpdated = CurrentTime;
-                ETA = (Total - Current) / Difference;
             }
             try { Application.Current.Dispatcher.Invoke(ProgressUpdated); }
             catch { }

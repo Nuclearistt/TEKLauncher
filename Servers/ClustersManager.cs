@@ -46,7 +46,8 @@ namespace TEKLauncher.Servers
                         [2212442912UL] = "The Tombstone",
                         [2224171622UL] = "Dino Storage v2",
                         [2035976232UL] = "Dino Colourizer",
-                        [2236485756UL] = "Crystal Isles Dino Addition"
+                        [2236485756UL] = "Crystal Isles Dino Addition",
+                        [2287982693UL] = "Oz-Ark Engram Tweaker"
                     },
                     ["Primal Fear server specific"] = new Dictionary<ulong, string>
                     {
@@ -178,14 +179,12 @@ namespace TEKLauncher.Servers
                     "Experience 5x\n" +
                     "Harvesting 20x\n" +
                     "Stacks 10x\n" +
-                    "3 players per tribe\n" +
-                    "Night PvE\n" + 
                     "Newbies protection"
                 },
                 Mods = null,
                 Servers = new[]
                 {
-                    new Server(ARKRussiaIP, TheIsland, 47016, "조선말#2 The Island 10 Man"),
+                    new Server(ARKRussiaIP, TheIsland, 47016, "#2 The Island 10 Man"),
                     new Server(ARKRussiaIP, TheCenter, 47021, "#7 The Center 10 Man"),
                     new Server(ARKRussiaIP, Ragnarok, 47015, "#1 Ragnarok 10 Man"),
                     new Server(ARKRussiaIP, Aberration, 47018, "#4 Aberration 10 Man"),
@@ -193,14 +192,16 @@ namespace TEKLauncher.Servers
                     new Server(ARKRussiaIP, Valguero, 47022, "#8 Valguero 10 Man"),
                     new Server(ARKRussiaIP, Genesis, 47020, "#6 Genesis 10 Man"),
                     new Server(ARKRussiaIP, CrystalIsles, 47019, "#5 Crystal Isles 10 Man"),
-                    new Server(ARKRussiaIP, TheIsland, 47028, "#10 The Island 3 Man"),
-                    new Server(ARKRussiaIP, Ragnarok, 47027, "#9 Ragnarok 3 Man"),
-                    new Server(ARKRussiaIP, Aberration, 47030, "#12 Aberration 3 Man"),
-                    new Server(ARKRussiaIP, Extinction, 47029, "#11 Extinction 3 Man"),
-                    new Server(ARKRussiaIP, Genesis, 47032, "#14 Genesis 3 Man"),
-                    new Server(ARKRussiaIP, CrystalIsles, 47031, "#13 Crystal Isles 3 Man")
+                    new Server(ARKRussiaIP, TheIsland, 47028, "#10 The Island Beginners"),
+                    new Server(ARKRussiaIP, Ragnarok, 47027, "#9 Ragnarok Beginners"),
+                    new Server(ARKRussiaIP, Aberration, 47030, "#12 Aberration Beginners"),
+                    new Server(ARKRussiaIP, Extinction, 47029, "#11 Extinction Beginners"),
+                    new Server(ARKRussiaIP, Extinction, 47033, "#15 Valguero Beginners"),
+                    new Server(ARKRussiaIP, Genesis, 47032, "#14 Genesis Beginners"),
+                    new Server(ARKRussiaIP, CrystalIsles, 47031, "#13 Crystal Isles Beginners")
                 }
-            }
+            },
+            new Cluster { Name = "Your servers", Servers = new Server[0] }
         };
     }
 }

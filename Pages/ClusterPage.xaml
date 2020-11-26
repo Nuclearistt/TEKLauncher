@@ -123,7 +123,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="510"/>
+            <ColumnDefinition Width="550"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Border Grid.ColumnSpan="2" Margin="20, 0, 0, 0" Padding="5" Background="{DynamicResource DarkestDarkBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="25">
@@ -138,7 +138,8 @@
                 <TextBlock Name="Hoster" Foreground="{DynamicResource BrightBrush}" FontSize="18" HorizontalAlignment="Center"/>
             </StackPanel>
         </Border>
-        <Border Grid.Row="2" Background="{DynamicResource DarkestDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="25">
+        <Button Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Add servers" Click="AddServer"/>
+        <Border Name="MenuBorder" Grid.Row="2" Background="{DynamicResource DarkestDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="25">
             <StackPanel Name="Menu" Margin="10">
                 <RadioButton Content="Servers" IsChecked="True" Checked="SwitchTab" Unchecked="SwitchTab"/>
                 <RadioButton Content="Information" Checked="SwitchTab" Unchecked="SwitchTab"/>
@@ -197,7 +198,7 @@
                 </Button>
             </StackPanel>
         </Border>
-        <ScrollViewer Grid.Row="2" Grid.Column="1" Name="ServersListViewer" Padding="0, 0, 10, 0">
+        <ScrollViewer Grid.Row="2" Grid.Column="1" Name="ServersListViewer" Padding="0, 0, 10, 0" VerticalScrollBarVisibility="Auto">
             <StackPanel Name="ServersList"/>
         </ScrollViewer>
         <StackPanel Grid.Row="2" Grid.Column="1" Name="InfoStack" Visibility="Collapsed"/>

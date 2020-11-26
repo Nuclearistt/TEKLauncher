@@ -76,9 +76,10 @@ namespace TEKLauncher.Controls
         }
         internal void SetDownloadMode()
         {
-            if (NumericMode)
+            if (NumericMode || UnknownTotalMode)
             {
                 NumericMode = false;
+                UnknownTotalMode = false;
                 ElementBorder.Fill = (SolidColorBrush)FindResource("DarkestDarkBrush");
                 ProgressLine.Stroke = (SolidColorBrush)FindResource("CyanBrush");
                 Speed.Visibility = BytesProgress.Visibility = Visibility.Visible;

@@ -6,6 +6,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Name="ServerName" Foreground="{DynamicResource BrightGrayBrush}" FontSize="24"/>
@@ -14,7 +15,7 @@
                     <TextBlock Name="Players" Margin="10, 0, 0, 0" Foreground="{DynamicResource BrightGrayBrush}" FontSize="20"/>
                 </StackPanel>
             </StackPanel>
-            <Button Grid.Column="2" Name="JoinButton" Margin="0, 0, 10, 0" VerticalAlignment="Center" Click="Join">
+            <Button Grid.Column="2" Name="JoinButton" Margin="0, 0, 5, 0" VerticalAlignment="Center" Click="Join">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Name="ElementBorder" Padding="10, 3, 10, 3" Background="Transparent" BorderBrush="{DynamicResource BrightBrush}" BorderThickness="2" CornerRadius="25">
@@ -82,6 +83,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
+            <Button Grid.Column="3" Style="{StaticResource IconButton}" Name="DeleteButton" Width="35" Margin="0, 0, 10, 0" Tag="Delete" Click="Delete"/>
         </Grid>
     </Border>
 </UserControl>

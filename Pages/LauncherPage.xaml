@@ -25,7 +25,8 @@
                 <TextBlock ToolTipService.ShowDuration="30000" ToolTip="Determines how many file chunks are downloaded from Steam servers simultaneously, and thus download speed&#x0a;Change at your own risk" Foreground="{DynamicResource BrightBrush}" FontSize="24" VerticalAlignment="Center" Text="Download threads count: "/>
                 <Controls:Slider x:Name="ThreadsCount" Grid.Column="1"/>
             </Grid>
-            <CheckBox Name="CloseOnGameRun" Margin="0, 10, 0, 0" Content="Close launcher when running game" Checked="SetCloseOnGameRun" Unchecked="SetCloseOnGameRun"/>
+            <CheckBox Name="AutoRetry" Margin="0, 10, 0, 0" Content="Automatically retry failed downloads" Checked="SetAutoRetry" Unchecked="SetAutoRetry"/>
+            <CheckBox Name="CloseOnGameRun" Content="Close launcher when running game" Checked="SetCloseOnGameRun" Unchecked="SetCloseOnGameRun"/>
             <CheckBox Name="Communism" Content="Communism mode" Checked="SetCommunism" Unchecked="SetCommunism"/>
         </StackPanel>
     </Grid>

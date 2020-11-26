@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -8,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
 using TEKLauncher.ARK;
+using TEKLauncher.Data;
 using TEKLauncher.Controls;
 using TEKLauncher.Net;
 using TEKLauncher.SteamInterop.Network;
@@ -260,6 +260,7 @@ namespace TEKLauncher.Pages
         }
         private void UpdateJob(object DoValidate)
         {
+            Beginning:
             try { SteamDownloader.Update((bool)DoValidate); }
             catch (Exception Exception)
             {
@@ -267,11 +268,16 @@ namespace TEKLauncher.Pages
                 if (Exception is AggregateException)
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
-                    Dispatcher.Invoke(() =>
-                    {
-                        SetStatus($"Error: {Exception.Message}", DarkRed);
-                        FinishHandler();
-                    });
+                {
+                    if (Exception.Message == "Download failed" && Settings.AutoRetry)
+                        goto Beginning;
+                    else
+                        Dispatcher.Invoke(() =>
+                        {
+                            SetStatus($"Error: {Exception.Message}", DarkRed);
+                            FinishHandler();
+                        });
+                }
                 else
                 {
                     File.WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\n{Exception.StackTrace}");

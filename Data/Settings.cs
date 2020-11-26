@@ -13,8 +13,9 @@ namespace TEKLauncher.Data
     {
         internal static bool DeleteSettings = false;
         private static readonly string SettingsPath = $@"{AppDataFolder}\Settings.bin";
-        private static readonly string[] Keys = new[] { "ARKPath", "CloseOnGameRun", "CommunismMode", "DwThreadsCount", "GameLang", "LaunchParameters", "RunAsAdmin", "UseBattlEye" };
+        private static readonly string[] Keys = new[] { "ARKPath", "AutoRetry", "CloseOnGameRun", "CommunismMode", "DwThreadsCount", "GameLang", "LaunchParameters", "RunAsAdmin", "UseBattlEye" };
         private static readonly Dictionary<string, string> Data = new Dictionary<string, string>();
+        internal static bool AutoRetry { get => bool.Parse(Data["AutoRetry"]); set => Data["AutoRetry"] = value.ToString(); }
         internal static bool CloseOnGameRun { get => bool.Parse(Data["CloseOnGameRun"]); set => Data["CloseOnGameRun"] = value.ToString(); }
         internal static bool CommunismMode { get => bool.Parse(Data["CommunismMode"]); set => Data["CommunismMode"] = value.ToString(); }
         internal static bool RunAsAdmin { get => bool.Parse(Data["RunAsAdmin"]); set => Data["RunAsAdmin"] = value.ToString(); }
@@ -54,6 +55,7 @@ namespace TEKLauncher.Data
                     }
             else
                 Directory.CreateDirectory(AppDataFolder);
+            InitializeSetting("AutoRetry", bool.FalseString);
             InitializeSetting("CloseOnGameRun", bool.FalseString);
             InitializeSetting("CommunismMode", bool.FalseString);
             InitializeSetting("DwThreadsCount", "6");

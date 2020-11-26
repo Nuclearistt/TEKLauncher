@@ -20,7 +20,7 @@ namespace TEKLauncher.Utils
         }
         internal CRC32() => CRCHash = 0xFFFFFFFFU;
         private uint CRCHash;
-        private static readonly uint[] Table = new uint[256];
+        internal static readonly uint[] Table = new uint[256];
         public override int HashSize => 32;
         protected override void HashCore(byte[] Buffer, int Offset, int Length)
         {

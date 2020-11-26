@@ -42,6 +42,7 @@ namespace TEKLauncher.SteamInterop.Network
         private string BaseDownloadPath;
         private CancellationTokenSource Cancellator;
         private CDNClient CDNClient;
+        private List<string> FilesToDelete;
         internal bool IsDownloading = false, IsValidating = false;
         internal int FilesMissing, FilesOutdated, FilesUpToDate;
         internal long DownloadSize, InstallSize;
@@ -175,6 +176,9 @@ namespace TEKLauncher.SteamInterop.Network
                     }
                     Progress.Increase();
                 }
+                if (!(FilesToDelete is null))
+                    foreach (string File in FilesToDelete)
+                        DeletePath($@"{BaseLocalPath}\{File}");
                 string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-";
                 DeletePath($@"{DownloadsDirectory}\{ItemCompound}{LatestManifestID}.vcache");
                 DeleteDirectory(BaseDownloadPath);
@@ -329,6 +333,9 @@ namespace TEKLauncher.SteamInterop.Network
                 int Difference = OldFile.Name.CompareTo(File.Name);
                 if (Difference < 0)
                 {
+                    if (FilesToDelete is null)
+                        FilesToDelete = new List<string>();
+                    FilesToDelete.Add(OldFile.Name);
                     Offset--;
                     continue;
                 }
@@ -370,6 +377,12 @@ namespace TEKLauncher.SteamInterop.Network
                         Changes.Add(ChangeFile);
                     }
                 }
+            }
+            for (int Iterator1 = Iterator; Iterator1 < OldFilesCount; Iterator1++)
+            {
+                if (FilesToDelete is null)
+                    FilesToDelete = new List<string>();
+                FilesToDelete.Add(OldManifest.Files[Iterator1].Name);
             }
             for (int Iterator1 = Iterator + Offset; Iterator1 < FilesCount; Iterator1++)
             {
@@ -496,6 +509,7 @@ namespace TEKLauncher.SteamInterop.Network
                 DepotLocks[DepotID] = true;
             ValidationFailed = false;
             Cancellator = new CancellationTokenSource();
+            FilesToDelete = null;
             FilesUpToDate = FilesOutdated = FilesMissing = 0;
             InstallSize = DownloadSize = 0L;
             SetStatus("Connecting to Steam network...", YellowBrush);
@@ -513,6 +527,9 @@ namespace TEKLauncher.SteamInterop.Network
                     if (!(DepotID == 346111U ? Directory.Exists($@"{Game.Path}\ShooterGame") : DLCs.Where(DLC => DLC.DepotID == DepotID).FirstOrDefault()?.IsInstalled ?? true))
                     {
                         Changes = CDNClient.GetManifests(LatestManifestID, out _).Files;
+                        FilesMissing = Changes.Count;
+                        DownloadSize = Changes.Sum(File => File.Chunks.Sum(Chunk =>(long)Chunk.CompressedSize));
+                        InstallSize = Changes.Sum(File => File.Size);
                         Log("Installation not found, staging the entire manifest file listing to be installed");
                     }
                     else if ((Changes = ReadValidationCache(out bool IsIncomplete)) is null)
@@ -600,6 +617,7 @@ namespace TEKLauncher.SteamInterop.Network
             this.SpacewarID = SpacewarID;
             ValidationFailed = false;
             Cancellator = new CancellationTokenSource();
+            FilesToDelete = null;
             FilesUpToDate = FilesOutdated = FilesMissing = 0;
             InstallSize = DownloadSize = 0L;
             BaseDownloadPath = $@"{DownloadsDirectory}\{DepotID}.{this.ModID = ModID}";

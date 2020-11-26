@@ -19,6 +19,7 @@ using static System.Windows.DataObject;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.Data.Settings;
 using static TEKLauncher.Net.ARKdictedData;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.UI.Message;
@@ -48,6 +49,7 @@ namespace TEKLauncher.Pages
         }
         private void DownloadJob()
         {
+            Beginning:
             try { Downloader.DownloadMod(ARKModID, SpacewarModID, ref ARKModDetails, ref SpacewarModDetails); }
             catch (Exception Exception)
             {
@@ -55,12 +57,17 @@ namespace TEKLauncher.Pages
                 if (Exception is AggregateException)
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
-                    Dispatcher.Invoke(() =>
-                    {
-                        SetStatus($"Error: {Exception.Message}", DarkRed);
-                        FinishHandler();
-                        DeletePath($@"{Game.Path}\ShooterGame\Content\Mods\{SpacewarModID}");
-                    });
+                {
+                    if (Exception.Message == "Download failed" && AutoRetry)
+                        goto Beginning;
+                    else
+                        Dispatcher.Invoke(() =>
+                        {
+                            SetStatus($"Error: {Exception.Message}", DarkRed);
+                            FinishHandler();
+                            DeletePath($@"{Game.Path}\ShooterGame\Content\Mods\{SpacewarModID}");
+                        });
+                }
                 else
                 {
                     WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\n{Exception.StackTrace}");
@@ -153,7 +160,7 @@ namespace TEKLauncher.Pages
                     SetStatus("Requesting mods details", YellowBrush);
                     string Message = null;
                     ModDetails[] Details = await GetModsDetailsAsync(ARKModID, SpacewarModID);
-                    if ((Details?.Length ?? 0) == 0)
+                    if ((Details?.Length ?? 0) < 2)
                         Message = "Failed to request mods details, try again";
                     else if (Details[0].Status == 2)
                         Message = "ARK mod with selected ID doesn't exist";

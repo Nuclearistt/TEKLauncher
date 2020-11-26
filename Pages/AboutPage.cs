@@ -27,6 +27,8 @@ namespace TEKLauncher.Pages
                     Features.Text = Reader.ReadToEnd();
                 }
             }
+            DownloadLink.Tag = GDriveLauncherFile;
+            PatreonLink.Tag = Patreon;
             ArkoudaLink.Tag = DiscordArkouda;
             ARKdictedLink.Tag = DiscordARKdicted;
         }

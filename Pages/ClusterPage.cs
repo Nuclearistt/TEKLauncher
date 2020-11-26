@@ -6,6 +6,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using TEKLauncher.Controls;
 using TEKLauncher.Servers;
+using TEKLauncher.Windows;
+using static System.Windows.Application;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
@@ -16,90 +18,98 @@ namespace TEKLauncher.Pages
 {
     public partial class ClusterPage : Page
     {
-        internal ClusterPage(in Cluster Cluster)
+        internal ClusterPage(Cluster Cluster)
         {
             InitializeComponent();
             this.Cluster = Cluster;
-            string Mode = Cluster.IsPvE ? "PvE" : "PvP";
-            ClusterName.Text = $"{Cluster.Name} {Mode} cluster";
-            Hoster.Text = $"Hosted by {Cluster.Hoster}";
             foreach (Server Server in Cluster.Servers)
                 ServersList.Children.Add(new ServerItem(Server));
             ServersSynchronizer = new Timer(Callback, null, 0, 1000);
-            foreach (KeyValuePair<string, string> InfoBlock in Cluster.Info)
+            if (Cluster.Name == "Your servers")
             {
-                if (InfoBlock.Key != string.Empty)
-                    InfoStack.Children.Add(new TextBlock
-                    {
-                        Margin = new Thickness(0D, 10D, 0D, 0D),
-                        Foreground = (SolidColorBrush)FindResource("BrightBrush"),
-                        FontSize = 28,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        Text = InfoBlock.Key
-                    });
-                InfoStack.Children.Add(new Border
-                {
-                    Margin = new Thickness(0D, 5D, 0D, 0D),
-                    Padding = new Thickness(50D, 10D, 50D, 10D),
-                    Background = (SolidColorBrush)FindResource("DarkestDarkBrush"),
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    CornerRadius = new CornerRadius(20D),
-                    Child = new TextBlock
-                    {
-                        Foreground = (SolidColorBrush)FindResource("BrightGrayBrush"),
-                        FontSize = 20,
-                        Text = InfoBlock.Value
-                    }
-                });
+                ClusterName.Text = "Your servers";
+                MenuBorder.Visibility = Visibility.Collapsed;
             }
-            ulong[] SubscribedMods = new ulong[0];
-            if (Cluster.Mods is null)
-                ModsRadioButton.Visibility = Visibility.Collapsed;
             else
             {
-                if (TryDeploy())
-                    SubscribedMods = SteamAPI.GetSubscribedMods();
-                foreach (KeyValuePair<string, Dictionary<ulong, string>> Mods in Cluster.Mods)
+                string Mode = Cluster.IsPvE ? "PvE" : "PvP";
+                ClusterName.Text = $"{Cluster.Name} {Mode} cluster";
+                Hoster.Text = $"Hosted by {Cluster.Hoster}";
+                foreach (KeyValuePair<string, string> InfoBlock in Cluster.Info)
                 {
-                    if (Mods.Key != string.Empty)
-                        ModsList.Children.Add(new TextBlock
+                    if (InfoBlock.Key != string.Empty)
+                        InfoStack.Children.Add(new TextBlock
                         {
                             Margin = new Thickness(0D, 10D, 0D, 0D),
                             Foreground = (SolidColorBrush)FindResource("BrightBrush"),
                             FontSize = 28,
                             HorizontalAlignment = HorizontalAlignment.Center,
-                            Text = Mods.Key
+                            Text = InfoBlock.Key
                         });
-                    foreach (KeyValuePair<ulong, string> Mod in Mods.Value)
+                    InfoStack.Children.Add(new Border
                     {
-                        StackPanel Stack = new StackPanel();
-                        Stack.Children.Add(new TextBlock
+                        Margin = new Thickness(0D, 5D, 0D, 0D),
+                        Padding = new Thickness(50D, 10D, 50D, 10D),
+                        Background = (SolidColorBrush)FindResource("DarkestDarkBrush"),
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        CornerRadius = new CornerRadius(20D),
+                        Child = new TextBlock
                         {
-                            Foreground = (SolidColorBrush)FindResource("BrightBrush"),
-                            FontSize = 24,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Text = Mod.Value
-                        });
-                        Button SubscribeButton = new Button
-                        {
-                            Template = (ControlTemplate)FindResource("SubscribeButton"),
                             Foreground = (SolidColorBrush)FindResource("BrightGrayBrush"),
                             FontSize = 20,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            IsEnabled = !SubscribedMods.Contains(Mod.Key),
-                            Tag = Mod.Key,
-                            Content = SubscribedMods.Contains(Mod.Key) ? "Subscribed" : "Subscribe"
-                        };
-                        SubscribeButton.Click += Subscribe;
-                        Stack.Children.Add(SubscribeButton);
-                        ModsList.Children.Add(new Border
+                            Text = InfoBlock.Value
+                        }
+                    });
+                }
+                if (Cluster.Mods is null)
+                    ModsRadioButton.Visibility = Visibility.Collapsed;
+                else
+                {
+                    ulong[] SubscribedMods = new ulong[0];
+                    if (TryDeploy())
+                        SubscribedMods = SteamAPI.GetSubscribedMods();
+                    foreach (KeyValuePair<string, Dictionary<ulong, string>> Mods in Cluster.Mods)
+                    {
+                        if (Mods.Key != string.Empty)
+                            ModsList.Children.Add(new TextBlock
+                            {
+                                Margin = new Thickness(0D, 10D, 0D, 0D),
+                                Foreground = (SolidColorBrush)FindResource("BrightBrush"),
+                                FontSize = 28,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                Text = Mods.Key
+                            });
+                        foreach (KeyValuePair<ulong, string> Mod in Mods.Value)
                         {
-                            Margin = new Thickness(60D, 5D, 60D, 0D),
-                            Padding = new Thickness(0D, 10D, 0D, 10D),
-                            Background = (SolidColorBrush)FindResource("DarkestDarkBrush"),
-                            CornerRadius = new CornerRadius(20D),
-                            Child = Stack
-                        });
+                            StackPanel Stack = new StackPanel();
+                            Stack.Children.Add(new TextBlock
+                            {
+                                Foreground = (SolidColorBrush)FindResource("BrightBrush"),
+                                FontSize = 24,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                Text = Mod.Value
+                            });
+                            Button SubscribeButton = new Button
+                            {
+                                Template = (ControlTemplate)FindResource("SubscribeButton"),
+                                Foreground = (SolidColorBrush)FindResource("BrightGrayBrush"),
+                                FontSize = 20,
+                                HorizontalAlignment = HorizontalAlignment.Center,
+                                IsEnabled = !SubscribedMods.Contains(Mod.Key),
+                                Tag = Mod.Key,
+                                Content = SubscribedMods.Contains(Mod.Key) ? "Subscribed" : "Subscribe"
+                            };
+                            SubscribeButton.Click += Subscribe;
+                            Stack.Children.Add(SubscribeButton);
+                            ModsList.Children.Add(new Border
+                            {
+                                Margin = new Thickness(60D, 5D, 60D, 0D),
+                                Padding = new Thickness(0D, 10D, 0D, 10D),
+                                Background = (SolidColorBrush)FindResource("DarkestDarkBrush"),
+                                CornerRadius = new CornerRadius(20D),
+                                Child = Stack
+                            });
+                        }
                     }
                 }
             }
@@ -107,6 +117,11 @@ namespace TEKLauncher.Pages
         ~ClusterPage() => ServersSynchronizer?.Dispose();
         private readonly Timer ServersSynchronizer;
         internal readonly Cluster Cluster;
+        private void AddServer(object Sender, RoutedEventArgs Args)
+        {
+            if (!Current.Windows.OfType<AddServerWindow>().Any())
+                new AddServerWindow().Show();
+        }
         private void Callback(object State) => Dispatcher.Invoke(SyncServers);
         private void GoBack(object Sender, RoutedEventArgs Args) => Instance.MWindow.PageFrame.Content = new ServersPage();
         private void JoinDiscord(object Sender, RoutedEventArgs Args) => Execute(Cluster.Discord);
@@ -141,7 +156,8 @@ namespace TEKLauncher.Pages
                 ServerItem Item = (ServerItem)ServersList.Children[Iterator];
                 Item.Status.Foreground = Server.IsLoaded ? Server.IsOnline ? DarkGreen : DarkRed : Yellow;
                 Item.Status.Text = Server.IsLoaded ? Server.IsOnline ? "Online" : "Offline" : "Loading...";
-                Item.Players.Text = $"{Server.PlayersOnline}/{Cluster.PlayersLimit}";
+                int MaxPlayers = Cluster.Discord is null ? Server.MaxPlayers : Cluster.PlayersLimit;
+                Item.Players.Text = $"{Server.PlayersOnline}/{MaxPlayers}";
                 Item.RefreshWarning();
                 Item.JoinButton.IsEnabled = Server.IsLoaded && Server.IsOnline && Item.DLCInstalled;
             }

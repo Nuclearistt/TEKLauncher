@@ -4,6 +4,8 @@ using TEKLauncher.ARK;
 using TEKLauncher.Servers;
 using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.ARK.Game;
+using static TEKLauncher.ARK.UserServers;
+using static TEKLauncher.Servers.ClustersManager;
 
 namespace TEKLauncher.Controls
 {
@@ -14,6 +16,8 @@ namespace TEKLauncher.Controls
             InitializeComponent();
             this.Server = Server;
             ServerName.Text = Server.Name;
+            if (Server.MaxPlayers == 0)
+                DeleteButton.Visibility = Visibility.Collapsed;
             if (Server.Code > MapCode.TheIsland && Server.Code < MapCode.Mod && !GetDLC(Server.Code).IsInstalled)
             {
                 DLCInstalled = false;
@@ -23,6 +27,12 @@ namespace TEKLauncher.Controls
         }
         private readonly Server Server;
         internal readonly bool DLCInstalled = true;
+        private void Delete(object Sender, RoutedEventArgs Args)
+        {
+            UServers.Remove(Server);
+            Clusters[5].Servers = UServers.ToArray();
+            ((Panel)Parent).Children.Remove(this);
+        }
         private void Join(object Sender, RoutedEventArgs Args) => Launch(Server);
         internal void RefreshWarning()
         {

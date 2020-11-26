@@ -15,6 +15,7 @@ using static System.Windows.Application;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.Game;
+using static TEKLauncher.Data.Settings;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
 
@@ -184,6 +185,7 @@ namespace TEKLauncher.Windows
         }
         private void UpdateJob(object DoValidate)
         {
+            Beginning:
             try
             {
                 if (Mod is null)
@@ -197,11 +199,16 @@ namespace TEKLauncher.Windows
                 if (Exception is AggregateException)
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
-                    Dispatcher.Invoke(() =>
-                    {
-                        SetStatus($"Error: {Exception.Message}", DarkRed);
-                        FinishHandler();
-                    });
+                {
+                    if (Exception.Message == "Download failed" && AutoRetry)
+                        goto Beginning;
+                    else
+                        Dispatcher.Invoke(() =>
+                        {
+                            SetStatus($"Error: {Exception.Message}", DarkRed);
+                            FinishHandler();
+                        });
+                }
                 else
                 {
                     WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\n{Exception.StackTrace}");

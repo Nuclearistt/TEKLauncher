@@ -10,7 +10,6 @@ using TEKLauncher.Data;
 using TEKLauncher.Net;
 using TEKLauncher.SteamInterop.Network.Manifest;
 using TEKLauncher.Utils;
-using static System.Array;
 using static System.TimeSpan;
 using static System.IO.File;
 using static System.Threading.Tasks.Task;
@@ -108,17 +107,16 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                         Writer.Position = Position = Chunk.Offset;
                     byte[] Data = new byte[Chunk.UncompressedSize];
                     Writer.Read(Data, 0, Chunk.UncompressedSize);
-                    if (ComputeAdlerHash(Data) == Chunk.Checksum)
-                        lock (ProgressLock)
-                            Progress.Increase(Chunk.CompressedSize);
-                    else
+                    if (ComputeAdlerHash(Data) != Chunk.Checksum)
                     {
                         Data = DownloadChunk(Chunk, Offset);
+                        if (Data is null)
+                            return;
                         Writer.Position = Position;
                         Writer.Write(Data, 0, Chunk.UncompressedSize);
-                        lock (ProgressLock)
-                            Progress.Increase(Chunk.CompressedSize);
                     }
+                    lock (ProgressLock)
+                        Progress.Increase(Chunk.CompressedSize);
                 }
             }
         }
@@ -130,6 +128,8 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 byte[] Data;
                 try { Data = Downloader.GetByteArrayAsync($"{BaseURLs[CDNIndex]}chunk/{ID}").Result; }
                 catch { Data = null; }
+                if (Token.IsCancellationRequested)
+                    return null;
                 if (Data is null || Data.Length != Chunk.CompressedSize)
                     continue;
                 try
@@ -143,22 +143,27 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 return Data;
             }
             for (int Index = 0; Index < ThreadsCount; Index++)
-                for (int AttemptsCount = 0; AttemptsCount < 5; AttemptsCount++)
+            {
+                byte[] Data;
+                try { Data = Downloader.GetAsync($"{BaseURLs[Index]}chunk/{ID}", Token).Result.Content.ReadAsByteArrayAsync().Result; }
+                catch { Data = null; }
+                if (Data is null || Data.Length != Chunk.CompressedSize)
+                    continue;
+                try { Data = AESDecrypt(Data, DepotKey); }
+                catch { Message = "Failed to decrypt chunk"; continue; }
+                try { Data = Data[0] == 'V' && Data[1] == 'Z' ? Decompressor.Decompress(Data, CDNIndex) : Zip.Decompress(Data); }
+                catch { Message = "Failed to decompress chunk"; continue; }
+                if (ComputeAdlerHash(Data) != Chunk.Checksum)
                 {
-                    byte[] Data;
-                    try { Data = Downloader.GetByteArrayAsync($"{BaseURLs[Index]}chunk/{ID}").Result; }
-                    catch { Data = null; }
-                    if (Data is null || Data.Length != Chunk.CompressedSize)
-                        continue;
-                    try { Data = AESDecrypt(Data, DepotKey); }
-                    catch { Message = "Failed to decrypt chunk"; continue; }
-                    try { Data = Data[0] == 'V' && Data[1] == 'Z' ? Decompressor.Decompress(Data, CDNIndex) : Zip.Decompress(Data); }
-                    catch { Message = "Failed to decompress chunk"; continue; }
-                    if (ComputeAdlerHash(Data) != Chunk.Checksum)
-                        continue;
-                    return Data;
+                    Message = "Encountered corrupted chunk";
+                    continue;
                 }
-            Log($"Failed to download chunk {ID} for depot {DepotID}");
+                return Data;
+            }
+            string LogEntry = $"Failed to download chunk {ID} for depot {DepotID}";
+            if (!(Message is null))
+                LogEntry += $": {Message}";
+            Log(LogEntry);
             DownloadFailed = true;
             throw new ValidatorException(Message ?? "Download failed");
         }
@@ -191,7 +196,7 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 }
                 else
                 {
-                    Log("Found old manifest in the directory, reading...");
+                    Log($"Found old manifest ({Path.GetFileName(ManifestFiles[0]).Split('-')[0]}) in the directory, reading...");
                     SetStatus("Reading old manifest", YellowBrush);
                     OldManifest = new DepotManifest(ManifestFiles[0], DepotID);
                     Log("Finished reading old manifest");

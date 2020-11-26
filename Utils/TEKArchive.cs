@@ -1,11 +1,11 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using pdj.tiny7z.Compression;
 using static System.BitConverter;
 using static System.IO.File;
 using static System.Text.Encoding;
 using static System.Threading.Tasks.Task;
-using pdj.tiny7z.Compression;
 
 namespace TEKLauncher.Utils
 {
@@ -13,8 +13,8 @@ namespace TEKLauncher.Utils
     {
         private static bool DecompressArchive(object Args)
         {
-            object[] ArgsArray = (object[])Args;
-            return DecompressArchive((string)ArgsArray[0], (string)ArgsArray[1]);
+            string[] ArgsArray = (string[])Args;
+            return DecompressArchive(ArgsArray[0], ArgsArray[1]);
         }
         internal static bool DecompressArchive(string ArchivePath, string DestinationDirectory)
         {
@@ -28,8 +28,7 @@ namespace TEKLauncher.Utils
                 Reader.Position = 4L;
                 using (MemoryStream Stream = new MemoryStream())
                 {
-                    using (Lzma2DecoderStream DS = new Lzma2DecoderStream(Reader, (byte)Reader.ReadByte(), long.MaxValue))
-                        DS.CopyTo(Stream);
+                    DecompressSingleFile(Reader, Stream);
                     Stream.Position = 0L;
                     while (Stream.Position != Stream.Length)
                     {

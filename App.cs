@@ -24,6 +24,7 @@ using static System.Threading.ThreadPool;
 using static System.Windows.FrameworkElement;
 using static Microsoft.Win32.Registry;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.ARK.UserServers;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Net.ARKdictedData;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
@@ -36,7 +37,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "7.0.58.1";
+        internal const string Version = "7.1.59.0";
         private App()
         {
             CurrentThread.CurrentCulture = CurrentThread.CurrentUICulture = new CultureInfo("en-US");
@@ -46,7 +47,7 @@ namespace TEKLauncher
                 SecurityProtocol = SecurityProtocolType.Tls12;
             }
             using (NamedPipeClientStream PipeClient = new NamedPipeClientStream(".", "TEKLauncher", PipeDirection.Out))
-                try { PipeClient.Connect(250); Current.Shutdown(); }
+                try { PipeClient.Connect(250); PipeClient.Close(); Current.Shutdown(); }
                 catch (TimeoutException) { }
             PipeServer = new NamedPipeServerStream("TEKLauncher", PipeDirection.In);
             SetDLLDirectory(AppDataFolder);
@@ -87,7 +88,7 @@ namespace TEKLauncher
         internal static bool InstallMode = false;
         internal static string DownloadsDirectory, ManifestsDirectory;
         internal static SolidColorBrush YellowBrush;
-        internal static readonly string AppDataFolder = $@"{ GetFolderPath(SpecialFolder.ApplicationData)}\TEK Launcher";
+        internal static readonly string AppDataFolder = $@"{GetFolderPath(SpecialFolder.ApplicationData)}\TEK Launcher";
         internal object CurrentPage => MWindow?.PageFrame?.Content;
         internal static App Instance => (App)Current;
         private void CheckTrackerInfo(object State)
@@ -114,15 +115,15 @@ namespace TEKLauncher
             Exception Exception = Args.Exception;
             if (Exception is AggregateException)
                 Exception = Exception.InnerException;
-            File.WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\n{Exception.StackTrace}");
+            File.WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\r\n{Exception.StackTrace}");
             new CrashWindow(Exception).ShowDialog();
             Args.Handled = true;
             Shutdown();
         }
         private void ExitHandler(object Sender, ExitEventArgs Args)
         {
-            MWindow?.SettingsPage?.SteamDownloader.Pause();
-            MWindow?.ModInstallerPage?.Downloader.Pause();
+            MWindow?.SettingsPage?.SteamDownloader?.Pause();
+            MWindow?.ModInstallerPage?.Downloader?.Pause();
             foreach (ValidatorWindow DLCWindow in Windows.OfType<ValidatorWindow>())
             {
                 DLCWindow.Shutdown = true;
@@ -132,7 +133,9 @@ namespace TEKLauncher
             Disconnect();
             Close();
             Retract();
+            SaveList();
             Settings.Save();
+            Environment.Exit(0);
         }
         private void ShowChangelog()
         {
@@ -149,6 +152,7 @@ namespace TEKLauncher
             Steam.Initialize();
             Game.Initialize();
             LaunchParameters.Initialize();
+            LoadList();
             QueueUserWorkItem(FetchSpacewarIDs);
             QueueUserWorkItem(LoadModsDetails);
             QueueUserWorkItem(LoadServers);

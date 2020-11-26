@@ -14,8 +14,11 @@ namespace TEKLauncher.Controls
             InitializeComponent();
             this.Cluster = Cluster;
             ClusterName.Text = Cluster.Name;
-            Mode.Foreground = Cluster.IsPvE ? DarkGreen : DarkRed;
-            Mode.Text = Cluster.IsPvE ? "PvE" : "PvP";
+            if (!(Cluster.Discord is null))
+            {
+                Mode.Foreground = Cluster.IsPvE ? DarkGreen : DarkRed;
+                Mode.Text = Cluster.IsPvE ? "PvE" : "PvP";
+            }
         }
         internal readonly Cluster Cluster;
         private void OpenPage(object Sender, RoutedEventArgs Args) => Instance.MWindow.PageFrame.Content = new ClusterPage(Cluster);

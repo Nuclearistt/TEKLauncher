@@ -22,8 +22,50 @@ namespace TEKLauncher.Net
 {
     internal class ArkoudaQuery
     {
-        private IPAddress ArkoudaIP;
+        private bool Expired;
+        private List<IPAddress> IPs;
         internal readonly Dictionary<MapCode, byte[]> Checksums = new Dictionary<MapCode, byte[]>(9);
+        private void ReadHashes(MemoryStream Stream, int Count)
+        {
+            for (int Iterator = 0; Iterator < Count; Iterator++)
+            {
+                byte[] Buffer = new byte[20];
+                Stream.Read(Buffer, 0, 20);
+                Checksums.Add((MapCode)Iterator, Buffer);
+            }
+        }
+        private void ReadIPs(MemoryStream Stream, int Count)
+        {
+            byte[] Buffer = new byte[4];
+            for (; Count > 0; Count--)
+            {
+                Stream.Read(Buffer, 0, 4);
+                IPs.Add(new IPAddress(Buffer));
+            }    
+        }
+        private void ReadServers(MemoryStream Stream)
+        {
+            int ServersCount = Stream.ReadByte();
+            Clusters[0].Servers = new Server[ServersCount];
+            for (int Iterator = 0; Iterator < ServersCount; Iterator++)
+            {
+                int IPIndex = Stream.ReadByte();
+                MapCode Map = (MapCode)Stream.ReadByte();
+                byte[] Buffer = new byte[2];
+                Stream.Read(Buffer, 0, 2);
+                int Port = ToUInt16(Buffer, 0), PlayersCount = Stream.ReadByte(), CustomNameLength = Stream.ReadByte();
+                if (PlayersCount == 255 || Expired)
+                    PlayersCount = -1;
+                string CustomName = null;
+                if (CustomNameLength != 0)
+                {
+                    Stream.Read(Buffer = new byte[CustomNameLength], 0, CustomNameLength);
+                    CustomName = UTF8.GetString(Buffer);
+                }
+                (Clusters[0].Servers[Iterator] = new Server(IPs[IPIndex], Map, Port, CustomName)).Refresh(PlayersCount);
+            }
+            Current.Dispatcher.Invoke(RefreshClusterPage);
+        }
         private void RefreshClusterPage()
         {
             if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 0)
@@ -33,24 +75,6 @@ namespace TEKLauncher.Net
                     Page.ServersList.Children.Add(new ServerItem(Server));
             }
         }
-        private Server ReadServer(MemoryStream Stream)
-        {
-            MapCode Map = (MapCode)Stream.ReadByte();
-            byte[] Buffer = new byte[2];
-            Stream.Read(Buffer, 0, 2);
-            int Port = ToUInt16(Buffer, 0), PlayersCount = Stream.ReadByte(), CustomNameLength = Stream.ReadByte();
-            if (PlayersCount == 255)
-                PlayersCount = -1;
-            string CustomName = null;
-            if (CustomNameLength != 0)
-            {
-                Stream.Read(Buffer = new byte[CustomNameLength], 0, CustomNameLength);
-                CustomName = UTF8.GetString(Buffer);
-            }
-            Server Server = new Server(ArkoudaIP, Map, Port, CustomName);
-            Server.Refresh(PlayersCount);
-            return Server;
-        }
         internal bool Request()
         {
             byte[] Query = new Downloader().TryDownloadData(Links.ArkoudaQuery);
@@ -58,26 +82,38 @@ namespace TEKLauncher.Net
                 return false;
             try
             {
-                using (MemoryStream Stream = new MemoryStream(Query))
+                using (MemoryStream Reader = new MemoryStream(Query))
                 {
-                    byte[] Buffer = new byte[4];
-                    Stream.Read(Buffer, 0, 4);
-                    ArkoudaIP = new IPAddress(Buffer);
-                    int ServersCount = Stream.ReadByte();
-                    Clusters[0].Servers = new Server[ServersCount];
-                    for (int Iterator = 0; Iterator < ServersCount; Iterator++)
-                        Clusters[0].Servers[Iterator] = ReadServer(Stream);
-                    Stream.Position++;
-                    Stream.Read(Buffer = new byte[8], 0, 8);
-                    if (UtcNow.Ticks > ToInt64(Buffer, 0))
-                        foreach (Server Server in Clusters[0].Servers)
-                            Server.Refresh(-1);
-                    Current.Dispatcher.Invoke(RefreshClusterPage);
-                    for (MapCode Iterator = MapCode.TheIsland; Stream.Position < Stream.Length; Iterator++)
+                    byte[] Buffer = new byte[8];
+                    Reader.Read(Buffer, 0, 8);
+                    Expired = UtcNow.Ticks > ToInt64(Buffer, 0);
+                    int SectionIndex;
+                    while ((SectionIndex = Reader.ReadByte()) != -1)
                     {
-                        Buffer = new byte[20];
-                        Stream.Read(Buffer, 0, 20);
-                        Checksums.Add((MapCode)Iterator, Buffer);
+                        Reader.Read(Buffer, 0, 2);
+                        int BufferSize = ToInt16(Buffer, 0);
+                        byte[] DataBuffer = new byte[BufferSize];
+                        Reader.Read(DataBuffer, 0, BufferSize);
+                        switch (SectionIndex)
+                        {
+                            case 0:
+                                int IPsCount = BufferSize / 4;
+                                IPs = new List<IPAddress>(IPsCount);
+                                using (MemoryStream Stream = new MemoryStream(DataBuffer))
+                                    try { ReadIPs(Stream, IPsCount); }
+                                    catch { }
+                                break;
+                            case 1:
+                                using (MemoryStream Stream = new MemoryStream(DataBuffer))
+                                    try { ReadServers(Stream); }
+                                    catch { }
+                                break;
+                            case 2:
+                                using (MemoryStream Stream = new MemoryStream(DataBuffer))
+                                    try { ReadHashes(Stream, BufferSize / 20); }
+                                    catch { }
+                                break;
+                        }
                     }
                 }
                 return true;

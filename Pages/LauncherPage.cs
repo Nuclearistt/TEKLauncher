@@ -19,6 +19,7 @@ namespace TEKLauncher.Pages
         {
             InitializeComponent();
             GamePath.SetPath(Game.Path);
+            AutoRetry.IsChecked = Settings.AutoRetry;
             CloseOnGameRun.IsChecked = Settings.CloseOnGameRun;
             Communism.IsChecked = Settings.CommunismMode;
         }
@@ -55,6 +56,11 @@ namespace TEKLauncher.Pages
                 DeleteSettings = true;
                 Current.Shutdown();
             }
+        }
+        private void SetAutoRetry(object Sender, RoutedEventArgs Args)
+        {
+            if (IsLoaded)
+                Settings.AutoRetry = (bool)AutoRetry.IsChecked;
         }
         private void SetCloseOnGameRun(object Sender, RoutedEventArgs Args)
         {

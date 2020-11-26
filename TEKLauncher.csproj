@@ -150,6 +150,9 @@
     <Compile Include="SteamInterop\**"/>
     <Compile Include="UI\*.cs"/>
     <Compile Include="Utils\**"/>
+    <Compile Include="Windows\AddServerWindow.cs">
+      <DependentUpon>AddServerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ChangelogWindow.cs">
       <DependentUpon>ChangelogWindow.xaml</DependentUpon>
     </Compile>

@@ -2,6 +2,8 @@
 using System.Net;
 using System.Net.Sockets;
 using TEKLauncher.ARK;
+using static System.BitConverter;
+using static System.Text.Encoding;
 using static TEKLauncher.ARK.DLCManager;
 
 namespace TEKLauncher.Servers
@@ -16,12 +18,12 @@ namespace TEKLauncher.Servers
         }
         private IPEndPoint Endpoint;
         internal bool IsLoaded = false, IsOnline = false;
-        internal int PlayersOnline = 0;
+        internal int MaxPlayers, PlayersOnline = 0;
         private readonly string CustomName;
         internal readonly MapCode Code;
         internal string ConnectionLine => $"+connect {Endpoint.Address}:{Endpoint.Port}";
         internal string Name => CustomName ?? (Code == MapCode.TheIsland ? "The Island" : GetDLC(Code).Name);
-        private int ExecuteServerQuery()
+        private int GetPlayersCount()
         {
             using (UdpClient Client = new UdpClient())
             {
@@ -57,10 +59,20 @@ namespace TEKLauncher.Servers
         }
         internal void Refresh(int ArkoudaQuery = -2)
         {
-            int PlayersCount = ArkoudaQuery == -2 ? ExecuteServerQuery() : ArkoudaQuery;
+            int PlayersCount = ArkoudaQuery == -2 ? GetPlayersCount() : ArkoudaQuery;
             IsOnline = PlayersCount != -1;
             PlayersOnline = PlayersCount == -1 ? 0 : PlayersCount;
             IsLoaded = true;
+        }
+        internal void WriteToFile(FileStream File)
+        {
+            File.Write(Endpoint.Address.GetAddressBytes(), 0, 4);
+            File.WriteByte((byte)Code);
+            File.Write(GetBytes((ushort)Endpoint.Port), 0, 2);
+            File.WriteByte((byte)MaxPlayers);
+            byte[] EncodedName = UTF8.GetBytes(CustomName);
+            File.WriteByte((byte)EncodedName.Length);
+            File.Write(EncodedName, 0, EncodedName.Length);
         }
     }
 }

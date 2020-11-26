@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using static System.Diagnostics.Process;
 using static System.IO.File;
 using static System.Windows.Application;
 using static Microsoft.Win32.Registry;
@@ -14,7 +15,14 @@ namespace TEKLauncher.SteamInterop
         private static string LocalConfigFile;
         internal static bool IsARKPurchased = false;
         internal static string Path;
-        internal static bool IsRunning => (((int?)LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("SteamPID")) ?? 0) != 0;
+        internal static bool IsRunning
+        {
+            get
+            {
+                int PID = ((int?)LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("SteamPID")) ?? 0;
+                return PID != 0 && !(GetProcessById(PID) is null);
+            }
+        }
         internal static bool IsSpacewarInstalled => !(WorkshopPath is null);
         internal static string LaunchParameters
         {

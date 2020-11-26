@@ -32,6 +32,7 @@ namespace TEKLauncher.Data
                     GDriveLauncherFile = Reader.ReadLine();
                     GDriveLocalProfileFile = Reader.ReadLine();
                     GDriveVersionFile = Reader.ReadLine();
+                    Patreon = Reader.ReadLine();
                     Seedbox = Reader.ReadLine();
                     SteamWebAPI = Reader.ReadLine();
                     SupportChannel = Reader.ReadLine();
@@ -56,6 +57,7 @@ namespace TEKLauncher.Data
             GDriveLauncherFile,
             GDriveLocalProfileFile,
             GDriveVersionFile,
+            Patreon,
             Seedbox,
             SteamWebAPI,
             SupportChannel,

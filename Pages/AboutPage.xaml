@@ -25,7 +25,10 @@
             <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="24" Text="Links:"/>
             <StackPanel Margin="20, 0, 0, 0">
                 <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• Launcher's official ">
-                    <Hyperlink Foreground="{DynamicResource CyanBrush}" Tag="https://drive.google.com/uc?export=download&amp;id=1kK7Txax5u-bMKHQnQIRKgu-RRqaNyRNP" Click="FollowLink">download link</Hyperlink>
+                    <Hyperlink Name="DownloadLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">download link</Hyperlink>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">
+                    <Hyperlink Name="PatreonLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">Patreon</Hyperlink>
                 </TextBlock>
                 <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="Discord servers with TEK Launcher's news and support channels:"/>
                 <StackPanel Margin="20, 0, 0, 0">

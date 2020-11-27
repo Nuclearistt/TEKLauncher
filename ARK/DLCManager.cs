@@ -21,7 +21,10 @@ namespace TEKLauncher.ARK
         {
             Dictionary<MapCode, byte[]> Checksums = (Dictionary<MapCode, byte[]>)Parameter;
             foreach (DLC DLC in DLCs)
-                DLC.CheckForUpdates(Checksums[DLC.Code]);
+                if (Checksums.TryGetValue(DLC.Code, out byte[] Checksum))
+                    DLC.CheckForUpdates(Checksum);
+                else
+                    DLC.SetStatus(DLC.IsInstalled ? Status.Installed : Status.NotInstalled);
         }
         internal static DLC GetDLC(MapCode Code) => DLCs[(int)--Code];
         internal static Task CheckForUpdatesAsync(Dictionary<MapCode, byte[]> Checksums) => Factory.StartNew(CheckForUpdates, Checksums);

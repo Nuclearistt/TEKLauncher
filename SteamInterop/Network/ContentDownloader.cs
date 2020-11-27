@@ -151,6 +151,11 @@ namespace TEKLauncher.SteamInterop.Network
                     string DestinationPath = $@"{BaseLocalPath}\{File.Name}", SourcePath = $@"{BaseDownloadPath}\{File.Name}";
                     if (File.IsSliced)
                     {
+                        if (!FileExists(SourcePath))
+                        {
+                            Log($"Install failed for depot {DepotID}: {SourcePath} not found");
+                            throw new ValidatorException("Failed to install, download cache is incomplete");
+                        }
                         if (!Directory.Exists(Path.GetDirectoryName(DestinationPath)))
                             throw new ValidatorException("Installation is corrupted, validate instead");
                         using (FileStream Reader = OpenRead(SourcePath))
@@ -172,7 +177,12 @@ namespace TEKLauncher.SteamInterop.Network
                         if (FileExists(DestinationPath))
                             Delete(DestinationPath);
                         Directory.CreateDirectory(Path.GetDirectoryName(DestinationPath));
-                        Move(SourcePath, DestinationPath);
+                        try { Move(SourcePath, DestinationPath); }
+                        catch (IOException Exception)
+                        {
+                            Log($@"Install failed for depot {DepotID}: {Exception.Message} (""{SourcePath}"">""{DestinationPath}"")");
+                            throw new ValidatorException("Failed to install, get support in Discord");
+                        }
                     }
                     Progress.Increase();
                 }
@@ -636,8 +646,7 @@ namespace TEKLauncher.SteamInterop.Network
                     if (Changes is null)
                     {
                         DepotManifest LatestManifest = CDNClient.GetManifests(LatestManifestID, out OldManifest);
-                        Changes = DoValidate || OldManifest is null ? Validate(LatestManifest) : ComputeChanges(OldManifest, LatestManifest);
-                        if (Changes is null)
+                        if ((Changes = DoValidate || OldManifest is null ? Validate(LatestManifest) : ComputeChanges(OldManifest, LatestManifest)) is null)
                         {
                             IsValidating = false;
                             if (!ValidationFailed)
@@ -683,7 +692,7 @@ namespace TEKLauncher.SteamInterop.Network
                                 SetStatus("Installing update", YellowBrush);
                                 InstallChanges(Changes);
                                 SetStatus("Commiting installed changes", YellowBrush);
-                                Mods.Find(Mod => Mod.ID == SpacewarID).Install(Progress, ProgressBar);
+                                (Mods.Find(Mod => Mod.ID == SpacewarID) ?? new Mod($@"{Steam.WorkshopPath}\{SpacewarID}", null)).Install(Progress, ProgressBar);
                                 if (!(OldManifest is null) && FileExists(OldManifest.Path))
                                     Delete(OldManifest.Path);
                                 Log("Installation complete!");

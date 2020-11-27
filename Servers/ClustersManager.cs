@@ -174,12 +174,18 @@ namespace TEKLauncher.Servers
                 Name = "ARK Russia",
                 Info = new Dictionary<string, string>
                 {
-                    [string.Empty] = "Max wild dino lvl 240\n" +
+                    ["Both clusters"] = "Max wild dino lvl 240\n" +
                     "Taming 5x\n" +
                     "Experience 5x\n" +
                     "Harvesting 20x\n" +
                     "Stacks 10x\n" +
-                    "Newbies protection"
+                    "Newbies protection",
+                    ["Beginner cluster"] = "Breeding 10x\n" +
+                    "No diseases\n" +
+                    "Offline protection\n" +
+                    "8 players per tribe",
+                    ["10 Man cluster"] = "Breeding 5x\n" +
+                    "Night PvE"
                 },
                 Mods = null,
                 Servers = new[]

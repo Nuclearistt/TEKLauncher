@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using static System.Diagnostics.Process;
 using static System.IO.File;
@@ -20,7 +22,12 @@ namespace TEKLauncher.SteamInterop
             get
             {
                 int PID = ((int?)LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("SteamPID")) ?? 0;
-                return PID != 0 && !(GetProcessById(PID) is null);
+                if (PID == 0)
+                    return false;
+                Process SteamProcess;
+                try { SteamProcess = GetProcessById(PID); }
+                catch (ArgumentException) { SteamProcess = null; }
+                return !(SteamProcess is null);
             }
         }
         internal static bool IsSpacewarInstalled => !(WorkshopPath is null);

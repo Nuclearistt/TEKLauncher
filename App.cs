@@ -37,7 +37,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "7.1.59.0";
+        internal const string Version = "7.1.59.1";
         private App()
         {
             CurrentThread.CurrentCulture = CurrentThread.CurrentUICulture = new CultureInfo("en-US");

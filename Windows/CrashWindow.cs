@@ -46,7 +46,7 @@ namespace TEKLauncher.Windows
         {
             if (IsFrameworkCrash)
                 Status.Text = string.Empty;
-            else if (!(Error is COMException || Error is NotImplementedException || Error is UnauthorizedAccessException) && await Run(UploadCrash))
+            else if (!(Error is COMException || Error is NotImplementedException || Error is UnauthorizedAccessException || Error is OverflowException && Error.Message.Contains("image")) && await Run(UploadCrash))
             {
                 Status.Foreground = DarkGreen;
                 Status.Text = "Crash data was automatically sent to developer";

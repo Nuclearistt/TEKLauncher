@@ -5,7 +5,9 @@ using TEKLauncher.Data;
 using static System.Math;
 using static System.Windows.Media.Color;
 using static TEKLauncher.App;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Progress;
+using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.Controls
 {
@@ -14,6 +16,10 @@ namespace TEKLauncher.Controls
         public ProgressBar()
         {
             InitializeComponent();
+            if (LocCulture == "ar")
+                SpeedStack.FlowDirection = BytesProgressStack.FlowDirection = FlowDirection.RightToLeft;
+            BytesProgress.Text = LocString(LocCode.KB);
+            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.Second)}";
             Progress = new Progress(UpdateProgress);
         }
         private bool NumericMode = false, UnknownTotalMode = false;
@@ -31,12 +37,19 @@ namespace TEKLauncher.Controls
         {
             if (!UnknownTotalMode && Progress.Total < 1L)
                 SetUnknownTotalMode();
-            if (UnknownTotalMode)
+            if (NumericMode)
             {
-                Percentage.Text = Progress.BytesProgress;
-                Speed.Text = Progress.Speed;
+                BytesProgressValue.Text = Progress.Current.ToString();
+                BytesTotalValue.Text = Progress.Total.ToString();
             }
             else
+            {
+                BytesProgressValue.Text = ConvertBytesSep(Progress.Current, out string Unit);
+                BytesProgress.Text = Unit;
+                SpeedValue.Text = Progress.GetSpeed(out Unit);
+                Speed.Text = Unit;
+            }
+            if (!UnknownTotalMode)
             {
                 double Ratio = Progress.Ratio, Angle = 6.283185307179586D * Ratio;
                 ElementBorder.Fill = new SolidColorBrush(FromRgb((byte)(21D + 139D * Ratio), (byte)(21D + 79D * Ratio), (byte)(21D * (1D - Ratio))));
@@ -44,13 +57,11 @@ namespace TEKLauncher.Controls
                     Angle -= 0.0000001D;
                 Arc.IsLargeArc = Angle > PI;
                 Arc.Point = new Point(HalfWidth + (HalfWidth - 7D) * Sin(Angle), HalfHeight - (HalfHeight - 7D) * Cos(Angle));
-                if (NumericMode)
-                    Percentage.Text = $"{Progress.Current}/{Progress.Total}";
-                else
+                if (!NumericMode)
                 {
-                    BytesProgress.Text = Progress.BytesTotalProgress;
+                    BytesTotalValue.Text = ConvertBytesSep(Progress.Total, out string Unit);
+                    BytesTotal.Text = Unit;
                     Percentage.Text = Progress.Total > 104857600L ? Progress.PrecisePercentage : Progress.Percentage;
-                    Speed.Text = Progress.Speed;
                 }
             }
             ProgressUpdated?.Invoke();
@@ -70,25 +81,29 @@ namespace TEKLauncher.Controls
             Arc.IsLargeArc = true;
             double Angle = 6.283185207179586D;
             Arc.Point = new Point(HalfWidth + (HalfWidth - 7D) * Sin(Angle), HalfHeight - (HalfHeight - 7D) * Cos(Angle));
-            BytesProgress.Visibility = Visibility.Hidden;
-            Percentage.Text = "0 KB";
-            Speed.Text = "0 KB/s";
+            BytesProgress.FontSize = BytesProgressValue.FontSize = 38D;
+            BytesTotal.Text = BytesTotalValue.Text = Slash.Text = string.Empty;
+            Percentage.Visibility = Visibility.Collapsed;
+            SpeedValue.Text = "0";
+            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.Second)}";
         }
         internal void SetDownloadMode()
         {
             if (NumericMode || UnknownTotalMode)
             {
-                NumericMode = false;
-                UnknownTotalMode = false;
+                UnknownTotalMode = NumericMode = false;
                 ElementBorder.Fill = (SolidColorBrush)FindResource("DarkestDarkBrush");
                 ProgressLine.Stroke = (SolidColorBrush)FindResource("CyanBrush");
-                Speed.Visibility = BytesProgress.Visibility = Visibility.Visible;
+                BytesTotalValue.FontSize = Slash.FontSize = BytesProgress.FontSize = BytesProgressValue.FontSize = 20D;
+                SpeedStack.Visibility = Percentage.Visibility = BytesTotal.Visibility = BytesProgress.Visibility = Visibility.Visible;
             }
             Arc.IsLargeArc = false;
             Arc.Point = new Point(HalfWidth, 7D);
-            BytesProgress.Text = "0 KB";
+            SpeedValue.Text = BytesTotalValue.Text = BytesProgressValue.Text = "0";
+            BytesTotal.Text = BytesProgress.Text = LocString(LocCode.KB);
+            Slash.Text = "/";
             Percentage.Text = "0%";
-            Speed.Text = "0 KB/s";
+            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.Second)}";
             Progress.Current = 0L;
         }
         internal void SetNumericMode()
@@ -98,11 +113,14 @@ namespace TEKLauncher.Controls
                 NumericMode = true;
                 ElementBorder.Fill = (SolidColorBrush)FindResource("DarkestDarkBrush");
                 ProgressLine.Stroke = (SolidColorBrush)FindResource("OrangeBrush");
-                Speed.Visibility = BytesProgress.Visibility = Visibility.Hidden;
+                BytesTotalValue.FontSize = Slash.FontSize = BytesProgressValue.FontSize = 38D;
+                SpeedStack.Visibility = Percentage.Visibility = BytesTotal.Visibility = BytesProgress.Visibility = Visibility.Collapsed;
             }
             Arc.IsLargeArc = false;
             Arc.Point = new Point(HalfWidth, 7D);
-            Percentage.Text = $"0/{Progress.Total}";
+            BytesProgressValue.Text = "0";
+            Slash.Text = "/";
+            BytesTotalValue.Text = Progress.Total.ToString();
             Progress.Current = 0L;
         }
     }

@@ -10,8 +10,10 @@ using TEKLauncher.ARK;
 using TEKLauncher.Data;
 using TEKLauncher.Controls;
 using TEKLauncher.Net;
+using TEKLauncher.SteamInterop;
 using TEKLauncher.SteamInterop.Network;
 using TEKLauncher.Windows;
+using static System.Enum;
 using static System.Environment;
 using static System.Diagnostics.Process;
 using static System.IO.Directory;
@@ -19,11 +21,11 @@ using static System.Windows.Application;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.UI.Notifications;
 using static TEKLauncher.Utils.TEKArchive;
 using static TEKLauncher.Utils.UtilFunctions;
-using TEKLauncher.SteamInterop;
 
 namespace TEKLauncher.Pages
 {
@@ -32,6 +34,17 @@ namespace TEKLauncher.Pages
         public SettingsPage()
         {
             InitializeComponent();
+            if (LocCulture == "es")
+                foreach (Panel Stack in LPGrid.Children)
+                    foreach (CheckBox CB in Stack.Children)
+                        CB.FontSize = 18D;
+            else if (LocCulture == "ar")
+            {
+                StatusStack.FlowDirection = FlowDirection.RightToLeft;
+                foreach (Panel Stack in ValidationBlock.Children)
+                    Stack.FlowDirection = FlowDirection.RightToLeft;
+            }
+            UseGlobalFonts.IsChecked = Settings.UseGlobalFonts;
             foreach (Panel Stack in LPGrid.Children)
                 foreach (CheckBox Checkbox in Stack.Children)
                 {
@@ -47,10 +60,10 @@ namespace TEKLauncher.Pages
         private readonly Downloader Downloader;
         internal readonly ContentDownloader SteamDownloader;
         private void CheckParameter(object Sender, RoutedEventArgs Args) => LaunchParameters.Add((string)((FrameworkElement)Sender).Tag);
-        private void DownloadBeganHandler() => SetStatus($"Downloading {InstallingItem}", YellowBrush);
+        private void DownloadBeganHandler() => SetStatus(string.Format(LocString(LocCode.SPDownloading), InstallingItem), YellowBrush);
         private void FailedToDownload()
         {
-            SetStatus($"Failed to download {InstallingItem}. Try again later", DarkRed);
+            SetStatus(string.Format(LocString(LocCode.SPDownloadFailed), InstallingItem), DarkRed);
             SwitchButtons(true);
         }
         private void FinishHandler()
@@ -61,30 +74,30 @@ namespace TEKLauncher.Pages
         private async void FixBattlEye(object Sender, RoutedEventArgs Args)
         {
             if (Game.IsRunning)
-                AddImage("Can't fix BattlEye while game is running!", "Error");
+                AddImage(LocString(LocCode.CantFixBEGameRunning), "Error");
             else if (!FileExists(Game.BEExecutablePath))
-                AddImage("Can't fix BattlEye because ShooterGame_BE.exe is missing", "Error");
+                AddImage(LocString(LocCode.CantFixBEExeMissing), "Error");
             else
             {
-                InstallingItem = "BattlEye";
+                InstallingItem = LocString(LocCode.BattlEye);
                 PreparingToDownload();
                 string ArchivePath = $@"{AppDataFolder}\BattlEye.ta";
                 ProgressBar.SetDownloadMode();
-                if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{Seedbox}Extra/BattlEye.ta", GDriveBattlEyeFile))
+                if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}BattlEye.ta", GDriveBattlEyeFile))
                 {
                     Start(Game.BEExecutablePath, "4 0").WaitForExit();
                     DeletePath($@"{Game.Path}\ShooterGame\Binaries\Win64\BattlEye");
                     DeletePath($@"{GetFolderPath(SpecialFolder.ProgramFilesX86)}\Common Files\BattlEye\BEService_ark.exe");
                     DeletePath($@"{GetFolderPath(SpecialFolder.LocalApplicationData)}\BattlEye\ark");
-                    SetStatus("Extracting archive", YellowBrush);
+                    SetStatus(LocString(LocCode.ExtractingArchive), YellowBrush);
                     if (await DecompressArchiveAsync(ArchivePath, $@"{Game.Path}\ShooterGame\Binaries\Win64\BattlEye"))
                     {
                         File.Delete(ArchivePath);
                         Start(Game.BEExecutablePath, "1 0").WaitForExit();
-                        SetStatus("Successfully reinstalled BattlEye", DarkGreen);
+                        SetStatus(LocString(LocCode.BEFixSuccess), DarkGreen);
                     }
                     else
-                        SetStatus("Failed to extract archive, try again", DarkRed);
+                        SetStatus(LocString(LocCode.FailedToExtract), DarkRed);
                     SwitchButtons(true);
                 }
                 else
@@ -96,7 +109,7 @@ namespace TEKLauncher.Pages
         {
             if (Game.IsRunning)
             {
-                AddImage("Can't fix bloom while game is running!", "Error");
+                AddImage(LocString(LocCode.CantFixBloom), "Error");
                 return;
             }
             string BaseScalabilityIni = $@"{Game.Path}\Engine\Config\BaseScalability.ini";
@@ -108,22 +121,22 @@ namespace TEKLauncher.Pages
                         Lines[Iterator] = "r.BloomQuality=1";
                 File.WriteAllLines(BaseScalabilityIni, Lines);
             }
-            AddImage("Bloom has been fixed successfully", "Success");
+            AddImage(LocString(LocCode.BloomFixSuccess), "Success");
         }
         private async void InstallRequirements(object Sender, RoutedEventArgs Args)
         {
-            InstallingItem = "requirements";
+            InstallingItem = LocString(LocCode.Requirements);
             PreparingToDownload();
             string ArchivePath = $@"{AppDataFolder}\CommonRedist.ta";
             ProgressBar.SetDownloadMode();
-            if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{Seedbox}Extra/CommonRedist.ta", GDriveCommonRedistFile))
+            if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}CommonRedist.ta", GDriveCommonRedistFile))
             {
                 string CommonRedistFolder = $@"{AppDataFolder}\CommonRedist";
-                SetStatus("Extracting archive", YellowBrush);
+                SetStatus(LocString(LocCode.ExtractingArchive), YellowBrush);
                 if (await DecompressArchiveAsync(ArchivePath, CommonRedistFolder))
                 {
                     File.Delete(ArchivePath);
-                    SetStatus("Installing requirements", YellowBrush);
+                    SetStatus(LocString(LocCode.InstallingReq), YellowBrush);
                     Start($@"{CommonRedistFolder}\DirectX\DXSETUP.exe", "/silent").WaitForExit();
                     Start($@"{CommonRedistFolder}\MSVCP\2010\vcredist_x64.exe", "/q /norestart").WaitForExit();
                     Start($@"{CommonRedistFolder}\MSVCP\2010\vcredist_x86.exe", "/q /norestart").WaitForExit();
@@ -132,10 +145,10 @@ namespace TEKLauncher.Pages
                     Start($@"{CommonRedistFolder}\MSVCP\2013\vcredist_x64.exe", "/install /quiet /norestart").WaitForExit();
                     Start($@"{CommonRedistFolder}\MSVCP\2013\vcredist_x86.exe", "/install /quiet /norestart").WaitForExit();
                     DeleteDirectory(CommonRedistFolder);
-                    SetStatus("Successfully installed requirements", DarkGreen);
+                    SetStatus(LocString(LocCode.InstallReqSuccess), DarkGreen);
                 }
                 else
-                    SetStatus("Failed to extract archive", DarkRed);
+                    SetStatus(LocString(LocCode.FailedToExtract), DarkRed);
                 SwitchButtons(true);
             }
             else
@@ -145,25 +158,27 @@ namespace TEKLauncher.Pages
         private void InstallSpacewar(object Sender, RoutedEventArgs Args)
         {
             if (Steam.IsSpacewarInstalled)
-                AddImage("You have Spacewar installed already", "Success");
+                AddImage(LocString(LocCode.SpacewarInstalled), "Success");
             else if (!Steam.IsRunning)
-                AddImage("Steam must be running to install Spacewar", "Error");
+                AddImage(LocString(LocCode.SpacewarNeedsSteam), "Error");
             else
                 Execute("steam://install/480");
         }
+        private void InvertUseGlobalFontsCB() => UseGlobalFonts.IsChecked = !(bool)UseGlobalFonts.IsChecked;
+        private void InvokeInvertUseGlobalFontsCB() => Dispatcher.Invoke(InvertUseGlobalFontsCB);
         private void LoadedHandler(object Sender, RoutedEventArgs Args)
         {
-            UpdateCrackButtons();
+            UpdateCreamAPIButtons();
             if (InstallMode)
             {
                 Update(false);
-                Show("Info", "Game download has been initiated, wait for it to finish, if you'll close launcher, press \"Validate\" next time you open it to continue");
+                Show("Info", LocString(LocCode.GameDownloadBegan));
             }
         }
         private void PreparingToDownload()
         {
             SwitchButtons(false);
-            SetStatus($"Preparing to download {InstallingItem}...", YellowBrush);
+            SetStatus(string.Format(LocString(LocCode.SPPrepToDownload), InstallingItem), YellowBrush);
         }
         private void ProgressUpdatedHandler()
         {
@@ -178,14 +193,14 @@ namespace TEKLauncher.Pages
                 FilesUpToDate.Text = SteamDownloader.FilesUpToDate.ToString();
             }
         }
-        private void ReapplyCrack(object Sender, RoutedEventArgs Args)
+        private void ReapplyCreamAPI(object Sender, RoutedEventArgs Args)
         {
             if (Game.IsRunning)
-                AddImage("Can't reapply crack while game is running!", "Error");
+                AddImage(LocString(LocCode.CantReapplyGameRunning), "Error");
             else
             {
                 CreamAPI.Install();
-                AddImage("Successfully reapplied crack", "Success");
+                AddImage(LocString(LocCode.ReapplySuccess), "Success");
             }
         }
         private void SetStatus(string Text, SolidColorBrush Color)
@@ -193,28 +208,75 @@ namespace TEKLauncher.Pages
             Status.Foreground = Color;
             Status.Text = Text;
         }
+        private async void SetUseGlobalFonts(object Sender, RoutedEventArgs Args)
+        {
+            if (!IsLoaded)
+                return;
+            if (Settings.UseGlobalFonts)
+                Settings.UseGlobalFonts = false;
+            else
+            {
+                if (Game.GlobalFontsInstalled)
+                    Settings.UseGlobalFonts = true;
+                else
+                {
+                    InstallingItem = LocString(LocCode.GlobalFonts);
+                    PreparingToDownload();
+                    string ArchivePath = $@"{AppDataFolder}\GlobalFonts.ta";
+                    ProgressBar.SetDownloadMode();
+                    if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}GlobalFonts.ta", GDriveGlobalFontsFile))
+                    {
+                        string GlobalFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\global";
+                        SetStatus(LocString(LocCode.ExtractingArchive), YellowBrush);
+                        if (await DecompressArchiveAsync(ArchivePath, GlobalFolder))
+                        {
+                            File.Delete(ArchivePath);
+                            string LocFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\{LaunchParameters.GameCultureCodes[Settings.GameLang]}";
+                            if (Exists(LocFolder))
+                            {
+                                File.Copy($@"{LocFolder}\ShooterGame.archive", $@"{GlobalFolder}\ShooterGame.archive", true);
+                                File.Copy($@"{LocFolder}\ShooterGame.locres", $@"{GlobalFolder}\ShooterGame.locres", true);
+                            }
+                            SetStatus(LocString(LocCode.GlobalFontsSuccess), DarkGreen);
+                            Settings.UseGlobalFonts = true;
+                        }
+                        else
+                        {
+                            SetStatus(LocString(LocCode.FailedToExtract), DarkRed);
+                            new Thread(InvokeInvertUseGlobalFontsCB).Start();
+                        }
+                        SwitchButtons(true);
+                    }
+                    else
+                    {
+                        FailedToDownload();
+                        new Thread(InvokeInvertUseGlobalFontsCB).Start();
+                    }
+                    Instance.MWindow.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+                }
+            }
+        }
         private void SwitchButtons(bool State, bool Update = false)
         {
-            InstallReqButton.IsEnabled = ValidateButton.IsEnabled = UnlockButton.IsEnabled = FixBEButton.IsEnabled = State;
+            UseGlobalFonts.IsEnabled = InstallReqButton.IsEnabled = ValidateButton.IsEnabled = UnlockButton.IsEnabled = FixBEButton.IsEnabled = State;
             if (Update)
-                UpdateButton.Content = ((VectorImage)UpdateButton.Template.FindName("Icon", UpdateButton)).Source = State ? "Update" : "Pause";
+                UpdateButton.Content = LocString((LocCode)Parse(typeof(LocCode), ((VectorImage)UpdateButton.Template.FindName("Icon", UpdateButton)).Source = State ? "Update" : "Pause"));
             else
                 UpdateButton.IsEnabled = State;
         }
-        private void SwitchCrack(object Sender, RoutedEventArgs Args)
+        private void SwitchCreamAPI(object Sender, RoutedEventArgs Args)
         {
-            bool CrackInstalled = CreamAPI.IsInstalled;
-            string Prefix = CrackInstalled ? "un" : null;
+            bool CreamAPIInstalled = CreamAPI.IsInstalled;
             if (Game.IsRunning)
-                AddImage($"Can't {Prefix}install crack while game is running!", "Error");
+                AddImage(LocString(CreamAPIInstalled ? LocCode.CantUninstallCA : LocCode.CantInstallCA), "Error");
             else
             {
-                if (CrackInstalled)
+                if (CreamAPIInstalled)
                     CreamAPI.Uninstall();
                 else
                     CreamAPI.Install();
-                UpdateCrackButtons();
-                AddImage($"Successfully {Prefix}installed crack", "Success");
+                UpdateCreamAPIButtons();
+                AddImage(LocString(CreamAPIInstalled ? LocCode.UninstallCASuccess : LocCode.InstallCASuccess), "Success");
             }
         }
         private void UncheckParameter(object Sender, RoutedEventArgs Args) => LaunchParameters.Remove((string)((FrameworkElement)Sender).Tag);
@@ -226,17 +288,17 @@ namespace TEKLauncher.Pages
         private async void UnlockSkins(object Sender, RoutedEventArgs Args)
         {
             if (Game.IsRunning)
-                SetStatus("Can't unlock all skins while game is running!", DarkRed);
+                SetStatus(LocString(LocCode.CantUnlockSkins), DarkRed);
             else
             {
                 string LocalProfiles = $@"{Game.Path}\ShooterGame\Saved\LocalProfiles";
                 CreateDirectory(LocalProfiles);
-                InstallingItem = "local profile";
+                InstallingItem = LocString(LocCode.LocalProfile);
                 PreparingToDownload();
                 ProgressBar.SetDownloadMode();
-                if (await Downloader.TryDownloadFileAsync($@"{LocalProfiles}\PlayerLocalData.arkprofile", $"{Seedbox}Extra/PlayerLocalData.arkprofile", GDriveLocalProfileFile))
+                if (await Downloader.TryDownloadFileAsync($@"{LocalProfiles}\PlayerLocalData.arkprofile", $"{FilesStorage}PlayerLocalData.arkprofile", GDriveLocalProfileFile))
                 {
-                    SetStatus("Successfully unlocked all skins, haircuts and maps", DarkGreen);
+                    SetStatus(LocString(LocCode.SkinUnlockSuccess), DarkGreen);
                     SwitchButtons(true);
                 }
                 else
@@ -246,17 +308,17 @@ namespace TEKLauncher.Pages
         }
         private void Update(object Sender, RoutedEventArgs Args)
         {
-            if ((string)UpdateButton.Content == "Update")
+            if ((string)UpdateButton.Content == LocString(LocCode.Update))
                 Update(false);
             else
                 SteamDownloader.Pause();
         }
-        private void UpdateCrackButtons()
+        private void UpdateCreamAPIButtons()
         {
-            bool CrackInstalled = CreamAPI.IsInstalled;
-            SwitchCrackButton.Content = CrackInstalled ? "Uninstall" : "Install";
-            ((VectorImage)SwitchCrackButton.Template.FindName("Icon", SwitchCrackButton)).Source = CrackInstalled ? "Delete" : "Install";
-            ReapplyCrackButton.IsEnabled = CrackInstalled;
+            bool CreamAPIInstalled = CreamAPI.IsInstalled;
+            SwitchCreamAPIButton.Content = CreamAPIInstalled ? LocString(LocCode.Uninstall) : LocString(LocCode.Install);
+            ((VectorImage)SwitchCreamAPIButton.Template.FindName("Icon", SwitchCreamAPIButton)).Source = CreamAPIInstalled ? "Delete" : "Install";
+            ReapplyCreamAPIButton.IsEnabled = CreamAPIInstalled;
         }
         private void UpdateJob(object DoValidate)
         {
@@ -269,12 +331,12 @@ namespace TEKLauncher.Pages
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
                 {
-                    if (Exception.Message == "Download failed" && Settings.AutoRetry)
+                    if (Exception.Message == LocString(LocCode.DownloadFailed) && Settings.AutoRetry)
                         goto Beginning;
                     else
                         Dispatcher.Invoke(() =>
                         {
-                            SetStatus($"Error: {Exception.Message}", DarkRed);
+                            SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
                             FinishHandler();
                         });
                 }
@@ -293,9 +355,9 @@ namespace TEKLauncher.Pages
         internal void Update(bool DoValidate)
         {
             if (Game.IsRunning)
-                SetStatus("Can't update while game is running!", DarkRed);
+                SetStatus(LocString(LocCode.CantUpdateGameRunning), DarkRed);
             else if (!IsConnectionAvailable())
-                SetStatus("Can't update because internet connection is unavailable", DarkRed);
+                SetStatus(LocString(LocCode.CantUpdateNoInternet), DarkRed);
             else
             {
                 SwitchButtons(false, true);

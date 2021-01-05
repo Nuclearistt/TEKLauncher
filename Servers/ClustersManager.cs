@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using TEKLauncher.ARK;
 using static TEKLauncher.ARK.MapCode;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Data.LocalizationManager;
 
 namespace TEKLauncher.Servers
 {
@@ -9,10 +11,10 @@ namespace TEKLauncher.Servers
     {
         static ClustersManager()
         {
-            for (int Iterator = 2; Iterator < Clusters.Length; Iterator++)
+            for (int Iterator = 3; Iterator < Clusters.Length; Iterator++)
                 Clusters[Iterator].Refresh();
         }
-        private static readonly string KillBillsIPS = "2103670342", ARKRussiaIPS = "2048058203";
+        private static readonly string KillBillsIPS = "2103670342", ARKRussiaIPS = "2174580656";
         private static readonly IPAddress KillBillsIP = new IPAddress(long.Parse(KillBillsIPS)), ARKRussiaIP = new IPAddress(long.Parse(ARKRussiaIPS));
         internal static readonly Cluster[] Clusters = new[]
         {
@@ -25,46 +27,39 @@ namespace TEKLauncher.Servers
                 Name = "Arkouda",
                 Info = new Dictionary<string, string>
                 {
-                    [string.Empty] = "Max wild dino lvl 300\n" +
-                    "Taming 5x\n" +
-                    "Experience 2.5x\n" +
-                    "Harvesting 4x\n" +
-                    "Breeding 8x\n" +
-                    "Stacks 12x"
+                    [string.Empty] = string.Join("\n",
+                        string.Format(LocString(LocCode.MaxDinoLvl), 300),
+                        string.Format(LocString(LocCode.Taming), 5),
+                        string.Format(LocString(LocCode.Experience), 2.5F),
+                        string.Format(LocString(LocCode.Harvesting), 4),
+                        string.Format(LocString(LocCode.Breeding), 8),
+                        string.Format(LocString(LocCode.Stacks), 12))
                 },
-                Mods = new Dictionary<string, Dictionary<ulong, string>>
+                Mods = new Dictionary<string, ModRecord[]>(),
+                Servers = new Server[0]
+            },
+            new Cluster
+            {
+                IsPvE = false,
+                PlayersLimit = 50,
+                Discord = DiscordArkouda,
+                Hoster = "Perseus",
+                Name = "Arkouda",
+                Info = new Dictionary<string, string>
                 {
-                    ["All servers"] = new Dictionary<ulong, string>
-                    {
-                        [2051206652UL] = "Super Structures",
-                        [2137263324UL] = "Dino Tracker",
-                        [2277939297UL] = "EMS",
-                        [1971614269UL] = "Simple Spawners",
-                        [1972281180UL] = "TCs Auto Rewards",
-                        [2030645484UL] = "Awesome Spyglass",
-                        [2033361079UL] = "Auto-Harvest Ankylo",
-                        [2212442912UL] = "The Tombstone",
-                        [2224171622UL] = "Dino Storage v2",
-                        [2035976232UL] = "Dino Colourizer",
-                        [2236485756UL] = "Crystal Isles Dino Addition",
-                        [2287982693UL] = "Oz-Ark Engram Tweaker"
-                    },
-                    ["Primal Fear server specific"] = new Dictionary<ulong, string>
-                    {
-                        [2223989048UL] = "Primal Fear",
-                        [2229211757UL] = "Primal Fear Boss Expansion",
-                        [2229213447UL] = "Primal Fear Aberration Expansion",
-                        [2229214139UL] = "Primal Fear Genesis Expansion"
-                    },
-                    ["RP specific"] = new Dictionary<ulong, string>
-                    {
-                        [2106116037UL] = "CKF Remastered",
-                        [2106126563UL] = "Advanced Rafts",
-                        [2106180142UL] = "eco Trees",
-                        [2106211489UL] = "eco Garden",
-                        [2106364639UL] = "eco RP Deco"
-                    }
+                    ["All servers"] = string.Join("\n",
+                        string.Format(LocString(LocCode.MaxDinoLvl), 300),
+                        string.Format(LocString(LocCode.Experience), 10),
+                        string.Format(LocString(LocCode.Breeding), 37),
+                        string.Format(LocString(LocCode.Stacks), 50)),
+                    ["Beginner PvP"] = string.Join("\n",
+                        string.Format(LocString(LocCode.Taming), 20),
+                        string.Format(LocString(LocCode.Harvesting), 20)),
+                    ["Advanced PvP"] = string.Join("\n",
+                        string.Format(LocString(LocCode.Taming), 10),
+                        string.Format(LocString(LocCode.Harvesting), 10))
                 },
+                Mods = new Dictionary<string, ModRecord[]>(),
                 Servers = new Server[0]
             },
             new Cluster
@@ -76,33 +71,34 @@ namespace TEKLauncher.Servers
                 Name = "ARKdicted",
                 Info = new Dictionary<string, string>
                 {
-                    [string.Empty] = "Max wild dino lvl 180\n" +
-                    "Taming 5x\n" +
-                    "Experience 3x\n" +
-                    "Harvesting 3x\n" +
-                    "Breeding 3x"
+                    [string.Empty] = string.Join("\n",
+                        string.Format(LocString(LocCode.MaxDinoLvl), 180),
+                        string.Format(LocString(LocCode.Taming), 5),
+                        string.Format(LocString(LocCode.Experience), 3),
+                        string.Format(LocString(LocCode.Harvesting), 3),
+                        string.Format(LocString(LocCode.Breeding), 3))
                 },
-                Mods = new Dictionary<string, Dictionary<ulong, string>>
+                Mods = new Dictionary<string, ModRecord[]>
                 {
-                    ["Main cluster"] = new Dictionary<ulong, string>
+                    ["Main cluster"] = new[]
                     {
-                        [2018014354UL] = "Dino storage v2",
-                        [2006380780UL] = "Awesome Spyglass",
-                        [2006374844UL] = "Dino Tracker",
-                        [2060802637UL] = "Super Structures",
-                        [2006356933UL] = "Rare Sightings",
-                        [2004919122UL] = "CKFR",
-                        [2006816645UL] = "Death Helper"
+                        new ModRecord(2018014354UL, "Dino storage v2", "40.44MB"),
+                        new ModRecord(2006380780UL, "Awesome Spyglass", "3.26MB"),
+                        new ModRecord(2006374844UL, "Dino Tracker", "9.56MB"),
+                        new ModRecord(2060802637UL, "Super Structures", "66.7MB"),
+                        new ModRecord(2006356933UL, "Rare Sightings", "342.62MB"),
+                        new ModRecord(2004919122UL, "CKFR", "657.89MB"),
+                        new ModRecord(2006816645UL, "Death Helper", "4.24MB")
                     },
-                    ["Hope servers"] = new Dictionary<ulong, string>
+                    ["Hope servers"] = new[]
                     {
-                        [2006901571UL] = "Hope Map",
-                        [2148393197UL] = "Primal Fear",
-                        [2018014354UL] = "Dino Storage v2",
-                        [2006380780UL] = "Awesome Spyglass",
-                        [2060802637UL] = "Super Structures",
-                        [2200902771UL] = "Primal Fear Genesis Expansion",
-                        [2006408866UL] = "Simple Spawners"
+                        new ModRecord(2006901571UL, "Hope Map", "953.58MB"),
+                        new ModRecord(2148393197UL, "Primal Fear", "2.77GB"),
+                        new ModRecord(2018014354UL, "Dino Storage v2", "40.44MB"),
+                        new ModRecord(2006380780UL, "Awesome Spyglass", "3.26MB"),
+                        new ModRecord(2060802637UL, "Super Structures", "66.7MB"),
+                        new ModRecord(2200902771UL, "Primal Fear Genesis Expansion", "98.37MB"),
+                        new ModRecord(2006408866UL, "Simple Spawners", "50.53MB")
                     }
                 },
                 Servers = new Server[0]
@@ -116,11 +112,12 @@ namespace TEKLauncher.Servers
                 Name = "Kill Bills",
                 Info = new Dictionary<string, string>
                 {
-                    [string.Empty] = "Max wild dino lvl 180\n" +
-                    "Taming 10x\n" +
-                    "Experience 4x\n" +
-                    "Harvesting 5x\n" +
-                    "Breeding 5x"
+                    [string.Empty] = string.Join("\n",
+                        string.Format(LocString(LocCode.MaxDinoLvl), 180),
+                        string.Format(LocString(LocCode.Taming), 10),
+                        string.Format(LocString(LocCode.Experience), 4),
+                        string.Format(LocString(LocCode.Harvesting), 5),
+                        string.Format(LocString(LocCode.Breeding), 5))
                 },
                 Mods = null,
                 Servers = new[]
@@ -145,11 +142,12 @@ namespace TEKLauncher.Servers
                 Name = "CallMeBob",
                 Info = new Dictionary<string, string>
                 {
-                    [string.Empty] = "Max wild dino lvl 180\n" +
-                    "Taming 10x\n" +
-                    "Experience 4x\n" +
-                    "Harvesting 5x\n" +
-                    "Breeding 5x"
+                    [string.Empty] = string.Join("\n",
+                        string.Format(LocString(LocCode.MaxDinoLvl), 180),
+                        string.Format(LocString(LocCode.Taming), 10),
+                        string.Format(LocString(LocCode.Experience), 4),
+                        string.Format(LocString(LocCode.Harvesting), 5),
+                        string.Format(LocString(LocCode.Breeding), 5))
                 },
                 Mods = null,
                 Servers = new[]
@@ -174,18 +172,13 @@ namespace TEKLauncher.Servers
                 Name = "ARK Russia",
                 Info = new Dictionary<string, string>
                 {
-                    ["Both clusters"] = "Max wild dino lvl 240\n" +
-                    "Taming 5x\n" +
-                    "Experience 5x\n" +
-                    "Harvesting 20x\n" +
-                    "Stacks 10x\n" +
-                    "Newbies protection",
-                    ["Beginner cluster"] = "Breeding 10x\n" +
-                    "No diseases\n" +
-                    "Offline protection\n" +
-                    "8 players per tribe",
-                    ["10 Man cluster"] = "Breeding 5x\n" +
-                    "Night PvE"
+                    [string.Empty] = string.Join("\n",
+                        string.Format(LocString(LocCode.MaxDinoLvl), 240),
+                        string.Format(LocString(LocCode.Taming), 5),
+                        string.Format(LocString(LocCode.Experience), 5),
+                        string.Format(LocString(LocCode.Harvesting), 20),
+                        string.Format(LocString(LocCode.Breeding), 5),
+                        string.Format(LocString(LocCode.Stacks), 10))
                 },
                 Mods = null,
                 Servers = new[]
@@ -198,16 +191,16 @@ namespace TEKLauncher.Servers
                     new Server(ARKRussiaIP, Valguero, 47022, "#8 Valguero 10 Man"),
                     new Server(ARKRussiaIP, Genesis, 47020, "#6 Genesis 10 Man"),
                     new Server(ARKRussiaIP, CrystalIsles, 47019, "#5 Crystal Isles 10 Man"),
-                    new Server(ARKRussiaIP, TheIsland, 47028, "#10 The Island Beginners"),
-                    new Server(ARKRussiaIP, Ragnarok, 47027, "#9 Ragnarok Beginners"),
-                    new Server(ARKRussiaIP, Aberration, 47030, "#12 Aberration Beginners"),
-                    new Server(ARKRussiaIP, Extinction, 47029, "#11 Extinction Beginners"),
-                    new Server(ARKRussiaIP, Extinction, 47033, "#15 Valguero Beginners"),
-                    new Server(ARKRussiaIP, Genesis, 47032, "#14 Genesis Beginners"),
-                    new Server(ARKRussiaIP, CrystalIsles, 47031, "#13 Crystal Isles Beginners")
+                    new Server(ARKRussiaIP, TheIsland, 47028, "#10 The Island 3 Man"),
+                    new Server(ARKRussiaIP, ScorchedEarth, 47033, "#15 Scorched Earth 3 Man"),
+                    new Server(ARKRussiaIP, Ragnarok, 47027, "#9 Ragnarok 3 Man"),
+                    new Server(ARKRussiaIP, Aberration, 47030, "#12 Aberration 3 Man"),
+                    new Server(ARKRussiaIP, Extinction, 47029, "#11 Extinction 3 Man"),
+                    new Server(ARKRussiaIP, Genesis, 47032, "#14 Genesis 3 Man"),
+                    new Server(ARKRussiaIP, CrystalIsles, 47031, "#13 Crystal Isles 3 Man")
                 }
             },
-            new Cluster { Name = "Your servers", Servers = new Server[0] }
+            new Cluster { Name = LocString(LocCode.YourServers), Servers = new Server[0] }
         };
     }
 }

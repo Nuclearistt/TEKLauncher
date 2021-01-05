@@ -21,6 +21,7 @@ using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.SteamInterop.Network.Logger;
 using static TEKLauncher.SteamInterop.Network.SteamClient;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -66,7 +67,7 @@ namespace TEKLauncher.SteamInterop.Network
         };
         private static readonly Dictionary<uint, string> DepotNames = new Dictionary<uint, string>
         {
-            [346111U] = "game",
+            [346111U] = LocString(LocCode.Game),
             [346114U] = "The Center DLC",
             [375351U] = "Scorched Earth DLC",
             [375354U] = "Ragnarok DLC",
@@ -140,24 +141,24 @@ namespace TEKLauncher.SteamInterop.Network
         private void InstallChanges(List<FileEntry> Files)
         {
             if (Game.IsRunning && ModID == 0UL)
-                throw new ValidatorException("Can't install update while game is running!");
+                throw new ValidatorException(LocString(LocCode.CantInstallUpdate));
             else
             {
                 Progress.Total = Files.Count;
                 Current.Dispatcher.Invoke(ProgressBar.SetNumericMode);
-                string BaseLocalPath = ModID == 0UL ? Game.Path : $@"{Steam.WorkshopPath}\{SpacewarID}";
+                string BaseLocalPath = ModID == 0UL ? Game.Path : $@"{Steam.WorkshopPath}\{SpacewarID}", ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-";
                 foreach (FileEntry File in Files)
                 {
                     string DestinationPath = $@"{BaseLocalPath}\{File.Name}", SourcePath = $@"{BaseDownloadPath}\{File.Name}";
+                    if (!FileExists(SourcePath))
+                    {
+                        DeletePath($@"{DownloadsDirectory}\{ItemCompound}{LatestManifestID}.vcache");
+                        throw new ValidatorException(LocString(LocCode.InstallFailedVCDupe));
+                    }
                     if (File.IsSliced)
                     {
-                        if (!FileExists(SourcePath))
-                        {
-                            Log($"Install failed for depot {DepotID}: {SourcePath} not found");
-                            throw new ValidatorException("Failed to install, download cache is incomplete");
-                        }
                         if (!Directory.Exists(Path.GetDirectoryName(DestinationPath)))
-                            throw new ValidatorException("Installation is corrupted, validate instead");
+                            throw new ValidatorException(LocString(LocCode.InstallationCorrupted));
                         using (FileStream Reader = OpenRead(SourcePath))
                         using (FileStream Writer = OpenWrite(DestinationPath))
                         {
@@ -181,7 +182,7 @@ namespace TEKLauncher.SteamInterop.Network
                         catch (IOException Exception)
                         {
                             Log($@"Install failed for depot {DepotID}: {Exception.Message} (""{SourcePath}"">""{DestinationPath}"")");
-                            throw new ValidatorException("Failed to install, get support in Discord");
+                            throw new ValidatorException(LocString(LocCode.InstallFailedVCDupe));
                         }
                     }
                     Progress.Increase();
@@ -189,13 +190,14 @@ namespace TEKLauncher.SteamInterop.Network
                 if (!(FilesToDelete is null))
                     foreach (string File in FilesToDelete)
                         DeletePath($@"{BaseLocalPath}\{File}");
-                string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-";
                 DeletePath($@"{DownloadsDirectory}\{ItemCompound}{LatestManifestID}.vcache");
                 DeleteDirectory(BaseDownloadPath);
             }
         }
         private void Preallocate(List<FileEntry> Files)
         {
+            if (BaseDownloadPath.Length > 255)
+                throw new ValidatorException(LocString(LocCode.PathTooLong));
             if (!Directory.Exists(BaseDownloadPath))
             {
                 Directory.CreateDirectory(BaseDownloadPath);
@@ -203,7 +205,7 @@ namespace TEKLauncher.SteamInterop.Network
                 if (InstallSize > DiskFreeSpace)
                 {
                     Directory.Delete(BaseDownloadPath);
-                    throw new ValidatorException($"Not enough disk free space, {ConvertBytes(InstallSize - DiskFreeSpace)} more is required");
+                    throw new ValidatorException(string.Format(LocString(LocCode.NotEnoughSpace), ConvertBytesLoc(InstallSize - DiskFreeSpace)));
                 }
             }
             Progress.Total = Files.Count;
@@ -211,11 +213,13 @@ namespace TEKLauncher.SteamInterop.Network
             foreach (FileEntry File in Files)
             {
                 string FilePath = $@"{BaseDownloadPath}\{File.Name}";
+                if (FilePath.Length > 255)
+                    throw new ValidatorException(LocString(LocCode.PathTooLong));
                 try { Directory.CreateDirectory(Path.GetDirectoryName(FilePath)); }
                 catch (ArgumentException)
                 {
                     DeletePath($@"{DownloadsDirectory}\{DepotID}-{LatestManifestID}.vcache");
-                    throw new ValidatorException("Manifest has been decrypted incorrectly. Try again");
+                    throw new ValidatorException(LocString(LocCode.ManifestDecryptedIncorrectly));
                 }
                 using (FileStream Stream = OpenWrite(FilePath))
                     Stream.SetLength(File.IsSliced ? File.Chunks.Sum(Chunk => Chunk.UncompressedSize) : File.Size);
@@ -238,6 +242,8 @@ namespace TEKLauncher.SteamInterop.Network
                         if (Cancellator.IsCancellationRequested)
                             break;
                         FileEntry File = Files[Iterator];
+                        if (!(Changes.Find(ChangeFile => ChangeFile.Name == File.Name) is null))
+                            continue;
                         string LocalFile = $@"{BaseLocalPath}\{File.Name}";
                         if (FileExists(LocalFile))
                             using (FileStream LocalFileStream = OpenRead(LocalFile))
@@ -293,7 +299,7 @@ namespace TEKLauncher.SteamInterop.Network
             {
                 ValidationFailed = true;
                 Cancellator.Cancel();
-                throw Exception;
+                throw Exception is IOException ? new ValidatorException(Exception.Message) : Exception;
             }
         }
         private List<FileEntry> ReadValidationCache(out bool IsIncomplete)
@@ -334,7 +340,7 @@ namespace TEKLauncher.SteamInterop.Network
         private List<FileEntry> ComputeChanges(DepotManifest OldManifest, DepotManifest LatestManifest)
         {
             Log("Computing changes between old and new manifest...");
-            SetStatus("Computing changes", YellowBrush);
+            SetStatus(LocString(LocCode.ComputingChanges), YellowBrush);
             List<FileEntry> Changes = new List<FileEntry>();
             int FilesCount = LatestManifest.Files.Count, Iterator = 0, Offset = 0, OldFilesCount = OldManifest.Files.Count;
             for (; Iterator < OldFilesCount && Iterator + Offset < FilesCount; Iterator++)
@@ -409,7 +415,7 @@ namespace TEKLauncher.SteamInterop.Network
         {
             string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-", ItemName = SpacewarID == 0UL && DepotID > 346110U ? DepotNames[DepotID] : $"mod {SpacewarID}";
             Log($"Validating {ItemName} files...");
-            SetStatus("Validating files...", YellowBrush);
+            SetStatus(LocString(LocCode.ValidatingFiles), YellowBrush);
             IsValidating = true;
             Progress.Total = Manifest.Files.Count;
             Current.Dispatcher.Invoke(ProgressBar.SetNumericMode);
@@ -451,34 +457,34 @@ namespace TEKLauncher.SteamInterop.Network
             InstallSize = DownloadSize = 0L;
             BaseDownloadPath = $@"{DownloadsDirectory}\346110.{this.ModID = ModID}";
             Cancellator = new CancellationTokenSource();
-            SetStatus("Connecting to Steam network...", YellowBrush);
+            SetStatus(LocString(LocCode.ConnectingToSteam), YellowBrush);
             if (Connect())
             {
-                SetStatus("Requesting data from Steam...", YellowBrush);
+                SetStatus(LocString(LocCode.RequestingData), YellowBrush);
                 if ((LatestManifestID = GetManifestIDForMod(346110U, ModID)) == 0UL)
-                    SetStatus("Timeout requesting data, try again", DarkRed);
+                    SetStatus(LocString(LocCode.Timeout), DarkRed);
                 else
                 {
                     CDNClient = new CDNClient(DepotID, Progress, ProgressBar, SetStatus, ModID);
                     List<FileEntry> Files = CDNClient.GetManifests(LatestManifestID, out _).Files;
                     Log($"{Files.Count} files are going to be downloaded with a total size {ConvertBytes(InstallSize = Files.Sum(File => File.Size))} and download size {ConvertBytes(DownloadSize = Files.Sum(File => File.Chunks.Sum(Chunk => (long)Chunk.CompressedSize)))}");
                     Log("Preallocating files...");
-                    SetStatus("Preallocating", YellowBrush);
+                    SetStatus(LocString(LocCode.Preallocating), YellowBrush);
                     Preallocate(Files);
-                    SetStatus("Downloading mod files", YellowBrush);
+                    SetStatus(LocString(LocCode.DownloadingMod), YellowBrush);
                     IsDownloading = true;
                     CDNClient.DownloadChanges(Files, DownloadSize, Cancellator.Token);
                     if (Cancellator.IsCancellationRequested || CDNClient.DownloadFailed)
                     {
                         IsDownloading = false;
                         if (!CDNClient.DownloadFailed)
-                            SetStatus("Download paused", DarkGreen);
+                            SetStatus(LocString(LocCode.DwPaused), DarkGreen);
                     }
                     else
                     {
                         IsDownloading = false;
                         Log("Mod download complete, proceeding to install");
-                        SetStatus("Installing mod", YellowBrush);
+                        SetStatus(LocString(LocCode.CInstallingMod), YellowBrush);
                         InstallChanges(Files);
                         string InstalledModPath = $@"{Steam.WorkshopPath}\{SpacewarID}";
                         WriteAllText($@"{InstalledModPath}\OriginID.txt", ModID.ToString());
@@ -498,7 +504,7 @@ namespace TEKLauncher.SteamInterop.Network
                 }
             }
             else
-                SetStatus("Failed to connect to Steam network", DarkRed);
+                SetStatus(LocString(LocCode.ConnectToSteamFailed), DarkRed);
             if (ModLocks.Contains(SpacewarID))
                 ModLocks.Remove(SpacewarID);
             Current.Dispatcher.Invoke(Finish);
@@ -522,12 +528,12 @@ namespace TEKLauncher.SteamInterop.Network
             FilesToDelete = null;
             FilesUpToDate = FilesOutdated = FilesMissing = 0;
             InstallSize = DownloadSize = 0L;
-            SetStatus("Connecting to Steam network...", YellowBrush);
+            SetStatus(LocString(LocCode.ConnectingToSteam), YellowBrush);
             if (Connect())
             {
-                SetStatus("Requesting data from Steam...", YellowBrush);
+                SetStatus(LocString(LocCode.RequestingData), YellowBrush);
                 if ((LatestManifestID = GetManifestIDForDepot(DepotID)) == 0UL)
-                    SetStatus("Timeout requesting data, try again", DarkRed);
+                    SetStatus(LocString(LocCode.Timeout), DarkRed);
                 else
                 {
                     CDNClient = new CDNClient(DepotID, Progress, ProgressBar, SetStatus);
@@ -546,7 +552,7 @@ namespace TEKLauncher.SteamInterop.Network
                     {
                         if (!(DoValidate || Game.UpdateAvailable) && DepotID == 346111U && FileExists($@"{ManifestsDirectory}\346111-{LatestManifestID}.manifest") && Directory.EnumerateFiles(ManifestsDirectory).Where(File => File.Contains("346111-") && File.EndsWith(".manifest")).Count() == 1)
                         {
-                            SetStatus("Your game is already up to date ", DarkGreen);
+                            SetStatus(LocString(LocCode.GameAlrUpToDate), DarkGreen);
                             Finish = true;
                         }
                         else
@@ -557,7 +563,7 @@ namespace TEKLauncher.SteamInterop.Network
                             {
                                 IsValidating = false;
                                 if (!ValidationFailed)
-                                    SetStatus("Validation paused", DarkGreen);
+                                    SetStatus(LocString(LocCode.ValidationPaused), DarkGreen);
                                 Finish = true;
                             }
                         }
@@ -565,7 +571,13 @@ namespace TEKLauncher.SteamInterop.Network
                     else if (IsIncomplete)
                     {
                         Log("Incomplete validation cache found, preparing to continue validation");
-                        Validate(CDNClient.GetManifests(LatestManifestID, out _), Changes, FilesUpToDate + FilesOutdated + FilesMissing);
+                        if (Validate(CDNClient.GetManifests(LatestManifestID, out _), Changes, FilesUpToDate + FilesOutdated + FilesMissing) is null)
+                        {
+                            IsValidating = false;
+                            if (!ValidationFailed)
+                                SetStatus(LocString(LocCode.ValidationPaused), DarkGreen);
+                            Finish = true;
+                        }
                     }
                     else
                         Log("Validation cache found, using it instead of manifests");
@@ -576,28 +588,28 @@ namespace TEKLauncher.SteamInterop.Network
                             if (!(OldManifest is null) && FileExists(OldManifest.Path))
                                 Delete(OldManifest.Path);
                             Log("No changes required, finishing up");
-                            SetStatus($"Your {DepotNames[DepotID]} is already up to date ", DarkGreen);
+                            SetStatus(string.Format(LocString(LocCode.AlrUpToDate), DepotNames[DepotID]), DarkGreen);
                         }
                         else
                         {
                             Log($"{FilesMissing + FilesOutdated} files are going to be downloaded with a total size {ConvertBytes(InstallSize)} and download size {ConvertBytes(DownloadSize)}");
                             Log("Preallocating files...");
-                            SetStatus("Preallocating", YellowBrush);
+                            SetStatus(LocString(LocCode.Preallocating), YellowBrush);
                             Preallocate(Changes);
-                            SetStatus("Downloading updated files", YellowBrush);
+                            SetStatus(LocString(LocCode.DownloadingUpd), YellowBrush);
                             IsDownloading = true;
                             CDNClient.DownloadChanges(Changes, DownloadSize, Cancellator.Token);
                             if (Cancellator.IsCancellationRequested || CDNClient.DownloadFailed)
                             {
                                 IsDownloading = false;
                                 if (!CDNClient.DownloadFailed)
-                                    SetStatus("Download paused", DarkGreen);
+                                    SetStatus(LocString(LocCode.DwPaused), DarkGreen);
                             }
                             else
                             {
                                 IsDownloading = false;
                                 Log("Download complete, installing...");
-                                SetStatus("Installing update", YellowBrush);
+                                SetStatus(LocString(LocCode.InstallingUpd), YellowBrush);
                                 InstallChanges(Changes);
                                 if (!(OldManifest is null) && FileExists(OldManifest.Path))
                                     Delete(OldManifest.Path);
@@ -605,16 +617,16 @@ namespace TEKLauncher.SteamInterop.Network
                                 if (DepotID == 346111U)
                                 {
                                     Game.UpdateAvailable = Game.IsCorrupted = false;
-                                    Current.Dispatcher.Invoke(() => Instance.MWindow.SetCurrentVersion(Game.Version ?? "Latest", DarkGreen));
+                                    Current.Dispatcher.Invoke(() => Instance.MWindow.SetCurrentVersion(Game.Version ?? LocString(LocCode.Latest), DarkGreen));
                                 }
-                                SetStatus($"Your {DepotNames[DepotID]} has been successfully updated", DarkGreen);
+                                SetStatus(string.Format(LocString(LocCode.UpdateSuccess), DepotNames[DepotID]), DarkGreen);
                             }
                         }
                     }
                 }
             }
             else
-                SetStatus("Failed to connect to Steam network", DarkRed);
+                SetStatus(LocString(LocCode.ConnectToSteamFailed), DarkRed);
             DepotLocks[DepotID] = false;
             Current.Dispatcher.Invoke(Finish);
         }
@@ -631,12 +643,12 @@ namespace TEKLauncher.SteamInterop.Network
             FilesUpToDate = FilesOutdated = FilesMissing = 0;
             InstallSize = DownloadSize = 0L;
             BaseDownloadPath = $@"{DownloadsDirectory}\{DepotID}.{this.ModID = ModID}";
-            SetStatus("Connecting to Steam network...", YellowBrush);
+            SetStatus(LocString(LocCode.ConnectingToSteam), YellowBrush);
             if (Connect())
             {
-                SetStatus("Requesting data from Steam...", YellowBrush);
+                SetStatus(LocString(LocCode.RequestingData), YellowBrush);
                 if ((LatestManifestID = GetManifestIDForMod(DepotID, ModID)) == 0UL)
-                    SetStatus("Timeout requesting data, try again", DarkRed);
+                    SetStatus(LocString(LocCode.Timeout), DarkRed);
                 else
                 {
                     CDNClient = new CDNClient(DepotID, Progress, ProgressBar, SetStatus, ModID);
@@ -650,7 +662,7 @@ namespace TEKLauncher.SteamInterop.Network
                         {
                             IsValidating = false;
                             if (!ValidationFailed)
-                                SetStatus("Validation paused", DarkGreen);
+                                SetStatus(LocString(LocCode.ValidationPaused), DarkGreen);
                             Finish = true;
                         }
                     }
@@ -668,42 +680,42 @@ namespace TEKLauncher.SteamInterop.Network
                             if (!(OldManifest is null) && FileExists(OldManifest.Path))
                                 Delete(OldManifest.Path);
                             Log("No changes required, finishing up");
-                            SetStatus($"Mod {ModID} is already up to date", DarkGreen);
+                            SetStatus(string.Format(LocString(LocCode.ModAlrUpToDate), ModID), DarkGreen);
                         }
                         else
                         {
                             Log($"{FilesMissing + FilesOutdated} files are going to be downloaded with a total size {ConvertBytes(InstallSize)} and download size {ConvertBytes(DownloadSize)}");
                             Log("Preallocating files...");
-                            SetStatus("Preallocating", YellowBrush);
+                            SetStatus(LocString(LocCode.Preallocating), YellowBrush);
                             Preallocate(Changes);
-                            SetStatus("Downloading updated files", YellowBrush);
+                            SetStatus(LocString(LocCode.DownloadingUpd), YellowBrush);
                             IsDownloading = true;
                             CDNClient.DownloadChanges(Changes, DownloadSize, Cancellator.Token);
                             if (Cancellator.IsCancellationRequested || CDNClient.DownloadFailed)
                             {
                                 IsDownloading = false;
                                 if (!CDNClient.DownloadFailed)
-                                    SetStatus("Download paused", DarkGreen);
+                                    SetStatus(LocString(LocCode.DwPaused), DarkGreen);
                             }
                             else
                             {
                                 IsDownloading = false;
                                 Log("Download complete, installing...");
-                                SetStatus("Installing update", YellowBrush);
+                                SetStatus(LocString(LocCode.InstallingUpd), YellowBrush);
                                 InstallChanges(Changes);
-                                SetStatus("Commiting installed changes", YellowBrush);
+                                SetStatus(LocString(LocCode.CommittingUpd), YellowBrush);
                                 (Mods.Find(Mod => Mod.ID == SpacewarID) ?? new Mod($@"{Steam.WorkshopPath}\{SpacewarID}", null)).Install(Progress, ProgressBar);
                                 if (!(OldManifest is null) && FileExists(OldManifest.Path))
                                     Delete(OldManifest.Path);
                                 Log("Installation complete!");
-                                SetStatus("Mod has been successfully updated", DarkGreen);
+                                SetStatus(LocString(LocCode.ModUpdSuccess), DarkGreen);
                             }
                         }
                     }
                 }
             }
             else
-                SetStatus("Failed to connect to Steam network", DarkRed);
+                SetStatus(LocString(LocCode.ConnectToSteamFailed), DarkRed);
             if (ModLocks.Contains(SpacewarID))
                 ModLocks.Remove(SpacewarID);
             Current.Dispatcher.Invoke(Finish);

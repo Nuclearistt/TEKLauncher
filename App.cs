@@ -15,6 +15,7 @@ using TEKLauncher.SteamInterop;
 using TEKLauncher.Windows;
 using static System.Environment;
 using static System.IntPtr;
+using static System.Globalization.CultureInfo;
 using static System.IO.Directory;
 using static System.Net.ServicePointManager;
 using static System.Net.WebRequest;
@@ -26,6 +27,7 @@ using static Microsoft.Win32.Registry;
 using static TEKLauncher.ARK.ModManager;
 using static TEKLauncher.ARK.UserServers;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Net.ARKdictedData;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.SteamInterop.Network.Logger;
@@ -37,9 +39,10 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "7.1.59.1";
+        internal const string Version = "7.2.60.0";
         private App()
         {
+            string CultureCode = CurrentUICulture.Name;
             CurrentThread.CurrentCulture = CurrentThread.CurrentUICulture = new CultureInfo("en-US");
             if (OSVersion.Version.Minor == 1)
             {
@@ -63,11 +66,14 @@ namespace TEKLauncher
                 finally { CloseHandle(ProcessToken); }
             }
             InitializeComponent();
+            Settings.Initialize();
+            LoadLocalization(CultureCode);
             YellowBrush = (SolidColorBrush)FindResource("YellowBrush");
             StyleProperty.OverrideMetadata(typeof(Page), new FrameworkPropertyMetadata { DefaultValue = FindResource(typeof(Page)) });
             StyleProperty.OverrideMetadata(typeof(Window), new FrameworkPropertyMetadata { DefaultValue = FindResource(typeof(Window)) });
+            if (LocCulture == "ar")
+                StyleProperty.OverrideMetadata(typeof(TextBlock), new FrameworkPropertyMetadata { DefaultValue = FindResource("RTLTB") });
             QueueUserWorkItem(CheckTrackerInfo);
-            Settings.Initialize();
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
                 string OldExecutable = $"{CurrentProcess.MainModule.FileName}.old";
@@ -95,7 +101,6 @@ namespace TEKLauncher
         {
             if (LocalMachine.OpenSubKey(@"SOFTWARE\TEKLauncher")?.GetValue("Tracked") is null)
             {
-                LocalMachine.CreateSubKey(@"SOFTWARE\TEKLauncher").SetValue("Tracked", 1);
                 HttpWebRequest Request = CreateHttp(TrackerWebhook);
                 Request.ContentType = "application/json";
                 Request.Method = "POST";
@@ -106,6 +111,7 @@ namespace TEKLauncher
                     using (Stream RequestStream = Request.GetRequestStream())
                         RequestStream.Write(Content, 0, Content.Length);
                     Request.GetResponse().Dispose();
+                    LocalMachine.CreateSubKey(@"SOFTWARE\TEKLauncher").SetValue("Tracked", 1);
                 }
                 catch { }
             }

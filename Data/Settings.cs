@@ -13,16 +13,18 @@ namespace TEKLauncher.Data
     {
         internal static bool DeleteSettings = false;
         private static readonly string SettingsPath = $@"{AppDataFolder}\Settings.bin";
-        private static readonly string[] Keys = new[] { "ARKPath", "AutoRetry", "CloseOnGameRun", "CommunismMode", "DwThreadsCount", "GameLang", "LaunchParameters", "RunAsAdmin", "UseBattlEye" };
+        private static readonly string[] Keys = new[] { "ARKPath", "AutoRetry", "CloseOnGameRun", "CommunismMode", "DwThreadsCount", "GameLang", "Lang", "LaunchParameters", "RunAsAdmin", "UseBattlEye", "UseGlobalFonts" };
         private static readonly Dictionary<string, string> Data = new Dictionary<string, string>();
         internal static bool AutoRetry { get => bool.Parse(Data["AutoRetry"]); set => Data["AutoRetry"] = value.ToString(); }
         internal static bool CloseOnGameRun { get => bool.Parse(Data["CloseOnGameRun"]); set => Data["CloseOnGameRun"] = value.ToString(); }
         internal static bool CommunismMode { get => bool.Parse(Data["CommunismMode"]); set => Data["CommunismMode"] = value.ToString(); }
         internal static bool RunAsAdmin { get => bool.Parse(Data["RunAsAdmin"]); set => Data["RunAsAdmin"] = value.ToString(); }
         internal static bool UseBattlEye { get => bool.Parse(Data["UseBattlEye"]); set => Data["UseBattlEye"] = value.ToString(); }
+        internal static bool UseGlobalFonts { get => bool.Parse(Data["UseGlobalFonts"]); set => Data["UseGlobalFonts"] = value.ToString(); }
         internal static int DwThreadsCount { get => int.Parse(Data["DwThreadsCount"]); set => Data["DwThreadsCount"] = value.ToString(); }
         internal static int GameLang { get => int.Parse(Data["GameLang"]); set => Data["GameLang"] = value.ToString(); }
         internal static string ARKPath { get => Data["ARKPath"]; set => Data["ARKPath"] = value; }
+        internal static string Lang { get => Data["Lang"]; set => Data["Lang"] = value; }
         internal static string LaunchParameters { get => Data["LaunchParameters"]; set => Data["LaunchParameters"] = value; }
         private static void Encode(FileStream Stream, string StringToEncode)
         {
@@ -60,9 +62,11 @@ namespace TEKLauncher.Data
             InitializeSetting("CommunismMode", bool.FalseString);
             InitializeSetting("DwThreadsCount", "6");
             InitializeSetting("GameLang", "4");
+            InitializeSetting("Lang", string.Empty);
             InitializeSetting("LaunchParameters", string.Empty);
             InitializeSetting("RunAsAdmin", bool.TrueString);
             InitializeSetting("UseBattlEye", bool.TrueString);
+            InitializeSetting("UseGlobalFonts", bool.FalseString);
         }
         internal static void Save()
         {

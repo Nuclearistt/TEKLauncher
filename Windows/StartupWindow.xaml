@@ -1,6 +1,7 @@
 ﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:Controls="clr-namespace:TEKLauncher.Controls" x:Class="TEKLauncher.Windows.StartupWindow" Title="TEK Launcher"
-        Width="800" Height="450" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+        xmlns:Controls="clr-namespace:TEKLauncher.Controls" xmlns:UI="clr-namespace:TEKLauncher.UI"
+        x:Class="TEKLauncher.Windows.StartupWindow" Title="TEK Launcher" Width="800" Height="450"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Border Margin="12.5" CornerRadius="25" UseLayoutRounding="True">
         <Border.Effect>
             <DropShadowEffect Color="{DynamicResource Bright}" BlurRadius="12.5" ShadowDepth="0"/>
@@ -37,14 +38,15 @@
                         <ColumnDefinition Width="14*"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Foreground="{DynamicResource BrightGrayBrush}" FontSize="22" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Select game folder (ARK/ARKSurvivalEvolved/ArkGameData), or the folder where you want to install game to"/>
-                    <Controls:PathSelector Grid.Row="3" Grid.Column="1" x:Name="Selector" PickFolders="True" Text="Select ARK folder" Select="SelectFolder" Reselect="SelectFolder"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" Name="RequiredSpace" Foreground="{DynamicResource BrightBrush}" FontSize="20" Visibility="Hidden" Text="Required disk space: 110 GB"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Foreground="{DynamicResource BrightGrayBrush}" FontSize="22" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{UI:LocString StartupMessage}"/>
+                    <Controls:PathSelector Grid.Row="3" Grid.Column="1" x:Name="Selector" PickFolders="True" Text="{UI:LocString SelectARKFolder}" Select="SelectFolder" Reselect="SelectFolder"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Name="RequiredSpace" Foreground="{DynamicResource BrightBrush}" FontSize="20" Visibility="Hidden" Text="{UI:LocString ReqDiskSpace}"/>
                     <StackPanel Grid.Row="4" Grid.Column="1" Name="FreeDiskSpaceStack" HorizontalAlignment="Right" Visibility="Hidden" Orientation="Horizontal">
-                        <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="Free disk space: "/>
-                        <TextBlock Name="FreeDiskSpace" FontSize="20"/>
+                        <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="{UI:LocString FreeDiskSpace}"/>
+                        <TextBlock Name="FreeDiskSpace" Margin="5, 0, 0, 0" FontSize="20"/>
+                        <TextBlock Name="FreeDiskSpaceUnit" Margin="5, 0, 0, 0" FontSize="20"/>
                     </StackPanel>
-                    <Button Grid.Row="5" Grid.Column="1" Name="ContinueButton" HorizontalAlignment="Center" Content="Continue" Click="Continue">
+                    <Button Grid.Row="5" Grid.Column="1" Name="ContinueButton" HorizontalAlignment="Center" Content="{UI:LocString Continue}" Click="Continue">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Focusable" Value="False"/>

@@ -19,6 +19,7 @@ using static System.Windows.DataObject;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.Net.ARKdictedData;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
@@ -32,6 +33,8 @@ namespace TEKLauncher.Pages
         internal ModInstallerPage()
         {
             InitializeComponent();
+            if (LocCulture == "ar")
+                StatusStack.FlowDirection = SpacewarStack.FlowDirection = ARKStack.FlowDirection = FlowDirection.RightToLeft;
             Downloader = new ContentDownloader(346110U, FinishHandler, SetStatus, ProgressBar);
         }
         internal ModInstallerPage(string ID) : this() => Loaded += (Sender, Args) => ARKID.Text = ID;
@@ -58,12 +61,12 @@ namespace TEKLauncher.Pages
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
                 {
-                    if (Exception.Message == "Download failed" && AutoRetry)
+                    if (Exception.Message == LocString(LocCode.DownloadFailed) && AutoRetry)
                         goto Beginning;
                     else
                         Dispatcher.Invoke(() =>
                         {
-                            SetStatus($"Error: {Exception.Message}", DarkRed);
+                            SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
                             FinishHandler();
                             DeletePath($@"{Game.Path}\ShooterGame\Content\Mods\{SpacewarModID}");
                         });
@@ -84,7 +87,7 @@ namespace TEKLauncher.Pages
         {
             if (Downloader.FilesUpToDate == 1L)
             {
-                SetStatus($"Subscribing {SpacewarModDetails.Name}", YellowBrush);
+                SetStatus(string.Format(LocString(LocCode.MISubscribing), SpacewarModDetails.Name), YellowBrush);
                 bool Subscribed = false;
                 if (await TryDeployAsync())
                     if (await SteamAPI.SubscribeModAsync(SpacewarModID))
@@ -93,10 +96,10 @@ namespace TEKLauncher.Pages
                     Mods.Last().IsSubscribed = true;
                 else
                 {
-                    Show("Info", "Mod was installed successfully, but couldn't be subscribed automatically. After pressing \"OK\" you will be redirected to Spacewar mod's page to subscribe");
+                    Show("Info", LocString(LocCode.MISubFailed));
                     Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={SpacewarID.Text}");
                 }
-                SetStatus($"Successfully installed {ARKModDetails.Name}", DarkGreen);
+                SetStatus(string.Format(LocString(LocCode.MISuccess), ARKModDetails.Name), DarkGreen);
             }
             SpacewarID.IsReadOnly = ARKID.IsReadOnly = false;
             SelectIDButton.IsEnabled = InstallCancelButton.IsEnabled = BackButton.IsEnabled = true;
@@ -114,41 +117,41 @@ namespace TEKLauncher.Pages
             {
                 InstallCancelButton.IsEnabled = false;
                 Downloader.Pause();
-                SetStatus("Cancelling...", YellowBrush);
+                SetStatus(LocString(LocCode.Cancelling), YellowBrush);
             }
             else if (ARKID.Text.Length == 0)
-                SetStatus("Enter ARK mod ID", DarkRed);
+                SetStatus(LocString(LocCode.MIEnterARKID), DarkRed);
             else
             {
                 ulong ID = ulong.Parse(ARKID.Text);
                 if (Workshop.ContainsKey(ID))
                 {
-                    if (!(Mods.Find(Mod => Mod.ID == Workshop[ID])?.IsInstalled ?? false) && ShowOptions("Info", "A reupload of this mod is available in ARKdicted workshop. Do you want to subscribe it instead? If you press \"Yes\", the mod will be subscribed and downloaded by Steam. If you press \"No\", the launcher will proceed with default installation method"))
+                    if (!(Mods.Find(Mod => Mod.ID == Workshop[ID])?.IsInstalled ?? false) && ShowOptions("Info", LocString(LocCode.MIARKdictedPrompt)))
                     {
                         ulong ARKDictedID = Workshop[ID];
-                        SetStatus("Requesting mod's details", YellowBrush);
+                        SetStatus(LocString(LocCode.MIRequestingDetails), YellowBrush);
                         ModDetails[] Response = await GetModsDetailsAsync(ARKDictedID);
                         ModDetails Details = (Response?.Length ?? 0) == 0 ? default : Response[0];
                         string Name = Details.Status == 1 ? Details.Name : "ARKdicted mod";
-                        SetStatus($"Subscribing {Name}", YellowBrush);
+                        SetStatus(string.Format(LocString(LocCode.MISubscribing), Name), YellowBrush);
                         bool Subscribed = false;
                         if (await TryDeployAsync())
                             if (await SteamAPI.SubscribeModAsync(ARKDictedID))
                                 Subscribed = true;
                         if (!Subscribed)
                         {
-                            Show("Info", "Failed to subscribe the mod automatically. After pressing \"OK\" you will be redirected to mod's page to subscribe");
+                            Show("Info", LocString(LocCode.FailedToSub));
                             Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={ARKDictedID}");
                         }
-                        SetStatus($"Successfully subscribed {Name}", DarkGreen);
+                        SetStatus(string.Format(LocString(LocCode.MISubSuccess), Name), DarkGreen);
                         FinishHandler();
                         return;
                     }
                 }
                 if (SpacewarID.Text.Length == 0)
-                    SetStatus("Enter Spacewar mod ID", DarkRed);
+                    SetStatus(LocString(LocCode.MIEnterSpacewarID), DarkRed);
                 else if (Mods.Find(Mod => Mod.ID == ulong.Parse(SpacewarID.Text))?.IsInstalled ?? false)
-                    SetStatus("Selected Spacewar mod ID is already in use", DarkRed);
+                    SetStatus(LocString(LocCode.MIIDInUse), DarkRed);
                 else
                 {
                     IsInstalling = true;
@@ -157,19 +160,19 @@ namespace TEKLauncher.Pages
                     ((VectorImage)InstallCancelButton.Template.FindName("Icon", InstallCancelButton)).Source = "Pause";
                     ARKModID = ID;
                     SpacewarModID = ulong.Parse(SpacewarID.Text);
-                    SetStatus("Requesting mods details", YellowBrush);
+                    SetStatus(LocString(LocCode.MIRequestingDetails), YellowBrush);
                     string Message = null;
                     ModDetails[] Details = await GetModsDetailsAsync(ARKModID, SpacewarModID);
                     if ((Details?.Length ?? 0) < 2)
-                        Message = "Failed to request mods details, try again";
+                        Message = LocString(LocCode.MIRequestFailed);
                     else if (Details[0].Status == 2)
-                        Message = "ARK mod with selected ID doesn't exist";
+                        Message = LocString(LocCode.MINoARKMod);
                     else if (Details[0].AppID != 346110U)
-                        Message = "Entered ARK mod ID doesn't belong to ARK workshop";
+                        Message = LocString(LocCode.MINotAnARKMod);
                     else if (Details[1].Status == 2)
-                        Message = "Spacewar mod with selected ID doesn't exist";
+                        Message = LocString(LocCode.MINoSpacewarMod);
                     else if (Details[1].AppID != 480U)
-                        Message = "Entered Spacewar mod ID doesn't belong to Spacewar workshop";
+                        Message = LocString(LocCode.MINotASpacewarMod);
                     if (Message is null)
                     {
                         ARKModDetails = Details[0];
@@ -201,12 +204,12 @@ namespace TEKLauncher.Pages
                     if (Spacewar && Details.AppID != 480)
                     {
                         (Spacewar ? ErrorS : ErrorA).Visibility = Visibility.Visible;
-                        (Spacewar ? ErrorS : ErrorA).Text = "Not a Spacewar mod";
+                        (Spacewar ? ErrorS : ErrorA).Text = LocString(LocCode.MINotASpacewarMod);
                     }
                     else if (!Spacewar && Details.AppID != 346110)
                     {
                         (Spacewar ? ErrorS : ErrorA).Visibility = Visibility.Visible;
-                        (Spacewar ? ErrorS : ErrorA).Text = "Not an ARK mod";
+                        (Spacewar ? ErrorS : ErrorA).Text = LocString(LocCode.MIPvNotAnARKMod);
                     }
                     else
                         (Spacewar ? ErrorS : ErrorA).Visibility = Visibility.Collapsed;
@@ -216,7 +219,7 @@ namespace TEKLauncher.Pages
                     (Spacewar ? PreviewS : PreviewA).Source = new BitmapImage();
                     (Spacewar ? NameS : NameA).Text = string.Empty;
                     (Spacewar ? ErrorS : ErrorA).Visibility = Visibility.Visible;
-                    (Spacewar ? ErrorS : ErrorA).Text = Details.Status == 0 ? "Failed to load preview" : "Mod with this ID doesn't exist";
+                    (Spacewar ? ErrorS : ErrorA).Text = Details.Status == 0 ? LocString(LocCode.MIPvFailed) : LocString(LocCode.MIPvNoMod);
                 }
             });
         }
@@ -234,7 +237,7 @@ namespace TEKLauncher.Pages
                     SpacewarID.Text = ID.ToString();
                     return;
                 }    
-            Show("Warning", "All predefined IDs are in use!");
+            Show("Warning", LocString(LocCode.MIAllIDsUsed));
         }
         private void SetStatus(string Text, SolidColorBrush Color)
         {

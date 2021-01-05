@@ -6,6 +6,7 @@ using TEKLauncher.Windows;
 using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.UI.Notifications;
 using static TEKLauncher.Utils.UtilFunctions;
 
@@ -22,7 +23,7 @@ namespace TEKLauncher
         private static void CreateNotification()
         {
             if (PreparingNotification is null)
-                PreparingNotification = AddLoading("Preparing Communism mode ");
+                PreparingNotification = AddLoading($"{LocString(LocCode.PrepCommunismMode)} ");
         }
         private static void HideNotification()
         {

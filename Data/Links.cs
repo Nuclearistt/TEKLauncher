@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using static System.Windows.Application;
 using static TEKLauncher.Utils.TEKArchive;
 
@@ -27,17 +26,17 @@ namespace TEKLauncher.Data
                     DiscordKillBills = Reader.ReadLine();
                     DiscordARKRussia = Reader.ReadLine();
                     DotNETFramework = Reader.ReadLine();
+                    FilesStorage = Reader.ReadLine();
                     GDriveBattlEyeFile = Reader.ReadLine();
                     GDriveCommonRedistFile = Reader.ReadLine();
+                    GDriveGlobalFontsFile = Reader.ReadLine();
                     GDriveLauncherFile = Reader.ReadLine();
                     GDriveLocalProfileFile = Reader.ReadLine();
                     GDriveVersionFile = Reader.ReadLine();
                     Patreon = Reader.ReadLine();
-                    Seedbox = Reader.ReadLine();
                     SteamWebAPI = Reader.ReadLine();
                     SupportChannel = Reader.ReadLine();
                     TrackerWebhook = Reader.ReadLine();
-                    SeedboxCredential = new NetworkCredential(Reader.ReadLine(), Reader.ReadLine());
                 }
             }
         }
@@ -52,16 +51,16 @@ namespace TEKLauncher.Data
             DiscordKillBills,
             DiscordARKRussia,
             DotNETFramework,
+            FilesStorage,
             GDriveBattlEyeFile,
             GDriveCommonRedistFile,
+            GDriveGlobalFontsFile,
             GDriveLauncherFile,
             GDriveLocalProfileFile,
             GDriveVersionFile,
             Patreon,
-            Seedbox,
             SteamWebAPI,
             SupportChannel,
             TrackerWebhook;
-        internal static readonly NetworkCredential SeedboxCredential;
     }
 }

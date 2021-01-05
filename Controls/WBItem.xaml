@@ -1,5 +1,5 @@
 ﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="TEKLauncher.Controls.WBItem" Margin="0, 15, 0, 0">
+             xmlns:UI="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Controls.WBItem" Margin="0, 15, 0, 0">
     <Border Padding="10" Background="{DynamicResource DarkestDarkBrush}" CornerRadius="25">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -18,7 +18,7 @@
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
-            <Button Grid.Column="2" Name="InstallButton" Margin="10, 0, 10, 0" VerticalAlignment="Center" Content="Install" Click="Install"/>
+            <Button Grid.Column="2" Name="InstallButton" Margin="10, 0, 10, 0" VerticalAlignment="Center" Content="{UI:LocString Install}" Click="Install"/>
         </Grid>
     </Border>
 </UserControl>

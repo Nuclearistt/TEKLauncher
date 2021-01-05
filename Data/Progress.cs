@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using static System.Environment;
 using static System.Math;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.Data
@@ -13,11 +14,8 @@ namespace TEKLauncher.Data
         internal long Current, Total;
         internal double Ratio;
         private readonly ProgressUpdatedEventHandler ProgressUpdated;
-        internal string BytesProgress => ConvertBytes(Current);
-        internal string BytesTotalProgress => $"{ConvertBytes(Current)}/{ConvertBytes(Total)}";
         internal string Percentage => $"{Round(Ratio * 100D)}%";
         internal string PrecisePercentage => $"{Round(Ratio * 100D, 2)}%";
-        internal string Speed => $"{ConvertBytes(Difference)}/s";
         internal delegate void ProgressUpdatedEventHandler();
         internal void Increase()
         {
@@ -45,6 +43,12 @@ namespace TEKLauncher.Data
             }
             try { Application.Current.Dispatcher.Invoke(ProgressUpdated); }
             catch { }
+        }
+        internal string GetSpeed(out string Unit)
+        {
+            string Value = ConvertBytesSep(Difference, out string ConversionUnit);
+            Unit = $"{ConversionUnit}/{LocString(LocCode.Second)}";
+            return Value;
         }
     }
 }

@@ -11,6 +11,7 @@ using static System.Windows.Clipboard;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.UI.Notifications;
@@ -25,8 +26,8 @@ namespace TEKLauncher.Controls
             InitializeComponent();
             this.Mod = Mod;
             bool InfoFileMissing = Mod.Name == string.Empty;
-            string NameString = InfoFileMissing ? "Info file missing" : Mod.Name;
-            ModID.Text = $"ID: {Mod.ID}";
+            string NameString = InfoFileMissing ? LocString(LocCode.InfoFileMissing) : Mod.Name;
+            ModID.Text = string.Format(LocString(LocCode.ModID), Mod.ID);
             if (Mod.OriginID == 0UL)
             {
                 ModName.Text = Mod.Details.Status == 1 ? Mod.Details.Name : Mod.Name;
@@ -47,7 +48,7 @@ namespace TEKLauncher.Controls
             else
             {
                 OBlock.Visibility = Visibility.Visible;
-                OriginalID.Text = $"Original mod ID: {Mod.OriginID}";
+                OriginalID.Text = string.Format(LocString(LocCode.OriginalID), Mod.OriginID);
                 if (Mod.OriginDetails.Status == 1)
                     ModName.Text = Mod.OriginDetails.Name;
                 else
@@ -65,26 +66,30 @@ namespace TEKLauncher.Controls
                         ModName.Foreground = DarkRed;
                 }
             }
+            if (ModName.Text.Length > 35)
+                ModName.Text = ModName.Text.Substring(0, 35);
+            if (SecondaryName.Text.Length > 35)
+                SecondaryName.Text = SecondaryName.Text.Substring(0, 35);
             if (Mod.IsInstalled)
             {
                 InstalledStatus.Foreground = DarkGreen;
-                InstalledStatus.Text = "Installed";
+                InstalledStatus.Text = LocString(LocCode.Installed);
             }
             else
             {
                 InstalledStatus.Foreground = YellowBrush;
-                InstalledStatus.Text = "Not installed";
+                InstalledStatus.Text = LocString(LocCode.NotInstalled);
                 InstallButton.Visibility = Visibility.Visible;
             }
             if (Mod.IsSubscribed == true)
             {
                 SubscribedStatus.Foreground = DarkGreen;
-                SubscribedStatus.Text = "Subscribed";
+                SubscribedStatus.Text = LocString(LocCode.Subscribed);
             }
             else
             {
                 SubscribedStatus.Foreground = YellowBrush;
-                SubscribedStatus.Text = "Not subscribed";
+                SubscribedStatus.Text = LocString(LocCode.NotSubscribed);
                 SubscribeButton.Visibility = Visibility.Visible;
             }
             if (Mod.Status != Status.Updating)
@@ -116,12 +121,12 @@ namespace TEKLauncher.Controls
         private void CopyID(object Sender, RoutedEventArgs Args)
         {
             SetText(Mod.ID.ToString());
-            AddImage("Mod ID copied to clipboard", "Success");
+            AddImage(LocString(LocCode.ModIDCopied), "Success");
         }
         private void CopyOID(object Sender, RoutedEventArgs Args)
         {
             SetText(Mod.OriginID.ToString());
-            AddImage("Mod ID copied to clipboard", "Success");
+            AddImage(LocString(LocCode.ModIDCopied), "Success");
         }
         private void Follow(object Sender, RoutedEventArgs Args) => Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={Mod.ID}");
         private void FollowO(object Sender, RoutedEventArgs Args) => Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={Mod.OriginID}");
@@ -129,13 +134,13 @@ namespace TEKLauncher.Controls
         {
             bool Failed = false;
             string Name = Mod.OriginDetails.Status == 1 ? Mod.OriginDetails.Name : Mod.OriginID == 0UL && Mod.Details.Status == 1 ? Mod.Details.Name : Mod.Name;
-            Notification Notification = Dispatcher.Invoke(() => AddLoading($"Installing {Name}"));
+            Notification Notification = Dispatcher.Invoke(() => AddLoading(string.Format(LocString(LocCode.InstallingMod), Name)));
             try { Mod.Install(null, null); }
             catch (ValidatorException Exception)
             {
                 Failed = true;
                 DeletePath(Mod.ModsPath);
-                Dispatcher.Invoke(() => Show("Error", $"Error occured while installing {Mod.Name}: {Exception.Message}"));
+                Dispatcher.Invoke(() => Show("Error", string.Format(LocString(LocCode.ModInstallError), Mod.Name, Exception.Message)));
             }
             Dispatcher.Invoke(Notification.Hide);
             if (!Failed)
@@ -143,7 +148,7 @@ namespace TEKLauncher.Controls
                 Dispatcher.Invoke(() =>
                 {
                     InstalledStatus.Foreground = DarkGreen;
-                    InstalledStatus.Text = "Installed";
+                    InstalledStatus.Text = LocString(LocCode.Installed);
                     Mod.IsInstalled = true;
                 });
             }
@@ -162,12 +167,12 @@ namespace TEKLauncher.Controls
             if (Subscribed)
             {
                 SubscribedStatus.Foreground = DarkGreen;
-                SubscribedStatus.Text = "Subscribed";
+                SubscribedStatus.Text = LocString(LocCode.Subscribed);
                 Mod.IsSubscribed = true;
             }
             else
             {
-                Show("Info", "Failed to subscribe mod automatically. After pressing \"OK\" you will be redirected to mod's page to subscribe");
+                Show("Info", LocString(LocCode.FailedToSub));
                 Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={Mod.ID}");
             }
             SubscribeButton.Visibility = Visibility.Collapsed;
@@ -186,7 +191,7 @@ namespace TEKLauncher.Controls
                 if (!Unsubscribed)
                 {
                     Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={Mod.ID}");
-                    Show("Info", "Failed to unsubscribe mod automatically. Mod's page has been opened, press \"OK\" after unsubscribing it manually");
+                    Show("Info", LocString(LocCode.FailedToUnsub));
                 }
                 Mod?.Uninstall();
                 if (!(Mod is null))

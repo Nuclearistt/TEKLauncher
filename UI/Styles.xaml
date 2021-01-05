@@ -231,6 +231,9 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style x:Key="RTLTB" TargetType="TextBlock">
+        <Setter Property="FlowDirection" Value="RightToLeft"/>
+    </Style>
     <Style TargetType="Button">
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="Foreground" Value="{DynamicResource BrightGrayBrush}"/>
@@ -371,8 +374,9 @@
     </Style>
     <Style TargetType="ComboBox">
         <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Height" Value="35"/>
         <Setter Property="Foreground" Value="{DynamicResource BrightGrayBrush}"/>
-        <Setter Property="FontSize" Value="25"/>
+        <Setter Property="FontSize" Value="20"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -466,7 +470,7 @@
                                 </Style>
                             </ToggleButton.Style>
                         </ToggleButton>
-                        <ContentPresenter HorizontalAlignment="Center" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -475,7 +479,7 @@
     <Style TargetType="ComboBoxItem">
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="Foreground" Value="{DynamicResource BrightGrayBrush}"/>
-        <Setter Property="FontSize" Value="25"/>
+        <Setter Property="FontSize" Value="20"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">

@@ -2,6 +2,7 @@ using System.IO;
 using TEKLauncher.SteamInterop.Network;
 using static System.Array;
 using static System.BitConverter;
+using static TEKLauncher.Data.LocalizationManager;
 
 namespace TEKLauncher.Utils.Zlib
 {
@@ -21,13 +22,13 @@ namespace TEKLauncher.Utils.Zlib
         {
             int Method = Reader.ReadByte();
             if ((Method & 15) != 8 || (Method >> 4) + 8 > 15 || ((Method << 8) + Reader.ReadByte()) % 31 != 0)
-                throw new ValidatorException("Failed to decompress mod files");
+                throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
             BlocksDecoder.Inflate();
             byte[] ExpectedChecksum = new byte[4];
             Reader.Read(ExpectedChecksum, 0, 4);
             Reverse(ExpectedChecksum);
             if (BlocksDecoder.Checksum != ToUInt32(ExpectedChecksum, 0))
-                throw new ValidatorException("Failed to decompress mod files");
+                throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
         }
     }
 }

@@ -15,6 +15,7 @@ using static System.IO.File;
 using static System.Threading.Tasks.Task;
 using static System.Windows.Application;
 using static TEKLauncher.App;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.SteamInterop.Network.ContentDownloader;
 using static TEKLauncher.SteamInterop.Network.Logger;
@@ -165,13 +166,12 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 LogEntry += $": {Message}";
             Log(LogEntry);
             DownloadFailed = true;
-            throw new ValidatorException(Message ?? "Download failed");
+            throw new ValidatorException(Message ?? LocString(LocCode.DownloadFailed));
         }
         internal void DownloadChanges(List<FileEntry> Files, long DownloadSize, CancellationToken Token)
         {
             DownloadFailed = false;
             ChunkIndex = FileIndex = 0;
-
             this.Token = Token;
             Progress.Total = DownloadSize;
             Current.Dispatcher.Invoke(ProgressBar.SetDownloadMode);
@@ -197,8 +197,13 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 else
                 {
                     Log($"Found old manifest ({Path.GetFileName(ManifestFiles[0]).Split('-')[0]}) in the directory, reading...");
-                    SetStatus("Reading old manifest", YellowBrush);
-                    OldManifest = new DepotManifest(ManifestFiles[0], DepotID);
+                    SetStatus(LocString(LocCode.ReadingOldManifest), YellowBrush);
+                    try { OldManifest = new DepotManifest(ManifestFiles[0], DepotID); }
+                    catch (ValidatorException Exception)
+                    {
+                        Delete(ManifestFiles[0]);
+                        throw Exception;
+                    }
                     Log("Finished reading old manifest");
                 }
             }
@@ -208,16 +213,16 @@ namespace TEKLauncher.SteamInterop.Network.CDN
             {
                 Log("Latest manifest not found, downloading...");
                 string CompressedManifestFile = $"{LatestManifestFile}c";
-                SetStatus("Downloading latest manifest", YellowBrush);
+                SetStatus(LocString(LocCode.DwLatestManifest), YellowBrush);
                 Current.Dispatcher.Invoke(ProgressBar.SetDownloadMode);
                 if (!new Downloader(Progress).TryDownloadFile(CompressedManifestFile, $"{BaseURLs[0]}manifest/{LatestManifestID}/5"))
-                    throw new ValidatorException("Failed to download manifest");
+                    throw new ValidatorException(LocString(LocCode.DwManifestFailed));
                 Log("Download complete, decompressing manifest...");
                 Zip.Decompress(CompressedManifestFile, LatestManifestFile);
                 Delete(CompressedManifestFile);
             }
             Log("Reading manifest...");
-            SetStatus("Reading latest manifest", YellowBrush);
+            SetStatus(LocString(LocCode.ReadingLatestManifest), YellowBrush);
             DepotManifest Manifest;
             try { Manifest = new DepotManifest(LatestManifestFile, DepotID); }
             catch (ValidatorException Exception)

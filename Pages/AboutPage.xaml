@@ -1,5 +1,5 @@
 ﻿<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      x:Class="TEKLauncher.Pages.AboutPage">
+      xmlns:UI="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Pages.AboutPage">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -20,17 +20,19 @@
         </StackPanel>
         <StackPanel Grid.Row="2" Grid.Column="2">
             <TextBlock Name="MainInfo" Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" TextWrapping="Wrap"/>
-            <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="24" Text="Key features:"/>
+            <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="24" Text="{UI:LocString KeyFeatures}"/>
             <TextBlock Name="Features" Margin="20, 0, 0, 0" Foreground="{DynamicResource BrightGrayBrush}" FontSize="18"/>
-            <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="24" Text="Links:"/>
+            <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="24" Text="{UI:LocString Links}"/>
             <StackPanel Margin="20, 0, 0, 0">
-                <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• Launcher's official ">
-                    <Hyperlink Name="DownloadLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">download link</Hyperlink>
+                <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">
+                    <Hyperlink Name="DownloadLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">
+                        <Run Text="{UI:LocString DownloadLink}"/>
+                    </Hyperlink>
                 </TextBlock>
                 <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">
                     <Hyperlink Name="PatreonLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">Patreon</Hyperlink>
                 </TextBlock>
-                <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="Discord servers with TEK Launcher's news and support channels:"/>
+                <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="{UI:LocString Discords}"/>
                 <StackPanel Margin="20, 0, 0, 0">
                     <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">
                         <Hyperlink Name="ArkoudaLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">Arkouda</Hyperlink>

@@ -12,6 +12,7 @@ using static System.Windows.Application;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.Windows
@@ -26,7 +27,7 @@ namespace TEKLauncher.Windows
         private void DownloadBeganHandler()
         {
             TaskbarItemInfo.ProgressState = ProgressBar.Progress.Total < 1L ? TaskbarItemProgressState.Indeterminate : TaskbarItemProgressState.Normal;
-            Status.Text = "Downloading update";
+            Status.Text = LocString(LocCode.UpdaterDownloading);
         }
         private void DownloadManually(object Sender, RoutedEventArgs Args)
         {
@@ -49,15 +50,15 @@ namespace TEKLauncher.Windows
             string Executable;
             using (Process CurrentProcess = GetCurrentProcess())
                 Executable = CurrentProcess.MainModule.FileName;
-            if (await new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler }.TryDownloadFileAsync($"{Executable}.new", $"{Seedbox}TEKLauncher/TEKLauncher.exe", GDriveLauncherFile))
+            if (await new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler }.TryDownloadFileAsync($"{Executable}.new", $"{FilesStorage}TEKLauncher/TEKLauncher.exe", GDriveLauncherFile))
                 Install(Executable);
             else
             {
                 TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
                 Status.Foreground = DarkRed;
-                Status.Text = "Both download methods failed, download new version manually ";
+                Status.Text = $"{LocString(LocCode.UpdaterFail)} ";
                 Hyperlink Link = new Hyperlink { Foreground = (SolidColorBrush)FindResource("CyanBrush") };
-                Link.Inlines.Add("here");
+                Link.Inlines.Add(LocString(LocCode.UpdaterFailLink));
                 Link.Click += DownloadManually;
                 Status.Inlines.Add(Link);
             }

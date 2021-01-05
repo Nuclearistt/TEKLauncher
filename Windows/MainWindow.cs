@@ -27,6 +27,7 @@ using static TEKLauncher.CommunismMode;
 using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.ARK.Game;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.UI.Notifications;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -39,11 +40,13 @@ namespace TEKLauncher.Windows
         {
             MaxHeight = MaximizedPrimaryScreenHeight;
             InitializeComponent();
+            if (LocCulture == "ar")
+                VersionStack.FlowDirection = FlowDirection.RightToLeft;
             Initialize(this);
             if (!InstallMode)
             {
                 if (IsCorrupted)
-                    Add("Some critical game files are missing", "Validate", RunGameValidate);
+                    Add(LocString(LocCode.CritFilesMissing), LocString(LocCode.Validate), RunGameValidate);
                 Dispatcher.Invoke(CheckForLauncherUpdates);
             }
             Dispatcher.Invoke(CheckForGameAndDLCsUpdates);
@@ -54,11 +57,11 @@ namespace TEKLauncher.Windows
         internal SettingsPage SettingsPage;
         private async void CheckForLauncherUpdates()
         {
-            string OnlineVersion = await new Downloader().TryDownloadStringAsync($"{Seedbox}TEKLauncher/Version.txt", GDriveVersionFile);
+            string OnlineVersion = await new Downloader().TryDownloadStringAsync($"{FilesStorage}TEKLauncher/Version.txt", GDriveVersionFile);
             if (!(OnlineVersion is null || OnlineVersion == App.Version))
             {
                 string DisplayVersion = OnlineVersion.EndsWith(".0") ? OnlineVersion.Substring(0, OnlineVersion.Length - 2) : OnlineVersion;
-                Add($"Launcher version {DisplayVersion} is available", "Update", RunLauncherUpdater);
+                Add(string.Format(LocString(LocCode.LUpdateAvailable), DisplayVersion), LocString(LocCode.Update), RunLauncherUpdater);
             }
         }
         private async void CheckForGameAndDLCsUpdates()
@@ -72,9 +75,9 @@ namespace TEKLauncher.Windows
                         QuerySucceeded = true;
                 }
             else
-                Message.Show("Warning", "Internet connection is unavailable, some launcher functionality might be limited");
+                Message.Show("Warning", LocString(LocCode.NoInternet));
             string Executable = ExecutablePath;
-            if (QuerySucceeded)
+            if (QuerySucceeded && InitialQuery.Checksums.ContainsKey(MapCode.TheIsland))
             {
                 if (FileExists(Executable))
                 {
@@ -82,24 +85,24 @@ namespace TEKLauncher.Windows
                     using (FileStream ChecksumStream = OpenRead(Executable))
                     {
                         if (SHA.ComputeHash(ChecksumStream).SequenceEqual(InitialQuery.Checksums[MapCode.TheIsland]))
-                            SetCurrentVersion(Game.Version ?? "Latest", DarkGreen);
+                            SetCurrentVersion(Game.Version ?? LocString(LocCode.Latest), DarkGreen);
                         else
                         {
                             UpdateAvailable = true;
-                            SetCurrentVersion(Game.Version ?? "Outdated", YellowBrush);
-                            Add("New ARK version is available", "Update", RunGameUpdate);
+                            SetCurrentVersion(Game.Version ?? LocString(LocCode.Outdated), YellowBrush);
+                            Add(LocString(LocCode.ARKUpdateAvailable), LocString(LocCode.Update), RunGameUpdate);
                         }
                     }
                 }
                 else
-                    SetCurrentVersion("None", DarkRed);
-                Notification DLCNotification = AddLoading("Checking for DLCs updates ", "Update", RunDLCUpdater);
+                    SetCurrentVersion(LocString(LocCode.None), DarkRed);
+                Notification DLCNotification = AddLoading($"{LocString(LocCode.CheckingForDLCUpds)} ", LocString(LocCode.Update), RunDLCUpdater);
                 await CheckForUpdatesAsync(InitialQuery.Checksums);
                 bool DLCUpdatesAvailable = false;
                 foreach (DLC DLC in DLCs)
                     DLCUpdatesAvailable |= DLC.Status == Status.UpdateAvailable;
                 if (DLCUpdatesAvailable)
-                    DLCNotification.FinishLoading("There are DLCs updates available");
+                    DLCNotification.FinishLoading(LocString(LocCode.DLCUpdsAvailable));
                 else
                     DLCNotification.Hide();
             }
@@ -107,7 +110,7 @@ namespace TEKLauncher.Windows
             {
                 foreach (DLC DLC in DLCs)
                     DLC.SetStatus(DLC.IsInstalled ? Status.Installed : Status.NotInstalled);
-                SetCurrentVersion(FileExists(Executable) ? Game.Version ?? "N/A" : "None", (SolidColorBrush)FindResource("GrayBrush"));
+                SetCurrentVersion(FileExists(Executable) ? Game.Version ?? LocString(LocCode.NA) : LocString(LocCode.None), (SolidColorBrush)FindResource("GrayBrush"));
             }
         }
         private void Close(object Sender, RoutedEventArgs Args) => Close();
@@ -116,7 +119,7 @@ namespace TEKLauncher.Windows
             ContentDownloader Downloader = SettingsPage?.SteamDownloader;
             if ((Downloader?.IsValidating ?? false) || (Downloader?.IsDownloading ?? false) || (ModInstallerPage?.IsInstalling ?? false) || Current.Windows.OfType<ValidatorWindow>().Any())
             {
-                if (ShowOptions("Warning", "Closing the launcher will pause ongoing validations/downloads, are you sure you want to do it?"))
+                if (ShowOptions("Warning", LocString(LocCode.LauncherClosePrompt)))
                     Current.Shutdown();
                 else
                     Args.Cancel = true;

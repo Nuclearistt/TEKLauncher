@@ -19,9 +19,18 @@
             </Path.Data>
         </Path>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Name="BytesProgress" FontSize="20" Text="0 KB"/>
-            <TextBlock Name="Percentage" FontSize="38" Text="0%"/>
-            <TextBlock Name="Speed" FontSize="20" Text="0 KB/s"/>
+            <StackPanel Name="BytesProgressStack" Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Name="BytesProgressValue" FontSize="20" Text="0"/>
+                <TextBlock Name="BytesProgress" Margin="5, 0, 0, 0" FontSize="20"/>
+                <TextBlock Name="Slash" FontSize="20"/>
+                <TextBlock Name="BytesTotalValue" FontSize="20"/>
+                <TextBlock Name="BytesTotal" Margin="5, 0, 0, 0" FontSize="20"/>
+            </StackPanel>
+            <TextBlock Name="Percentage" FontSize="38" HorizontalAlignment="Center" Text="0%"/>
+            <StackPanel Name="SpeedStack" Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Name="SpeedValue" FontSize="20" Text="0"/>
+                <TextBlock Name="Speed" Margin="5, 0, 0, 0" FontSize="20"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

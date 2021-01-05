@@ -1,5 +1,6 @@
 using TEKLauncher.SteamInterop.Network;
 using static System.Array;
+using static TEKLauncher.Data.LocalizationManager;
 
 namespace TEKLauncher.Utils.Zlib
 {
@@ -47,9 +48,9 @@ namespace TEKLauncher.Utils.Zlib
             int LastCountIncrease = 1 << CurrentCodeLength;
             for (int Iterator = CurrentCodeLength; Iterator < MaxCodeLength; Iterator++, LastCountIncrease <<= 1)
                 if ((LastCountIncrease -= LCountTable[Iterator]) < 0)
-                    throw new ValidatorException("Failed to decompress mod files");
+                    throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
             if ((LastCountIncrease -= LCountTable[MaxCodeLength]) < 0)
-                throw new ValidatorException("Failed to decompress mod files");
+                throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
             LCountTable[MaxCodeLength] += LastCountIncrease;
             int CountsSum = BitOffsets[1] = 0;
             for (int Iterator = 1, BitOffsetIndex = 2, CountIndex = 1; Iterator < MaxCodeLength; Iterator++)
@@ -84,7 +85,7 @@ namespace TEKLauncher.Utils.Zlib
                         }
                         EntriesCount = 1 << EntryIndex;
                         if (TreesCount + EntriesCount > 1440)
-                            throw new ValidatorException("Failed to decompress mod files");
+                            throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                         TableStack[++TableLevel] = TableIndex = TreesCount;
                         TreesCount += EntriesCount;
                         if (TableLevel == 0)
@@ -127,7 +128,7 @@ namespace TEKLauncher.Utils.Zlib
                     }
                 }
             if (!(LastCountIncrease == 0 || MaxCodeLength == 1))
-                throw new ValidatorException("Failed to decompress mod files");
+                throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
         }
         internal void InflateBitTrees(int[] BitLengths, int[] Trees, ref int TreeIndex, out int BitsPerBranch)
         {
@@ -144,11 +145,11 @@ namespace TEKLauncher.Utils.Zlib
             InitializeWorkspace(288);
             BuildTree(BitLengths, 0, LTreeLength, 257, CPLTable, CPLExtra, ref LTreeIndex, ref LBitsPerBranch, Trees);
             if (LBitsPerBranch == 0)
-                throw new ValidatorException("Failed to decompress mod files");
+                throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
             InitializeWorkspace(288);
             BuildTree(BitLengths, LTreeLength, DTreeLength, 0, CPDTable, CPDExtra, ref DTreeIndex, ref DBitsPerBranch, Trees);
             if (DBitsPerBranch == 0 && LTreeLength > 257)
-                throw new ValidatorException("Failed to decompress mod files");
+                throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
         }
     }
 }

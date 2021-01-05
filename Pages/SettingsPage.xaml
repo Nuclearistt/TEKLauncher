@@ -1,5 +1,6 @@
 ﻿<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:Controls="clr-namespace:TEKLauncher.Controls" x:Class="TEKLauncher.Pages.SettingsPage" Loaded="LoadedHandler">
+      xmlns:Controls="clr-namespace:TEKLauncher.Controls" xmlns:UI="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Pages.SettingsPage"
+      Loaded="LoadedHandler">
     <ScrollViewer Margin="0, 10, 15, 10" Padding="30, 20, 15, 20" VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <Grid>
@@ -9,26 +10,26 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2.5*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{StaticResource ImageButton}" Name="UpdateButton" Content="Update" Tag="Update" Click="Update"/>
-                <Button Grid.Column="2" Style="{StaticResource ImageButton}" Name="FixBEButton" Content="Fix BattlEye" Tag="Repair" Click="FixBattlEye"/>
-                <Button Grid.Column="4" Style="{StaticResource ImageButton}" Name="UnlockButton" Content="Unlock all skins" Tag="Unlock" Click="UnlockSkins"/>
-                <Button Grid.Column="6" Style="{StaticResource ImageButton}" Content="Uninstall all mods" Tag="Delete" Click="UninstallAllMods"/>
-                <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource ImageButton}" Name="ValidateButton" Content="Validate" Tag="Validate" Click="Validate"/>
-                <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource ImageButton}" Content="Fix bloom" Tag="Repair" Click="FixBloom"/>
-                <Button Grid.Row="2" Grid.Column="4" Style="{StaticResource ImageButton}" Content="Install Spacewar" Tag="Install" Click="InstallSpacewar"/>
-                <Button Grid.Row="2" Grid.Column="6" Style="{StaticResource ImageButton}" Name="InstallReqButton" Content="Install requirements" Tag="Install" Click="InstallRequirements"/>
+                <Button Grid.Column="0" Style="{StaticResource ImageButton}" Name="UpdateButton" Content="{UI:LocString Update}" Tag="Update" Click="Update"/>
+                <Button Grid.Column="2" Style="{StaticResource ImageButton}" Name="FixBEButton" Content="{UI:LocString FixBE}" Tag="Repair" Click="FixBattlEye"/>
+                <Button Grid.Column="4" Style="{StaticResource ImageButton}" Name="UnlockButton" Content="{UI:LocString UnlockSkins}" Tag="Unlock" Click="UnlockSkins"/>
+                <Button Grid.Column="6" Style="{StaticResource ImageButton}" Content="{UI:LocString UninstallAllMods}" Tag="Delete" Click="UninstallAllMods"/>
+                <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource ImageButton}" Name="ValidateButton" Content="{UI:LocString Validate}" Tag="Validate" Click="Validate"/>
+                <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource ImageButton}" Content="{UI:LocString FixBloom}" Tag="Repair" Click="FixBloom"/>
+                <Button Grid.Row="2" Grid.Column="4" Style="{StaticResource ImageButton}" Content="{UI:LocString InstallSpacewar}" Tag="Install" Click="InstallSpacewar"/>
+                <Button Grid.Row="2" Grid.Column="6" Style="{StaticResource ImageButton}" Name="InstallReqButton" Content="{UI:LocString InstallReqs}" Tag="Install" Click="InstallRequirements"/>
             </Grid>
-            <StackPanel Margin="0, 15, 0, 0" Orientation="Horizontal">
-                <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="Status:"/>
-                <TextBlock Name="Status" Margin="10, 0, 0, 0" Foreground="{DynamicResource GrayBrush}" FontSize="22" Text="Idle"/>
+            <StackPanel Name="StatusStack" Margin="0, 15, 0, 0" Orientation="Horizontal">
+                <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="{UI:LocString Status}"/>
+                <TextBlock Name="Status" Margin="5, 0, 0, 0" Foreground="{DynamicResource GrayBrush}" FontSize="22" Text="{UI:LocString Idle}"/>
             </StackPanel>
             <Grid Margin="0, 20, 0, 0">
                 <Grid.ColumnDefinitions>
@@ -49,56 +50,57 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="Files up to date:"/>
-                        <TextBlock Name="FilesUpToDate" Margin="10, 0, 0, 0" Foreground="DarkGreen" FontSize="22" Text="0"/>
+                        <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="{UI:LocString FilesUpToDate}"/>
+                        <TextBlock Name="FilesUpToDate" Margin="5, 0, 0, 0" Foreground="DarkGreen" FontSize="22" Text="0"/>
                     </StackPanel>
                     <StackPanel Grid.Row="3" Orientation="Horizontal">
-                        <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="Files outdated:"/>
-                        <TextBlock Name="FilesOutdated" Margin="10, 0, 0, 0" Foreground="{DynamicResource YellowBrush}" FontSize="22" Text="0"/>
+                        <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="{UI:LocString FilesOutdated}"/>
+                        <TextBlock Name="FilesOutdated" Margin="5, 0, 0, 0" Foreground="{DynamicResource YellowBrush}" FontSize="22" Text="0"/>
                     </StackPanel>
                     <StackPanel Grid.Row="5" Orientation="Horizontal">
-                        <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="Files missing:"/>
-                        <TextBlock Name="FilesMissing" Margin="10, 0, 0, 0" Foreground="DarkRed" FontSize="22" Text="0"/>
+                        <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="{UI:LocString FilesMissing}"/>
+                        <TextBlock Name="FilesMissing" Margin="5, 0, 0, 0" Foreground="DarkRed" FontSize="22" Text="0"/>
                     </StackPanel>
                 </Grid>
                 <StackPanel Grid.Column="3" VerticalAlignment="Center">
-                    <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="24" HorizontalAlignment="Center" Text="Crack"/>
+                    <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="24" HorizontalAlignment="Center" Text="{UI:LocString CreamAPI}"/>
                     <Border Padding="10, 20, 10, 20" BorderBrush="{DynamicResource BrightBrush}" BorderThickness="1.5" CornerRadius="25">
                         <StackPanel>
-                            <Button Style="{StaticResource ImageButton}" Name="SwitchCrackButton" Tag="Install" Click="SwitchCrack"/>
-                            <Button Style="{StaticResource ImageButton}" Name="ReapplyCrackButton" Margin="0, 15, 0, 0" Content="Reapply" Tag="Update" Click="ReapplyCrack"/>
+                            <Button Style="{StaticResource ImageButton}" Name="SwitchCreamAPIButton" Tag="Install" Click="SwitchCreamAPI"/>
+                            <Button Style="{StaticResource ImageButton}" Name="ReapplyCreamAPIButton" Margin="0, 15, 0, 0" Content="{UI:LocString Reapply}" Tag="Update" Click="ReapplyCreamAPI"/>
                         </StackPanel>
                     </Border>
+                    <CheckBox Name="UseGlobalFonts" Content="{UI:LocString UseGlobalFonts}" Checked="SetUseGlobalFonts" Unchecked="SetUseGlobalFonts"/>
                 </StackPanel>
             </Grid>
-            <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="26" HorizontalAlignment="Center" Text="Launch parameters"/>
+            <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="26" HorizontalAlignment="Center" Text="{UI:LocString LaunchParameters}"/>
             <Grid Name="LPGrid" Margin="0, 5, 0, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="4*"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="3.5*"/>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="4*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Makes game cache some files to improve loading speeds in some cases" Content="Use cache" Tag="-usecache"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Makes game use all CPU cores. Might not work on modern CPUs as game uses all cores by default" Content="Use all available cores" Tag="-useallavailablecores"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Sets game process priority to high. May slightly improve performance" Content="High process priority" Tag="-high"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="FXAA antialiasing blurs characters, this option disables it for fonts" Content="Disable fonts FXAA" Tag="-noaafonts"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Decreases version of Shader Model game uses from 5 to 4&#x0a;Significantly improves performance but some light-related visual effects look much worse&#x0a;This option is part of Use DirectX 10 option" Content="Use Shader Model 4" Tag="-sm4"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString UseCacheDesc}" Content="{UI:LocString UseCache}" Tag="-usecache"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString UseAllCoresDesc}" Content="{UI:LocString UseAllCores}" Tag="-useallavailablecores"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString HighPriorDesc}" Content="{UI:LocString HighPrior}" Tag="-high"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString NoFXAAFontsDesc}" Content="{UI:LocString NoFXAAFonts}" Tag="-noaafonts"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString SM4Desc}" Content="{UI:LocString SM4}" Tag="-sm4"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Makes game use DirectX10 instead of DirectX11&#x0a;Significantly decreases visual effects quality but improves performance the most&#x0a;Includes Use Shader Model 4 option" Content="Use DirectX 10" Tag="-d3d10"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Disables the splash screen shown before the actual game window is opened" Content="No splash screen" Tag="-nosplash"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Disables certain sky details such as clouds, may slightly improve performance" Content="Disable sky detail" Tag="-nomansky"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Increases performance at cost of using more RAM and GPU RAM, by ~600 MB each" Content="No memory bias" Tag="-nomemorybias"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString DX10Desc}" Content="{UI:LocString DX10}" Tag="-d3d10"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString NoSplashDesc}" Content="{UI:LocString NoSplash}" Tag="-nosplash"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString NoSkyDesc}" Content="{UI:LocString NoSky}" Tag="-nomansky"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString NoMemBiasDesc}" Content="{UI:LocString NoMemBias}" Tag="-nomemorybias"/>
                 </StackPanel>
                 <StackPanel Grid.Column="4">
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Drastically reduces the amount of RAM used by game&#x0a;Only recommended to use if you have 4 GB of RAM,&#x0a;otherwise makes game unstable" Content="Low memory mode" Tag="-lowmemory"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Disables multithreading for some rendering tasks&#x0a;May decrease performance while fixing some crashes, or causing others" Content="No RHI thread" Tag="-norhithread"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Disables vertical sync, increases performance but may cause screen tearing" Content="Disable VSync" Tag="-novsync"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Makes game keep everything loaded in singleplayer worlds&#x0a;May drastically decrease performance" Content="Disable SP hibernation" Tag="-preventhibernation"/>
-                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="Enables support for Nvidia Ansel screenshot tool" Content="Enable Ansel support" Tag="-allowansel"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString LowMemDesc}" Content="{UI:LocString LowMem}" Tag="-lowmemory"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString NoRHIDesc}" Content="{UI:LocString NoRHI}" Tag="-norhithread"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString NoVSyncDesc}" Content="{UI:LocString NoVSync}" Tag="-novsync"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString NoHibDesc}" Content="{UI:LocString NoHib}" Tag="-preventhibernation"/>
+                    <CheckBox ToolTipService.ShowDuration="30000" ToolTip="{UI:LocString AnselDesc}" Content="{UI:LocString Ansel}" Tag="-allowansel"/>
                 </StackPanel>
             </Grid>
         </StackPanel>

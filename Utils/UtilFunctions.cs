@@ -6,6 +6,7 @@ using static System.IntPtr;
 using static System.Math;
 using static System.IO.Directory;
 using static System.Security.Cryptography.Aes;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.Utils.WinAPI;
 
@@ -112,6 +113,22 @@ namespace TEKLauncher.Utils
             GetDiskFreeSpace(Path, out long FreeSpace, Zero, Zero);
             return FreeSpace;
         }
-        internal static string ConvertBytes(long Bytes) => Bytes >= 1073741824L ? $"{Round(Bytes / 1073741824D, 2)} GB" : Bytes >= 1048576L ? $"{Round(Bytes / 1048576D, 1)} MB" : $"{Round(Bytes / 1024D)} KB";
+        internal static string ConvertBytes(long Bytes) => Bytes > 1073741823L ? $"{Round(Bytes / 1073741824D, 2)} GB" : Bytes > 1048575L ? $"{Round(Bytes / 1048576D, 1)} MB" : $"{Round(Bytes / 1024D)} KB";
+        internal static string ConvertBytesLoc(long Bytes) => Bytes > 1073741823L ? $"{Round(Bytes / 1073741824D, 2)} {LocString(LocCode.GB)}" : Bytes > 1048575L ? $"{Round(Bytes / 1048576D, 1)} {LocString(LocCode.MB)}" : $"{Round(Bytes / 1024D)} {LocString(LocCode.KB)}";
+        internal static string ConvertBytesSep(long Bytes, out string Unit)
+        {
+            if (Bytes > 1073741823L)
+            {
+                Unit = LocString(LocCode.GB);
+                return Round(Bytes / 1073741824D, 2).ToString();
+            }
+            else if (Bytes > 1048575L)
+            {
+                Unit = LocString(LocCode.MB);
+                return Round(Bytes / 1048576D, 1).ToString();
+            }
+            Unit = LocString(LocCode.KB);
+            return Round(Bytes / 1024D).ToString();
+        }
     }
 }

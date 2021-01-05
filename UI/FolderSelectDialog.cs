@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using static System.Environment;
 using static System.IntPtr;
+using static TEKLauncher.Data.LocalizationManager;
 
 namespace TEKLauncher.UI
 {
@@ -25,7 +26,7 @@ namespace TEKLauncher.UI
                 Filter = "Folders|\n",
                 InitialDirectory = CurrentDirectory,
                 Multiselect = false,
-                Title = "Select folder"
+                Title = LocString(LocCode.SelectFolder)
             };
             object VistaDialog = typeof(OpenFileDialog).GetMethod("CreateVistaDialog", Flags).Invoke(Dialog, new object[0]);
             typeof(OpenFileDialog).GetMethod("OnBeforeVistaDialog", Flags).Invoke(Dialog, new[] { VistaDialog });

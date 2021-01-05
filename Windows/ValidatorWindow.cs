@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
@@ -15,6 +16,7 @@ using static System.Windows.Application;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.Game;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -28,7 +30,10 @@ namespace TEKLauncher.Windows
             this.DoValidate = DoValidate;
             this.DLC = DLC;
             InitializeComponent();
-            TitleBlock.Text = Title = $"DLC Validator ({DLC.Name})";
+            if (LocCulture == "ar")
+                foreach (Panel Stack in ValidationBlock.Children)
+                    Stack.FlowDirection = FlowDirection.RightToLeft;
+            TitleBlock.Text = Title = string.Format(LocString(LocCode.DLCValidator), DLC.Name);
             ProgressBar.ProgressUpdated = ProgressUpdatedHandler;
             LastStatus = DLC.Status;
             DLC.SetStatus(ARK.Status.Updating);
@@ -41,7 +46,7 @@ namespace TEKLauncher.Windows
             string Name = Mod.OriginID == 0UL ? Mod.Details.Status == 1 ? Mod.Details.Name : Mod.Name : Mod.OriginDetails.Status == 1 ? Mod.OriginDetails.Name : Mod.Name;
             if (Name.Length > 25)
                 Name = Name.Substring(0, 25);
-            TitleBlock.Text = Title = $"Mod Validator ({Name})";
+            TitleBlock.Text = Title = string.Format(LocString(LocCode.ModValidator), Name);
             ProgressBar.ProgressUpdated = ProgressUpdatedHandler;
             Downloader = new ContentDownloader(Mod.OriginID == 0UL ? 480U : 346110U, FinishHandler, SetStatus, ProgressBar);
             new Thread(UpdateJob).Start(this.DoValidate = DoValidate);
@@ -77,12 +82,12 @@ namespace TEKLauncher.Windows
                     });
                 }
             }
-            else if (ShowOptions("Warning", "Closing this window will pause download, are you sure you want to do it?"))
+            else if (ShowOptions("Warning", LocString(LocCode.ValidatorClosePrompt)))
             {
                 CloseCancelling = true;
                 Downloader.Pause();
                 Args.Cancel = true;
-                Message.Show("Info", "The window will be closed after cancellation process is finished");
+                Message.Show("Info", LocString(LocCode.ValidatorWaitingForCancel));
             }
             else
                 Args.Cancel = true;
@@ -118,16 +123,16 @@ namespace TEKLauncher.Windows
             else
             {
                 ValidationBlock.Visibility = Visibility.Hidden;
-                if (Status.Foreground == DarkGreen && !Status.Text.Contains("paused") && !Status.Text.Contains("cancelled"))
+                if (Status.Foreground == DarkGreen && Status.Text != LocString(LocCode.DwPaused) && Status.Text != LocString(LocCode.ValidationPaused))
                 {
                     Succeeded = true;
                     TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
-                    Status.Text += ". You may close the window now";
+                    Status.Text += LocString(LocCode.ValidatorCloseWindow);
                     Button.IsEnabled = false;
                 }
                 else
                 {
-                    Button.Content = "Retry";
+                    Button.Content = LocString(LocCode.Retry);
                     ((VectorImage)Button.Template.FindName("Icon", Button)).Source = "Update";
                 }
             }
@@ -136,33 +141,37 @@ namespace TEKLauncher.Windows
         {
             if (IsRunning && Mod is null)
             {
-                SetStatus("Can't update while game is running!", DarkRed);
-                Button.Content = "Retry";
+                SetStatus(LocString(LocCode.CantUpdateGameRunning), DarkRed);
+                Button.Content = LocString(LocCode.Retry);
                 ((VectorImage)Button.Template.FindName("Icon", Button)).Source = "Update";
             }
             else if (!IsConnectionAvailable())
             {
-                SetStatus("Can't update because internet connection is unavailable", DarkRed);
-                Button.Content = "Retry";
+                SetStatus(LocString(LocCode.CantUpdateNoInternet), DarkRed);
+                Button.Content = LocString(LocCode.Retry);
                 ((VectorImage)Button.Template.FindName("Icon", Button)).Source = "Update";
             }
-            else
-                new Thread(UpdateJob).Start(DoValidate);
-        }
-        private void Minimize(object Sender, RoutedEventArgs Args) => WindowState = WindowState.Minimized;
-        private void PauseRetry(object Sender, RoutedEventArgs Args)
-        {
-            if ((string)Button.Content == "Pause")
-                Downloader.Pause();
-            else if (IsRunning && Mod is null)
-                SetStatus("Can't update while game is running!", DarkRed);
-            else if (!IsConnectionAvailable())
-                SetStatus("Can't update because internet connection is unavailable", DarkRed);
             else
             {
                 Finished = false;
                 new Thread(UpdateJob).Start(DoValidate);
-                Button.Content = ((VectorImage)Button.Template.FindName("Icon", Button)).Source = "Pause";
+            }
+        }
+        private void Minimize(object Sender, RoutedEventArgs Args) => WindowState = WindowState.Minimized;
+        private void PauseRetry(object Sender, RoutedEventArgs Args)
+        {
+            if ((string)Button.Content == LocString(LocCode.Pause))
+                Downloader.Pause();
+            else if (IsRunning && Mod is null)
+                SetStatus(LocString(LocCode.CantUpdateGameRunning), DarkRed);
+            else if (!IsConnectionAvailable())
+                SetStatus(LocString(LocCode.CantUpdateNoInternet), DarkRed);
+            else
+            {
+                Finished = false;
+                new Thread(UpdateJob).Start(DoValidate);
+                Button.Content = LocString(LocCode.Pause);
+                ((VectorImage)Button.Template.FindName("Icon", Button)).Source = "Pause";
             }
         }
         private void ProgressUpdatedHandler()
@@ -200,12 +209,12 @@ namespace TEKLauncher.Windows
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
                 {
-                    if (Exception.Message == "Download failed" && AutoRetry)
+                    if (Exception.Message == LocString(LocCode.DownloadFailed) && AutoRetry)
                         goto Beginning;
                     else
                         Dispatcher.Invoke(() =>
                         {
-                            SetStatus($"Error: {Exception.Message}", DarkRed);
+                            SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
                             FinishHandler();
                         });
                 }

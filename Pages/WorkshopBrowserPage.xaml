@@ -1,5 +1,5 @@
 ﻿<Page xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      x:Class="TEKLauncher.Pages.WorkshopBrowserPage" Loaded="LoadedHandler">
+      xmlns:UI="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Pages.WorkshopBrowserPage" Loaded="LoadedHandler">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -18,7 +18,7 @@
             <Button Style="{StaticResource IconButton}" Width="40" Tag="Back" Click="GoBack"/>
         </Border>
         <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" Orientation="Horizontal">
-            <TextBox Name="SearchBar" Width="350" VerticalAlignment="Center" Tag="Search" TextChanged="TextChangedHandler"/>
+            <TextBox Name="SearchBar" Width="350" VerticalAlignment="Center" Tag="{UI:LocString Search}" TextChanged="TextChangedHandler"/>
             <TextBlock Name="ErrorBlock" Margin="10, 0, 0, 0" Foreground="DarkRed" FontSize="20" VerticalAlignment="Center" Visibility="Collapsed"/>
             <Button Style="{StaticResource IconButton}" Name="ReloadButton" Width="35" Margin="5, 0, 0, 0" VerticalAlignment="Center" Visibility="Collapsed" Tag="Update" Click="ReloadPage"/>
         </StackPanel>

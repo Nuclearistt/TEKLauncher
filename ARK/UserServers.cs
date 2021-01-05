@@ -44,7 +44,7 @@ namespace TEKLauncher.ARK
                         Reader.Read(NameBuffer, 0, NameLength);
                         UServers.Add(new Server(Address, Code, Port, UTF8.GetString(NameBuffer)) { MaxPlayers = MaxPlayers });
                     }
-                    Clusters[5].Servers = UServers.ToArray();
+                    Clusters[6].Servers = UServers.ToArray();
                 }
         }
         internal static void SaveList()
@@ -72,49 +72,49 @@ namespace TEKLauncher.ARK
             foreach (XmlNode Item in Items)
             {
                 XmlNodeList Fields = Item.ChildNodes;
+                if (!int.TryParse(Fields[2].InnerText, out int Result) || Result != 480)
+                    return null;
                 string Address = Fields[0].InnerText;
-                if (int.Parse(Fields[2].InnerText) == 480)
+                if (!int.TryParse(Address.Substring(Address.IndexOf(':') + 1), out int Port))
+                    return null;
+                IPEndPoint Endpoint = new IPEndPoint(IP, Port);
+                using (UdpClient Client = new UdpClient())
                 {
-                    int Port = int.Parse(Address.Substring(Address.IndexOf(':') + 1));
-                    IPEndPoint Endpoint = new IPEndPoint(IP, Port);
-                    using (UdpClient Client = new UdpClient())
+                    Client.Client.SendTimeout = Client.Client.ReceiveTimeout = 4000;
+                    try
                     {
-                        Client.Client.SendTimeout = Client.Client.ReceiveTimeout = 4000;
-                        try
+                        Client.Connect(Endpoint);
+                        byte[] Datagram = new byte[]
                         {
-                            Client.Connect(Endpoint);
-                            byte[] Datagram = new byte[]
-                            {
                                 0xFF, 0xFF, 0xFF, 0xFF, 0x54, 0x53, 0x6F, 0x75,
                                 0x72, 0x63, 0x65, 0x20, 0x45, 0x6E, 0x67, 0x69,
                                 0x6E, 0x65, 0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00
-                            };
-                            Client.Send(Datagram, 25);
-                            int MaxPlayers;
-                            string Map = string.Empty, Name = string.Empty;
-                            using (MemoryStream Reader = new MemoryStream(Client.Receive(ref Endpoint)))
-                            {
-                                Reader.Position = 6L;
-                                int Char;
-                                while ((Char = Reader.ReadByte()) != 0)
-                                    Name += ToChar(Char);
-                                while ((Char = Reader.ReadByte()) != 0)
-                                    Map += ToChar(Char);
-                                while (Reader.ReadByte() != 0);
-                                while (Reader.ReadByte() != 0);
-                                Reader.Position += 3L;
-                                MaxPlayers = Reader.ReadByte();
-                            }
-                            MapCode Code = MapCode.TheIsland;
-                            foreach (DLC DLC in DLCs)
-                                if (Map.Contains(DLC.Name))
-                                    Code = DLC.Code;
-                            if (Name.Length > 27)
-                                Name = Name.Substring(0, 27);
-                            Servers.Add(new Server(IP, Code, Port, Name) { MaxPlayers = MaxPlayers });
+                        };
+                        Client.Send(Datagram, 25);
+                        int MaxPlayers;
+                        string Map = string.Empty, Name = string.Empty;
+                        using (MemoryStream Reader = new MemoryStream(Client.Receive(ref Endpoint)))
+                        {
+                            Reader.Position = 6L;
+                            int Char;
+                            while ((Char = Reader.ReadByte()) != 0)
+                                Name += ToChar(Char);
+                            while ((Char = Reader.ReadByte()) != 0)
+                                Map += ToChar(Char);
+                            while (Reader.ReadByte() != 0);
+                            while (Reader.ReadByte() != 0);
+                            Reader.Position += 3L;
+                            MaxPlayers = Reader.ReadByte();
                         }
-                        catch { }
+                        MapCode Code = MapCode.TheIsland;
+                        foreach (DLC DLC in DLCs)
+                            if (Map.Contains(DLC.Name))
+                                Code = DLC.Code;
+                        if (Name.Length > 27)
+                            Name = Name.Substring(0, 27);
+                        Servers.Add(new Server(IP, Code, Port, Name) { MaxPlayers = MaxPlayers });
                     }
+                    catch { }
                 }
             }
             if (Servers.Count == 0)

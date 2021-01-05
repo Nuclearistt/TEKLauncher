@@ -1,5 +1,6 @@
 using System.IO;
 using TEKLauncher.SteamInterop.Network;
+using static TEKLauncher.Data.LocalizationManager;
 
 namespace TEKLauncher.Utils.Zlib
 {
@@ -37,7 +38,7 @@ namespace TEKLauncher.Utils.Zlib
                 int Flags = BitBuffer & 7, Mode = Flags >> 1;
                 LastBlock = (Flags & 1) != 0;
                 if (Mode > 2)
-                    throw new ValidatorException("Failed to decompress mod files");
+                    throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                 if (Mode == 0)
                 {
                     BitBuffer >>= 3;
@@ -52,7 +53,7 @@ namespace TEKLauncher.Utils.Zlib
                     }
                     int BytesLeft = BitBuffer & 0xFFFF;
                     if ((((~BitBuffer) >> 16) & 0xFFFF) != BytesLeft)
-                        throw new ValidatorException("Failed to decompress mod files");
+                        throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                     BitBufferShift = BitBuffer = 0;
                     while (BytesLeft != 0)
                     {
@@ -101,7 +102,7 @@ namespace TEKLauncher.Utils.Zlib
                         }
                         int TableLengths = BitBuffer & 0x3FFF, LTreeLength = TableLengths & 0x1F, DTreeLength = (TableLengths >> 5) & 0x1F;
                         if (LTreeLength > 29 || DTreeLength > 29)
-                            throw new ValidatorException("Failed to decompress mod files");
+                            throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                         int[] BitLengths = new int[258 + LTreeLength + DTreeLength];
                         BitBuffer >>= 14;
                         BitBufferShift -= 14;
@@ -149,7 +150,7 @@ namespace TEKLauncher.Utils.Zlib
                                 BitBuffer >>= Offset;
                                 BitBufferShift -= Offset;
                                 if (Index + RepeatCount > BitLengths.Length || BitLength == 16 && Index < 1)
-                                    throw new ValidatorException("Failed to decompress mod files");
+                                    throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                                 BitLength = BitLength == 16 ? BitLengths[Index - 1] : 0;
                                 for (; RepeatCount > 0; RepeatCount--)
                                     BitLengths[Index++] = BitLength;

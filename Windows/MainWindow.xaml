@@ -1,6 +1,7 @@
 ﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:Controls="clr-namespace:TEKLauncher.Controls" x:Class="TEKLauncher.Windows.MainWindow" Title="TEK Launcher"
-        MinWidth="1280" MinHeight="720" WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Closing="ClosingHandler"
+        xmlns:Controls="clr-namespace:TEKLauncher.Controls" xmlns:UI="clr-namespace:TEKLauncher.UI"
+        x:Class="TEKLauncher.Windows.MainWindow" Title="TEK Launcher" MinWidth="1350" MinHeight="720"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize" Closing="ClosingHandler"
         Loaded="LoadedHandler" StateChanged="StateChangedHandler">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="0" ResizeBorderThickness="19" CornerRadius="25"/>
@@ -40,8 +41,8 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Controls:MenuBlock x:Name="Menu" Navigated="NavigatedHandler"/>
-                    <StackPanel Grid.Row="2" Margin="0, 0, 0, 20" Orientation="Horizontal">
-                        <TextBlock Padding="10, 0, 5, 0" Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="Your game version:"/>
+                    <StackPanel Grid.Row="2" Name="VersionStack" Margin="0, 0, 0, 20" Orientation="Horizontal">
+                        <TextBlock Padding="10, 0, 5, 0" Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="{UI:LocString GameVersion}"/>
                         <TextBlock Name="CurrentVersion" Padding="0, 0, 10, 0" FontSize="20" VerticalAlignment="Center">
                             <Controls:LoadingSpinner/>
                         </TextBlock>

@@ -7,6 +7,7 @@ using TEKLauncher.ARK;
 using TEKLauncher.Windows;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.UI.Message;
 
 namespace TEKLauncher.Controls
@@ -17,6 +18,8 @@ namespace TEKLauncher.Controls
         {
             this.DLC = DLC;
             InitializeComponent();
+            if (LocCulture == "ar")
+                StatusStack.FlowDirection = FlowDirection.RightToLeft;
             Image.Source = new BitmapImage(new Uri($"pack://application:,,,/Resources/Images/{DLC.SpacelessName}.jpg"));
             NameBlock.Text = DLC.Name;
             SetStatus(DLC.Status);
@@ -26,7 +29,7 @@ namespace TEKLauncher.Controls
         private void SizeChangedHandler(object Sender, SizeChangedEventArgs Args) => Border.Height = Border.ActualWidth * 215D / 460D;
         private void Uninstall(object Sender, RoutedEventArgs Args)
         {
-            if (ShowOptions("Warning", $"Are you sure you want to uninstall {DLC.Name} DLC?"))
+            if (ShowOptions("Warning", string.Format(LocString(LocCode.DLCUninstPrompt), DLC.Name)))
                 DLC.Uninstall();
         }
         private void Validate(object Sender, RoutedEventArgs Args) => new ValidatorWindow(DLC, true).Show();
@@ -34,11 +37,11 @@ namespace TEKLauncher.Controls
         {
             switch (Status)
             {
-                case Status.NotInstalled: StatusBlock.Foreground = DarkRed; StatusBlock.Text = "Not installed"; break;
-                case Status.Installed: StatusBlock.Foreground = DarkGreen; StatusBlock.Text = "Installed"; break;
-                case Status.CheckingForUpdates: StatusBlock.Foreground = YellowBrush; StatusBlock.Text = "Checking for updates..."; break;
-                case Status.UpdateAvailable: StatusBlock.Foreground = YellowBrush; StatusBlock.Text = "Update available"; break;
-                case Status.Updating: StatusBlock.Foreground = YellowBrush; StatusBlock.Text = "Downloading..."; break;
+                case Status.NotInstalled: StatusBlock.Foreground = DarkRed; StatusBlock.Text = LocString(LocCode.NotInstalled); break;
+                case Status.Installed: StatusBlock.Foreground = DarkGreen; StatusBlock.Text = LocString(LocCode.Installed); break;
+                case Status.CheckingForUpdates: StatusBlock.Foreground = YellowBrush; StatusBlock.Text = LocString(LocCode.CheckingForUpdates); break;
+                case Status.UpdateAvailable: StatusBlock.Foreground = YellowBrush; StatusBlock.Text = LocString(LocCode.UpdateAvailable); break;
+                case Status.Updating: StatusBlock.Foreground = YellowBrush; StatusBlock.Text = LocString(LocCode.Downloading); break;
             }
             NameBlock.Foreground = Status == Status.UpdateAvailable ? YellowBrush : (SolidColorBrush)FindResource("BrightestBrightBrush");
             DownloadButton.Visibility = (int)Status % 3 == 0 ? Visibility.Visible : Visibility.Collapsed;

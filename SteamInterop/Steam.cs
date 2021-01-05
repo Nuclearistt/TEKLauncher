@@ -6,6 +6,7 @@ using static System.Diagnostics.Process;
 using static System.IO.File;
 using static System.Windows.Application;
 using static Microsoft.Win32.Registry;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
 
@@ -70,7 +71,7 @@ namespace TEKLauncher.SteamInterop
             Path = (string)LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("InstallPath");
             if (Path is null)
             {
-                Show("Error", "Launcher cannot be started because you don't have Steam installed!");
+                Show("Error", LocString(LocCode.CantStartLauncher));
                 Current.Shutdown();
             }
             object ActiveUser = CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess")?.GetValue("ActiveUser");

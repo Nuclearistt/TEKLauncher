@@ -7,7 +7,6 @@ using static System.Net.WebRequest;
 using static System.Text.Encoding;
 using static System.Threading.Tasks.Task;
 using static System.Windows.Application;
-using static TEKLauncher.Data.Links;
 
 namespace TEKLauncher.Net
 {
@@ -20,7 +19,8 @@ namespace TEKLauncher.Net
         internal delegate void DownloadBeganEventHandler();
         private void DownloadFile(string FilePath, string URL)
         {
-            HttpWebRequest Request = CreateRequest(URL);
+            HttpWebRequest Request = CreateHttp(URL);
+            Request.Timeout = 7000;
             using (HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
             using (Stream ResponseStream = Response.GetResponseStream())
             using (FileStream Writer = File.Create(FilePath))
@@ -53,7 +53,8 @@ namespace TEKLauncher.Net
         }
         private byte[] DownloadData(string URL)
         {
-            HttpWebRequest Request = CreateRequest(URL);
+            HttpWebRequest Request = CreateHttp(URL);
+            Request.Timeout = 7000;
             using (HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
             using (Stream ResponseStream = Response.GetResponseStream())
             {
@@ -88,14 +89,6 @@ namespace TEKLauncher.Net
                 catch { continue; }
             }
             return null;
-        }
-        private HttpWebRequest CreateRequest(string URL)
-        {
-            HttpWebRequest Request = CreateHttp(URL);
-            if (URL.StartsWith(Seedbox))
-                Request.Credentials = SeedboxCredential;
-            Request.Timeout = 7000;
-            return Request;
         }
         internal bool TryDownloadFile(string FilePath, params string[] URLs) => TryDownloadFile(new object[] { FilePath, URLs });
         internal byte[] TryDownloadData(params string[] URLs)

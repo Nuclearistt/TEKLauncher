@@ -7,6 +7,7 @@ using static System.IO.Directory;
 using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.CommunismMode;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -18,6 +19,8 @@ namespace TEKLauncher.Pages
         public LauncherPage()
         {
             InitializeComponent();
+            if (LocCulture == "ar")
+                DTCGrid.FlowDirection = PSGrid.FlowDirection = FlowDirection.RightToLeft;
             GamePath.SetPath(Game.Path);
             AutoRetry.IsChecked = Settings.AutoRetry;
             CloseOnGameRun.IsChecked = Settings.CloseOnGameRun;
@@ -27,7 +30,7 @@ namespace TEKLauncher.Pages
         {
             if (FileExists($@"{GamePath.Text}\ShooterGame\Binaries\Win64\ShooterGame.exe"))
             {
-                if (ShowOptions("Warning", "Are you sure you want to change game path used? It'll close the launcher to apply changes"))
+                if (ShowOptions("Warning", LocString(LocCode.GamePathPrompt)))
                 {
                     ARKPath = GamePath.Text;
                     Current.Shutdown();
@@ -37,13 +40,13 @@ namespace TEKLauncher.Pages
             }
             else
             {
-                Show("Warning", "Can't use that folder as it doesn't have game files");
+                Show("Warning", LocString(LocCode.CantUsePath));
                 GamePath.SetPath(Game.Path);
             }
         }
         private void CleanDownloadCache(object Sender, RoutedEventArgs Args)
         {
-            if (ShowOptions("Warning", "Are you sure you want to delete all validations and incomplete downloads progress?"))
+            if (ShowOptions("Warning", LocString(LocCode.CleanDwCachePrompt)))
             {
                 DeleteDirectory(DownloadsDirectory);
                 CreateDirectory(DownloadsDirectory).Attributes = FileAttributes.Directory | FileAttributes.Hidden;
@@ -51,7 +54,7 @@ namespace TEKLauncher.Pages
         }
         private void DeleteLauncherSettings(object Sender, RoutedEventArgs Args)
         {
-            if (ShowOptions("Warning", "Are you sure you want to delete all launcher settings? It'll wipe stored game path, selected language and launch parameters, and then close the launcher to apply changes"))
+            if (ShowOptions("Warning", LocString(LocCode.DelSettingsPrompt)))
             {
                 DeleteSettings = true;
                 Current.Shutdown();

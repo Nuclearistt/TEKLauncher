@@ -3,6 +3,7 @@ using System.Threading;
 using System.Windows.Controls;
 using TEKLauncher.Controls;
 using TEKLauncher.Servers;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Servers.ClustersManager;
 
 namespace TEKLauncher.Pages
@@ -35,9 +36,9 @@ namespace TEKLauncher.Pages
             {
                 Cluster Cluster = Clusters[Iterator];
                 ClusterItem Item = FindItem(Cluster);
-                Item.Count.Text = $"{Cluster.Servers.Length} servers";
+                Item.Count.Text = string.Format(LocString(LocCode.ClusterServers), Cluster.Servers.Length);
                 if (Cluster.Servers.Any(Server => Server.IsLoaded))
-                    Item.Count.Text += $", {Cluster.Servers.Sum(Server => Server.PlayersOnline)} players";
+                    Item.Count.Text += string.Format(LocString(LocCode.ClusterPlayers), Cluster.Servers.Sum(Server => Server.PlayersOnline));
             }
         }
         private ClusterItem FindItem(Cluster Cluster)

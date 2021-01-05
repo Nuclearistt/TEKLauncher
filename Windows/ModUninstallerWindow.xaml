@@ -1,6 +1,7 @@
 ﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:Controls="clr-namespace:TEKLauncher.Controls" x:Class="TEKLauncher.Windows.ModUninstallerWindow" Title="TEK Mod Uninstaller"
-        Width="700" Height="450" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+        xmlns:Controls="clr-namespace:TEKLauncher.Controls" xmlns:UI="clr-namespace:TEKLauncher.UI"
+        x:Class="TEKLauncher.Windows.ModUninstallerWindow" Title="{UI:LocString MUCaption}" Width="700" Height="450"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Border Margin="12.5" CornerRadius="25" UseLayoutRounding="True">
         <Border.Effect>
             <DropShadowEffect Color="{DynamicResource Bright}" BlurRadius="12.5" ShadowDepth="0"/>
@@ -17,7 +18,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Foreground="{DynamicResource BrightestBrightBrush}" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" Text="TEK Mod Uninstaller"/>
+                    <TextBlock Foreground="{DynamicResource BrightestBrightBrush}" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" Text="{UI:LocString MUCaption}"/>
                     <Controls:WindowControlsBlock Grid.Column="2" Code="2" Close="Close" Minimize="Minimize"/>
                 </Grid>
             </Border>
@@ -29,14 +30,14 @@
                         <RowDefinition Height="12*"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="1" Name="Status" Foreground="{DynamicResource BrightBrush}" FontSize="24" HorizontalAlignment="Center" Text="Select options you want to use"/>
+                    <TextBlock Grid.Row="1" Name="Status" Foreground="{DynamicResource BrightBrush}" FontSize="24" HorizontalAlignment="Center" Text="{UI:LocString MUSelectOptions}"/>
                     <StackPanel Grid.Row="2" HorizontalAlignment="Center">
-                        <CheckBox Name="UnsubscribeMods" Content="Unsubscribe all Spacewar mods" IsChecked="True"/>
-                        <CheckBox Name="WorkshopMods" Content="Delete Spacewar workshop mods directory" IsChecked="True"/>
-                        <CheckBox Name="GameMods" Content="Delete installed mods" IsChecked="True"/>
-                        <CheckBox Name="WorkshopCache" Content="Clear Spacewar workshop cache" IsChecked="True"/>
-                        <CheckBox Name="DownloadCache" Content="Clear workshop download cache" IsChecked="True"/>
-                        <Button  Name="UninstallButton" Content="Uninstall mods" HorizontalAlignment="Center" Click="UninstallMods"/>
+                        <CheckBox Name="UnsubscribeMods" Content="{UI:LocString MUUnsubAllMods}" IsChecked="True"/>
+                        <CheckBox Name="WorkshopMods" Content="{UI:LocString MUDelWorkshop}" IsChecked="True"/>
+                        <CheckBox Name="GameMods" Content="{UI:LocString MUDelInstalled}" IsChecked="True"/>
+                        <CheckBox Name="WorkshopCache" Content="{UI:LocString MUCleanACF}" IsChecked="True"/>
+                        <CheckBox Name="DownloadCache" Content="{UI:LocString MUCleanDwCache}" IsChecked="True"/>
+                        <Button  Name="UninstallButton" Content="{UI:LocString MUUninstallMods}" HorizontalAlignment="Center" Click="UninstallMods"/>
                     </StackPanel>
                 </Grid>
             </Border>

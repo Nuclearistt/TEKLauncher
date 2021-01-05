@@ -19,7 +19,7 @@ namespace TEKLauncher.Net
         internal static readonly Dictionary<ulong, ulong> Workshop = new Dictionary<ulong, ulong>();
         private static void RefreshClusterPage()
         {
-            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 1)
+            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 2)
             {
                 Page.ServersList.Children.Clear();
                 foreach (Server Server in Page.Cluster.Servers)
@@ -30,7 +30,7 @@ namespace TEKLauncher.Net
         {
             byte[] Data = new Downloader().TryDownloadData($"{Links.ARKdicted}workshop/ServersInfo.txt");
             if (Data is null)
-                foreach (Server Server in Clusters[1].Servers)
+                foreach (Server Server in Clusters[2].Servers)
                     Server.Refresh(-1);
             else
             {
@@ -50,9 +50,9 @@ namespace TEKLauncher.Net
                         Servers.Add(new Server(Parse(Fields[2]), Map, int.Parse(Fields[3]), Map == MapCode.Mod ? Name : null));
                     }
                 Servers.Sort((A, B) => A.Code.CompareTo(B.Code));
-                Clusters[1].Servers = Servers.ToArray();
+                Clusters[2].Servers = Servers.ToArray();
                 Current.Dispatcher.Invoke(RefreshClusterPage);
-                foreach (Server Server in Clusters[1].Servers)
+                foreach (Server Server in Clusters[2].Servers)
                     Server.Refresh();
             }
         }

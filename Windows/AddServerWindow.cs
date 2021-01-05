@@ -13,6 +13,7 @@ using static System.Windows.DataObject;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.UserServers;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Servers.ClustersManager;
 
 namespace TEKLauncher.Windows
@@ -24,27 +25,27 @@ namespace TEKLauncher.Windows
         private async void Add(object Sender, RoutedEventArgs Args)
         {
             if (Address is null)
-                SetStatus("Entered IP is not valid", DarkRed);
+                SetStatus(LocString(LocCode.IPNotValid), DarkRed);
             else
             {
                 IPField.IsReadOnly = true;
                 AddButton.IsEnabled = false;
-                SetStatus("Scanning servers on this IP", YellowBrush);
+                SetStatus(LocString(LocCode.ScanningServers), YellowBrush);
                 Server[] Servers = await GetServersForIPAsync(Address);
                 IPField.IsReadOnly = false;
                 AddButton.IsEnabled = true;
                 if (Servers is null)
-                    SetStatus("No ARK servers found on this IP", DarkRed);
+                    SetStatus(LocString(LocCode.NoServersFound), DarkRed);
                 else
                 {
-                    SetStatus($"Successfully found and added {Servers.Length} servers", DarkGreen);
+                    SetStatus(string.Format(LocString(LocCode.AddServerSuccess), Servers.Length), DarkGreen);
                     if (Instance.CurrentPage is ClusterPage Page && Page.Cluster.Discord is null)
                     {
                         foreach (Server Server in Servers)
                             Page.ServersList.Children.Add(new ServerItem(Server));
                     }
                     UServers.AddRange(Servers);
-                    Clusters[5].Servers = UServers.ToArray();
+                    Clusters[6].Servers = UServers.ToArray();
                     QueueUserWorkItem((State) =>
                     {
                         foreach (Server Server in Servers)

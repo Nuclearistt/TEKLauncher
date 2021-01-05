@@ -43,37 +43,84 @@ namespace TEKLauncher.Net
                 IPs.Add(new IPAddress(Buffer));
             }    
         }
+        private void ReadMods(MemoryStream Stream)
+        {
+            int GroupsCount = Stream.ReadByte();
+            for (int Iterator = 0; Iterator < GroupsCount; Iterator++)
+            {
+                int NameSize = Stream.ReadByte();
+                byte[] Buffer = new byte[NameSize];
+                Stream.Read(Buffer, 0, NameSize);
+                Clusters[0].Mods.Add(UTF8.GetString(Buffer), ReadModsList(Stream));
+            }
+            Clusters[1].Mods.Add(string.Empty, ReadModsList(Stream));
+            Current.Dispatcher.Invoke(RefreshMods);
+        }
         private void ReadServers(MemoryStream Stream)
         {
             int ServersCount = Stream.ReadByte();
             Clusters[0].Servers = new Server[ServersCount];
             for (int Iterator = 0; Iterator < ServersCount; Iterator++)
-            {
-                int IPIndex = Stream.ReadByte();
-                MapCode Map = (MapCode)Stream.ReadByte();
-                byte[] Buffer = new byte[2];
-                Stream.Read(Buffer, 0, 2);
-                int Port = ToUInt16(Buffer, 0), PlayersCount = Stream.ReadByte(), CustomNameLength = Stream.ReadByte();
-                if (PlayersCount == 255 || Expired)
-                    PlayersCount = -1;
-                string CustomName = null;
-                if (CustomNameLength != 0)
-                {
-                    Stream.Read(Buffer = new byte[CustomNameLength], 0, CustomNameLength);
-                    CustomName = UTF8.GetString(Buffer);
-                }
-                (Clusters[0].Servers[Iterator] = new Server(IPs[IPIndex], Map, Port, CustomName)).Refresh(PlayersCount);
-            }
-            Current.Dispatcher.Invoke(RefreshClusterPage);
+                Clusters[0].Servers[Iterator] = ReadServer(Stream);
+            ServersCount = Stream.ReadByte();
+            Clusters[1].Servers = new Server[ServersCount];
+            for (int Iterator = 0; Iterator < ServersCount; Iterator++)
+                Clusters[1].Servers[Iterator] = ReadServer(Stream);
+            Current.Dispatcher.Invoke(RefreshServers);
         }
-        private void RefreshClusterPage()
+        private void RefreshMods()
         {
-            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 0)
+            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) < 2)
+            {
+                Page.ModsList.Children.Clear();
+                Page.LoadMods();
+            }
+        }
+        private void RefreshServers()
+        {
+            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) < 2)
             {
                 Page.ServersList.Children.Clear();
                 foreach (Server Server in Page.Cluster.Servers)
                     Page.ServersList.Children.Add(new ServerItem(Server));
             }
+        }
+        private ModRecord[] ReadModsList(MemoryStream Stream)
+        {
+            int Count = Stream.ReadByte();
+            ModRecord[] List = new ModRecord[Count];
+            for (int Iterator = 0; Iterator < Count; Iterator++)
+            {
+                byte[] Buffer = new byte[8];
+                Stream.Read(Buffer, 0, 8);
+                ulong ID = ToUInt64(Buffer, 0);
+                int StringSize = Stream.ReadByte();
+                Stream.Read(Buffer = new byte[StringSize], 0, StringSize);
+                string Name = UTF8.GetString(Buffer);
+                Stream.Read(Buffer = new byte[StringSize = Stream.ReadByte()], 0, StringSize);
+                string Size = UTF8.GetString(Buffer);
+                List[Iterator] = new ModRecord(ID, Name, Size);
+            }
+            return List;
+        }
+        private Server ReadServer(MemoryStream Stream)
+        {
+            int IPIndex = Stream.ReadByte();
+            MapCode Map = (MapCode)Stream.ReadByte();
+            byte[] Buffer = new byte[2];
+            Stream.Read(Buffer, 0, 2);
+            int Port = ToUInt16(Buffer, 0), PlayersCount = Stream.ReadByte(), CustomNameLength = Stream.ReadByte();
+            if (PlayersCount == 255 || Expired)
+                PlayersCount = -1;
+            string CustomName = null;
+            if (CustomNameLength != 0)
+            {
+                Stream.Read(Buffer = new byte[CustomNameLength], 0, CustomNameLength);
+                CustomName = UTF8.GetString(Buffer);
+            }
+            Server Server = new Server(IPs[IPIndex], Map, Port, CustomName);
+            Server.Refresh(PlayersCount);
+            return Server;
         }
         internal bool Request()
         {
@@ -111,6 +158,11 @@ namespace TEKLauncher.Net
                             case 2:
                                 using (MemoryStream Stream = new MemoryStream(DataBuffer))
                                     try { ReadHashes(Stream, BufferSize / 20); }
+                                    catch { }
+                                break;
+                            case 3:
+                                using (MemoryStream Stream = new MemoryStream(DataBuffer))
+                                    try { ReadMods(Stream); }
                                     catch { }
                                 break;
                         }

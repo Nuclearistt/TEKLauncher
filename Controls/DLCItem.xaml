@@ -1,5 +1,5 @@
 ﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="TEKLauncher.Controls.DLCItem" Margin="0, 30, 0, 0">
+             xmlns:UI="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Controls.DLCItem" Margin="0, 30, 0, 0">
     <StackPanel>
         <Border Name="Border" CornerRadius="30, 30, 0, 0" SizeChanged="SizeChangedHandler">
             <Border.Background>
@@ -35,8 +35,8 @@
             </Border.Triggers>
             <StackPanel Name="ControlsPanel" VerticalAlignment="Center" Opacity="0">
                 <Border Background="{DynamicResource DarkBrush}" HorizontalAlignment="Center" CornerRadius="10">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="3, 0, 0, 0" Foreground="{DynamicResource BrightGrayBrush}" FontSize="20" Text="Status:"/>
+                    <StackPanel Name="StatusStack" Orientation="Horizontal">
+                        <TextBlock Margin="3, 0, 0, 0" Foreground="{DynamicResource BrightGrayBrush}" FontSize="20" Text="{UI:LocString Status}"/>
                         <TextBlock Name="StatusBlock" Margin="3, 0, 3, 0" FontSize="20"/>
                     </StackPanel>
                 </Border>

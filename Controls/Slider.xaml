@@ -9,7 +9,7 @@
         <Grid Grid.Column="1" Name="Root">
             <Rectangle Name="MainLine" Height="3" Margin="15, 0, 0, 0" Fill="{DynamicResource DarkGrayBrush}" HorizontalAlignment="Left"/>
             <Rectangle Width="{Binding ElementName=Mark, Path=Margin.Left}" Height="5" Margin="15, 0, 0, 0" Fill="{DynamicResource DarkOrangeBrush}" HorizontalAlignment="Left"/>
-            <Ellipse Name="Mark" Width="30" Height="30" Fill="#FFA000" HorizontalAlignment="Left" PreviewMouseDown="MouseDownHandler" PreviewMouseUp="MouseUpHandler">
+            <Ellipse Name="Mark" Width="30" Height="30" Fill="{StaticResource OrangeBrush}" HorizontalAlignment="Left" PreviewMouseDown="MouseDownHandler" PreviewMouseUp="MouseUpHandler">
                 <Ellipse.RenderTransform>
                     <ScaleTransform CenterX="15" CenterY="15" ScaleX="1" ScaleY="{Binding ElementName=Mark, Path=RenderTransform.ScaleX}"/>
                 </Ellipse.RenderTransform>

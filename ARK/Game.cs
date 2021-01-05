@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using TEKLauncher.Data;
 using TEKLauncher.Servers;
 using TEKLauncher.SteamInterop;
@@ -7,6 +8,7 @@ using static System.Diagnostics.Process;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.CreamAPI;
 using static TEKLauncher.ARK.LaunchParameters;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.SteamInterop.Steam;
 using static TEKLauncher.UI.Message;
@@ -18,6 +20,14 @@ namespace TEKLauncher.ARK
     {
         internal static bool IsCorrupted = false, UpdateAvailable = false;
         internal static string Path;
+        internal static bool GlobalFontsInstalled
+        {
+            get
+            {
+                string GlobalFolder = $@"{Path}\ShooterGame\Content\Localization\Game\global";
+                return Directory.Exists(GlobalFolder) && Directory.EnumerateFiles(GlobalFolder).Count() != 0;
+            }
+        }
         internal static bool IsRunning => GetProcessesByName("ShooterGame").Length != 0;
         internal static bool IsSpacewar => IsInstalled || AppID == 480;
         internal static int AppID
@@ -57,17 +67,17 @@ namespace TEKLauncher.ARK
         internal static void Launch(Server Server, string CustomLaunchParameters = null)
         {
             if (!(FileExists(ExecutablePath) && FileExists(BEExecutablePath)))
-                Show("Warning", "Cannot launch the game because its executable is missing. Validate your game files on Settings page");
+                Show("Warning", LocString(LocCode.CantLaunchExeMissing));
             else if (IsCorrupted)
-                Show("Warning", "Cannot launch the game because its critical files are missing. Validate your game files on Settings page");
+                Show("Warning", LocString(LocCode.CantLaunchCorruped));
             else if (!Steam.IsRunning)
-                Show("Warning", "Cannot launch the game due to Steam not running. Open Steam and try again");
+                Show("Warning", LocString(LocCode.CantLaunchNoSteam));
             else if (!IsInstalled && !IsARKPurchased)
-                Show("Warning", "Cannot launch the game because crack is missing and you don't own legit game. Install crack on Settings page");
+                Show("Warning", LocString(LocCode.CantLaunchNoCreamAPI));
             else if (!(Server is null || IsConnectionAvailable()))
-                Show("Warning", "Can't join server because Internet connection is unavailable");
+                Show("Warning", LocString(LocCode.CantJoinNoInternet));
             else if (IsSpacewar && !IsSpacewarInstalled)
-                Show("Warning", "Looks like you don't have Spacewar installed, without it you won't be able to use mods and join some servers, install it using the option on Settings page and try again");
+                Show("Warning", LocString(LocCode.CantLaunchNoSpacewar));
             else
             {
                 string ParametersLine = $"{Settings.LaunchParameters} {Server?.ConnectionLine} {CustomLaunchParameters} {CultureParameter}".Trim().Replace("   ", " ").Replace("  ", " ");

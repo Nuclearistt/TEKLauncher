@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using static System.Windows.Application;
+using static TEKLauncher.Data.LocalizationManager;
 
 namespace TEKLauncher.Windows
 {
@@ -12,7 +13,7 @@ namespace TEKLauncher.Windows
         {
             InitializeComponent();
             string DisplayVersion = App.Version.EndsWith(".0") ? App.Version.Substring(0, App.Version.Length - 2) : App.Version,
-                VersionType = App.Version.EndsWith(".0") ? "Update" : "Patch";
+                VersionType = App.Version.EndsWith(".0") ? LocString(LocCode.WNUpdate) : LocString(LocCode.WNPatch);
             VersionBlock.Text = $"{VersionType} {DisplayVersion}";
             using (Stream ResourceStream = GetResourceStream(new Uri($"pack://application:,,,/Resources/Changelog.txt")).Stream)
             using (StreamReader Reader = new StreamReader(ResourceStream))

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using TEKLauncher.ARK;
 using TEKLauncher.Net;
 using static System.Threading.ThreadPool;
 using static TEKLauncher.Net.ARKdictedData;
@@ -12,7 +13,7 @@ namespace TEKLauncher.Servers
         internal int PlayersLimit;
         internal string Discord, Hoster, Name;
         internal Dictionary<string, string> Info;
-        internal Dictionary<string, Dictionary<ulong, string>> Mods;
+        internal Dictionary<string, ModRecord[]> Mods;
         internal Server[] Servers;
         private void RefreshServers(object State)
         {

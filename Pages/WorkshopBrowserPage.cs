@@ -8,6 +8,7 @@ using static System.Environment;
 using static System.Threading.Tasks.Task;
 using static System.Windows.DataObject;
 using static TEKLauncher.App;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.SteamInterop.Network.SteamClient;
 
 namespace TEKLauncher.Pages
@@ -47,7 +48,7 @@ namespace TEKLauncher.Pages
                 List<ItemDetails> Result = await Run(() => GetQuery(Page, Search, out TotalCount));
                 if (Result is null)
                 {
-                    ErrorBlock.Text = "Timeout requesting mods data. Try again";
+                    ErrorBlock.Text = LocString(LocCode.WBTimeout);
                     ReloadButton.Visibility = ErrorBlock.Visibility = Visibility.Visible;
                 }
                 else
@@ -57,7 +58,7 @@ namespace TEKLauncher.Pages
                     int PagesCount = TotalCount / 20;
                     if (TotalCount % 20 != 0)
                         PagesCount++;
-                    PageBlock.Text = $"Page {Page} of {PagesCount}";
+                    PageBlock.Text = string.Format(LocString(LocCode.WBPage), Page, PagesCount);
                     NextPage.Visibility = Page < PagesCount ? Visibility.Visible : Visibility.Collapsed;
                     PrevPage.Visibility = Page > 1 ? Visibility.Visible : Visibility.Collapsed;
                     ItemsList.Children.Clear();
@@ -67,7 +68,7 @@ namespace TEKLauncher.Pages
             }
             else
             {
-                ErrorBlock.Text = "Failed to connect to Steam network";
+                ErrorBlock.Text = LocString(LocCode.ConnectToSteamFailed);
                 ReloadButton.Visibility = ErrorBlock.Visibility = Visibility.Visible;
             }
         }

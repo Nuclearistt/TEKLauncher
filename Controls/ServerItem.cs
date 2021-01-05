@@ -5,6 +5,7 @@ using TEKLauncher.Servers;
 using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.ARK.Game;
 using static TEKLauncher.ARK.UserServers;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Servers.ClustersManager;
 
 namespace TEKLauncher.Controls
@@ -30,7 +31,7 @@ namespace TEKLauncher.Controls
         private void Delete(object Sender, RoutedEventArgs Args)
         {
             UServers.Remove(Server);
-            Clusters[5].Servers = UServers.ToArray();
+            Clusters[6].Servers = UServers.ToArray();
             ((Panel)Parent).Children.Remove(this);
         }
         private void Join(object Sender, RoutedEventArgs Args) => Launch(Server);
@@ -39,7 +40,7 @@ namespace TEKLauncher.Controls
             if (!DLCInstalled)
             {
                 Players.Inlines.Add(new VectorImage { Width = 25D, Height = 25D, Margin = new Thickness(10D, 0D, 0D, 0D), Source = "Warning" });
-                Players.Inlines.Add("DLC not installed!");
+                Players.Inlines.Add(LocString(LocCode.DLCNotInstalled));
             }
         }
     }

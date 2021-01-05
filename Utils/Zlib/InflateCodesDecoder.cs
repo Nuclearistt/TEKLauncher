@@ -1,5 +1,6 @@
 using TEKLauncher.SteamInterop.Network;
 using static System.Array;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Utils.Zlib.InflateBlocksDecoder;
 
 namespace TEKLauncher.Utils.Zlib
@@ -203,7 +204,7 @@ namespace TEKLauncher.Utils.Zlib
                                     ExtraBits = DTree[TreeBaseIndex = (DTreeIndex + Offset) * 3];
                                 }
                                 else
-                                    throw new ValidatorException("Failed to decompress mod files");
+                                    throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                             }
                             break;
                         }
@@ -231,7 +232,7 @@ namespace TEKLauncher.Utils.Zlib
                             return true;
                         }
                         else
-                            throw new ValidatorException("Failed to decompress mod files");
+                            throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                     }
             }
             while (RemainingBytes > 257 && BlocksDecoder.Decompressor.InputAvailableSize > 9);
@@ -381,7 +382,7 @@ namespace TEKLauncher.Utils.Zlib
                                 BaseTreeIndex = (TreeIndex - 2) / 3 + DTree[TreeIndex];
                             }
                             else
-                                throw new ValidatorException("Failed to decompress mod files");
+                                throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                         }
                         if (Flag == 1)
                             break;
@@ -397,7 +398,7 @@ namespace TEKLauncher.Utils.Zlib
                         break;
                     }
                     else
-                        throw new ValidatorException("Failed to decompress mod files");
+                        throw new ValidatorException(LocString(LocCode.ModDecompressFailed));
                 }
                 if (Flag == 1)
                     continue;

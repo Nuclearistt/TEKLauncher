@@ -6,6 +6,7 @@ using TEKLauncher.SteamInterop;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -26,13 +27,13 @@ namespace TEKLauncher.Windows
         private async void UninstallMods(object Sender, RoutedEventArgs Args)
         {
             if (!(Instance.MWindow.ModInstallerPage is null))
-                SetStatus("You can't uninstall all mods while installing one!", DarkRed);
+                SetStatus(LocString(LocCode.MUCantUninst), DarkRed);
             else if (Game.IsRunning)
-                SetStatus("Game must be closed for mods to be uninstalled!", DarkRed);
-            else if (ShowOptions("Warning", "Are you sure you want to uninstall all mods?"))
+                SetStatus(LocString(LocCode.MUGameRunning), DarkRed);
+            else if (ShowOptions("Warning", LocString(LocCode.MUPrompt)))
             {
                 UninstallButton.IsEnabled = false;
-                SetStatus("Uninstalling mods, please wait...", YellowBrush);
+                SetStatus(LocString(LocCode.MUUninstalling), YellowBrush);
                 if ((bool)UnsubscribeMods.IsChecked)
                 {
                     if (await TryDeployAsync())
@@ -40,13 +41,13 @@ namespace TEKLauncher.Windows
                         foreach (ulong ID in SteamAPI.GetSubscribedMods())
                             if (!await SteamAPI.UnsubscribeModAsync(ID))
                             {
-                                if (ShowOptions("Info", "Failed to automatically unsubscribe some mods, unsubscribe all Spacewar mods manually and press Yes, or press No to cancel"))
+                                if (ShowOptions("Info", LocString(LocCode.MUFail)))
                                     break;
                                 else
                                     return;
                             }
                     }
-                    else if (!ShowOptions("Info", "Failed to automatically unsubscribe mods, unsubscribe all Spacewar mods manually and press Yes, or press No to cancel"))
+                    else if (!ShowOptions("Info", LocString(LocCode.MUFail)))
                             return;
                 }
                 await InitializeModsListAsync();
@@ -65,7 +66,7 @@ namespace TEKLauncher.Windows
                         DeletePath($@"{Workshop}\temp");
                     }
                 }
-                SetStatus("Successfully uninstalled all mods", DarkGreen);
+                SetStatus(LocString(LocCode.MUSuccess), DarkGreen);
                 UninstallButton.IsEnabled = true;
             }
         }

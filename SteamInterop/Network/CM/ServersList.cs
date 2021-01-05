@@ -5,6 +5,7 @@ using System.Xml;
 using TEKLauncher.Net;
 using static System.Net.IPAddress;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.SteamInterop.Network.Logger;
 using static TEKLauncher.SteamInterop.Network.CM.CMClient;
 
@@ -24,7 +25,7 @@ namespace TEKLauncher.SteamInterop.Network.CM
                     if (CMList is null)
                     {
                         Log("Failed to fetch list from web API");
-                        throw new ValidatorException("Failed to fetch servers list");
+                        throw new ValidatorException(LocString(LocCode.FetchServersFailed));
                     }
                     else
                     {

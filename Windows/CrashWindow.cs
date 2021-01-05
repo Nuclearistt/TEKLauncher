@@ -12,6 +12,7 @@ using static System.Text.Encoding;
 using static System.Threading.Tasks.Task;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.Windows
@@ -26,12 +27,12 @@ namespace TEKLauncher.Windows
             if (Error is FileNotFoundException FNFE && FNFE.Message.Contains("System.") || Error is MissingMethodException)
             {
                 IsFrameworkCrash = true;
-                Message.Text = "This error occured because you don't have .NET Framework 4.8 installed. Get it ";
+                Message.Text = $"{LocString(LocCode.NFRequired1)} ";
                 Hyperlink Link = new Hyperlink { Foreground = (SolidColorBrush)FindResource("CyanBrush"), NavigateUri = new Uri(DotNETFramework) };
-                Link.Inlines.Add("here");
+                Link.Inlines.Add(LocString(LocCode.NFRequired2));
                 Link.Click += FollowLink;
                 Message.Inlines.Add(Link);
-                Message.Inlines.Add(", install and try again");
+                Message.Inlines.Add(LocString(LocCode.NFRequired3));
             }
             else
                 Message.Text = Error.Message;
@@ -49,14 +50,14 @@ namespace TEKLauncher.Windows
             else if (!(Error is COMException || Error is NotImplementedException || Error is UnauthorizedAccessException || Error is OverflowException && Error.Message.Contains("image")) && await Run(UploadCrash))
             {
                 Status.Foreground = DarkGreen;
-                Status.Text = "Crash data was automatically sent to developer";
+                Status.Text = LocString(LocCode.CrashSent);
             }
             else
             {
                 Status.Foreground = (SolidColorBrush)FindResource("BrightGrayBrush");
-                Status.Text = "Please post screenshot of this window in ";
+                Status.Text = $"{LocString(LocCode.CrashPost1)} ";
                 Hyperlink Link = new Hyperlink { Foreground = (SolidColorBrush)FindResource("CyanBrush"), NavigateUri = new Uri(SupportChannel) };
-                Link.Inlines.Add("our Discord");
+                Link.Inlines.Add(LocString(LocCode.CrashPost2));
                 Link.Click += FollowLink;
                 Status.Inlines.Add(Link);
             }

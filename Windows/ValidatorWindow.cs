@@ -30,6 +30,8 @@ namespace TEKLauncher.Windows
             this.DoValidate = DoValidate;
             this.DLC = DLC;
             InitializeComponent();
+            if (LocCulture == "el")
+                Button.FontSize = 12D;
             if (LocCulture == "ar")
                 foreach (Panel Stack in ValidationBlock.Children)
                     Stack.FlowDirection = FlowDirection.RightToLeft;

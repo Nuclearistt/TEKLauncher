@@ -12,7 +12,7 @@ namespace TEKLauncher.Data
     {
         internal static string LocCulture;
         private static readonly Dictionary<LocCode, string> List = new Dictionary<LocCode, string>();
-        internal static readonly string[] SupportedCultures = new[] { "en", "es", "ru", "ar" };
+        internal static readonly string[] SupportedCultures = new[] { "en", "es", "el", "ru", "ar" };
         internal static void LoadLocalization(string CultureCode)
         {
             if (Lang.Length == 0)

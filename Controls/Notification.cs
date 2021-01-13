@@ -4,6 +4,7 @@ using System.Windows.Media.Animation;
 using static System.TimeSpan;
 using static System.Threading.Tasks.Task;
 using static System.Windows.Controls.Grid;
+using static TEKLauncher.Data.LocalizationManager;
 
 namespace TEKLauncher.Controls
 {
@@ -28,7 +29,9 @@ namespace TEKLauncher.Controls
                 SetColumn(Image, 1);
                 ContentGrid.Children.Add(Image);
             }
-            AcceptButton.Content = ButtonText?.ToUpper();
+            if (!(ButtonText is null) && LocCulture != "el" && LocCulture != "ar")
+                ButtonText = ButtonText.ToUpper();
+            AcceptButton.Content = ButtonText;
         }
         private readonly AcceptEventHandler Accept;
         internal delegate void AcceptEventHandler();

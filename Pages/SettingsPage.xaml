@@ -3,7 +3,7 @@
       Loaded="LoadedHandler">
     <ScrollViewer Margin="0, 10, 15, 10" Padding="30, 20, 15, 20" VerticalScrollBarVisibility="Auto">
         <StackPanel>
-            <Grid>
+            <Grid Name="OptionsGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition Height="15"/>

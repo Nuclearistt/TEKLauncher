@@ -131,7 +131,7 @@ namespace TEKLauncher.Pages
         }
         internal async void LoadMods()
         {
-            ulong[] SubscribedMods = await Run(() => TryDeploy() ? SteamAPI.GetSubscribedMods() : null);
+            ulong[] SubscribedMods = await Run(() => TryDeploy() ? SteamAPI.GetSubscribedMods() : new ulong[0]);
             foreach (KeyValuePair<string, ModRecord[]> Mods in Cluster.Mods)
             {
                 if (Mods.Key != string.Empty)

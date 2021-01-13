@@ -18,7 +18,10 @@ namespace TEKLauncher.Controls
         {
             this.DLC = DLC;
             InitializeComponent();
-            if (LocCulture == "ar")
+            if (LocCulture == "el")
+                foreach (TextBlock TextBlock in StatusStack.Children)
+                    TextBlock.FontSize = 16D;
+            else if (LocCulture == "ar")
                 StatusStack.FlowDirection = FlowDirection.RightToLeft;
             Image.Source = new BitmapImage(new Uri($"pack://application:,,,/Resources/Images/{DLC.SpacelessName}.jpg"));
             NameBlock.Text = DLC.Name;

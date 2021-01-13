@@ -79,13 +79,14 @@
                 <ComboBox.Items>
                     <ComboBoxItem Content="English"/>
                     <ComboBoxItem Content="Español"/>
+                    <ComboBoxItem Content="Ελληνικά"/>
                     <ComboBoxItem Content="Русский"/>
                     <ComboBoxItem FlowDirection="RightToLeft" Content="العربية"/>
                 </ComboBox.Items>
             </ComboBox>
         </StackPanel>
         <StackPanel Grid.Row="2" Grid.Column="3" Name="GameLangStack" Margin="20, 0, 0, 0" Orientation="Horizontal">
-            <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="22" VerticalAlignment="Center" Text="{UI:LocString GameLoc}"/>
+            <TextBlock Name="GameLocTB" Foreground="{DynamicResource BrightGrayBrush}" FontSize="22" VerticalAlignment="Center" Text="{UI:LocString GameLoc}"/>
             <ComboBox Grid.Column="1" Name="Localizations" Width="280" Margin="5, 0, 0, 0">
                 <ComboBox.Items>
                     <ComboBoxItem Content="{UI:LocString ca}"/>

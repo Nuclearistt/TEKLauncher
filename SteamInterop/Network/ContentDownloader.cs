@@ -177,7 +177,8 @@ namespace TEKLauncher.SteamInterop.Network
                     {
                         if (FileExists(DestinationPath))
                             Delete(DestinationPath);
-                        Directory.CreateDirectory(Path.GetDirectoryName(DestinationPath));
+                        try { Directory.CreateDirectory(Path.GetDirectoryName(DestinationPath)); }
+                        catch (ArgumentException Exception) { throw new ArgumentException($"{Exception.Message} Evaluated path: \"{DestinationPath}\""); }//Unitl finding out what exactly causes this crash
                         try { Move(SourcePath, DestinationPath); }
                         catch (IOException Exception)
                         {
@@ -242,8 +243,9 @@ namespace TEKLauncher.SteamInterop.Network
                         if (Cancellator.IsCancellationRequested)
                             break;
                         FileEntry File = Files[Iterator];
-                        if (!(Changes.Find(ChangeFile => ChangeFile.Name == File.Name) is null))
-                            continue;
+                        lock (ProgressLock)
+                            if (!(Changes.Find(ChangeFile => ChangeFile.Name == File.Name) is null))
+                                continue;
                         string LocalFile = $@"{BaseLocalPath}\{File.Name}";
                         if (FileExists(LocalFile))
                             using (FileStream LocalFileStream = OpenRead(LocalFile))

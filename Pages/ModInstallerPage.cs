@@ -199,12 +199,12 @@ namespace TEKLauncher.Pages
             {
                 if (Details.Status == 1)
                 {
-                    (Spacewar ? PreviewS : PreviewA).Source = new BitmapImage(new Uri(Details.PreviewURL));
+                    (Spacewar ? PreviewS : PreviewA).Source = string.IsNullOrEmpty(Details.PreviewURL) ? new BitmapImage() : new BitmapImage(new Uri(Details.PreviewURL));
                     (Spacewar ? NameS : NameA).Text = Details.Name;
                     if (Spacewar && Details.AppID != 480)
                     {
                         (Spacewar ? ErrorS : ErrorA).Visibility = Visibility.Visible;
-                        (Spacewar ? ErrorS : ErrorA).Text = LocString(LocCode.MINotASpacewarMod);
+                        (Spacewar ? ErrorS : ErrorA).Text = LocString(LocCode.MIPvNotASpacewarMod);
                     }
                     else if (!Spacewar && Details.AppID != 346110)
                     {

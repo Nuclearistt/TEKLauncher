@@ -24,7 +24,12 @@ namespace TEKLauncher.Pages
         public PlayPage()
         {
             InitializeComponent();
-            if (LocCulture == "ar")
+            if (LocCulture == "el")
+            {
+                UseBattlEyeCB.FontSize = UseSpacewarCB.FontSize = RunAsAdminCB.FontSize = 18D;
+                GameLocTB.FontSize = 20D;
+            }
+            else if (LocCulture == "ar")
                 GameLangStack.FlowDirection = LangStack.FlowDirection = FlowDirection.RightToLeft;
             Image.Source = new BitmapImage(new Uri(IsImageAvailable ? ImagePath : "pack://application:,,,/Resources/Images/PlayPage.jpg"));
             RunAsAdminCB.IsChecked = RunAsAdmin;

@@ -39,7 +39,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "7.2.60.0";
+        internal const string Version = "7.2.61.0";
         private App()
         {
             string CultureCode = CurrentUICulture.Name;

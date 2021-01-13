@@ -36,8 +36,11 @@ namespace TEKLauncher.Pages
             InitializeComponent();
             if (LocCulture == "es")
                 foreach (Panel Stack in LPGrid.Children)
-                    foreach (CheckBox CB in Stack.Children)
-                        CB.FontSize = 18D;
+                    foreach (CheckBox Checkbox in Stack.Children)
+                        Checkbox.FontSize = 18D;
+            else if (LocCulture == "el")
+                foreach (Button Button in OptionsGrid.Children)
+                    Button.FontSize = 16D;
             else if (LocCulture == "ar")
             {
                 StatusStack.FlowDirection = FlowDirection.RightToLeft;
@@ -216,8 +219,16 @@ namespace TEKLauncher.Pages
                 Settings.UseGlobalFonts = false;
             else
             {
+                string GlobalFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\global", LocFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\{LaunchParameters.GameCultureCodes[Settings.GameLang]}";
                 if (Game.GlobalFontsInstalled)
+                {
+                    if (Exists(LocFolder))
+                    {
+                        File.Copy($@"{LocFolder}\ShooterGame.archive", $@"{GlobalFolder}\ShooterGame.archive", true);
+                        File.Copy($@"{LocFolder}\ShooterGame.locres", $@"{GlobalFolder}\ShooterGame.locres", true);
+                    }
                     Settings.UseGlobalFonts = true;
+                }
                 else
                 {
                     InstallingItem = LocString(LocCode.GlobalFonts);
@@ -226,12 +237,10 @@ namespace TEKLauncher.Pages
                     ProgressBar.SetDownloadMode();
                     if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}GlobalFonts.ta", GDriveGlobalFontsFile))
                     {
-                        string GlobalFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\global";
                         SetStatus(LocString(LocCode.ExtractingArchive), YellowBrush);
                         if (await DecompressArchiveAsync(ArchivePath, GlobalFolder))
                         {
                             File.Delete(ArchivePath);
-                            string LocFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\{LaunchParameters.GameCultureCodes[Settings.GameLang]}";
                             if (Exists(LocFolder))
                             {
                                 File.Copy($@"{LocFolder}\ShooterGame.archive", $@"{GlobalFolder}\ShooterGame.archive", true);

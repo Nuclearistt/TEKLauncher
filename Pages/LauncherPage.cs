@@ -24,6 +24,7 @@ namespace TEKLauncher.Pages
             GamePath.SetPath(Game.Path);
             AutoRetry.IsChecked = Settings.AutoRetry;
             CloseOnGameRun.IsChecked = Settings.CloseOnGameRun;
+            DowngradeMode.IsChecked = Settings.DowngradeMode;
             Communism.IsChecked = Settings.CommunismMode;
         }
         private void ChangeGamePath(object Sender, RoutedEventArgs Args)
@@ -74,6 +75,11 @@ namespace TEKLauncher.Pages
         {
             if (IsLoaded)
                 Set(Settings.CommunismMode = (bool)Communism.IsChecked);
+        }
+        private void SetDowngradeMode(object Sender, RoutedEventArgs Args)
+        {
+            if (IsLoaded)
+                Settings.DowngradeMode = (bool)DowngradeMode.IsChecked;
         }
     }
 }

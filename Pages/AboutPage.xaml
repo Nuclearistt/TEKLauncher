@@ -30,6 +30,11 @@
                     </Hyperlink>
                 </TextBlock>
                 <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">
+                    <Hyperlink Name="LocLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">
+                        <Run Text="{UI:LocString LocalizationFile}"/>
+                    </Hyperlink>
+                </TextBlock>
+                <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">
                     <Hyperlink Name="PatreonLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">Patreon</Hyperlink>
                 </TextBlock>
                 <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="{UI:LocString Discords}"/>

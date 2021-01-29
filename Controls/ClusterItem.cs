@@ -4,6 +4,7 @@ using TEKLauncher.Pages;
 using TEKLauncher.Servers;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
+using static TEKLauncher.Data.LocalizationManager;
 
 namespace TEKLauncher.Controls
 {
@@ -14,7 +15,12 @@ namespace TEKLauncher.Controls
             InitializeComponent();
             this.Cluster = Cluster;
             ClusterName.Text = Cluster.Name;
-            if (!(Cluster.Discord is null))
+            if (Cluster.Discord is null)
+            {
+                if (LocCulture == "pt" || LocCulture == "ar")
+                    ClusterName.FontSize = 28D;
+            }
+            else
             {
                 Mode.Foreground = Cluster.IsPvE ? DarkGreen : DarkRed;
                 Mode.Text = Cluster.IsPvE ? "PvE" : "PvP";

@@ -7,6 +7,7 @@ using TEKLauncher.SteamInterop.Network.CM.Messages.Bodies;
 using static System.Windows.Clipboard;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.UI.Notifications;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -31,7 +32,7 @@ namespace TEKLauncher.Controls
             SetText(ID);
             AddImage(LocString(LocCode.ModIDCopied), "Success");
         }
-        private void Follow(object Sender, RoutedEventArgs Args) => Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={ID}");
+        private void Follow(object Sender, RoutedEventArgs Args) => Execute($"{SteamWorkshop}{ID}");
         private void Install(object Sender, RoutedEventArgs Args) => Instance.MWindow.PageFrame.Content = new ModInstallerPage(ID);
     }
 }

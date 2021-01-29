@@ -19,6 +19,7 @@ using static System.Windows.DataObject;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.Net.ARKdictedData;
@@ -97,7 +98,7 @@ namespace TEKLauncher.Pages
                 else
                 {
                     Show("Info", LocString(LocCode.MISubFailed));
-                    Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={SpacewarID.Text}");
+                    Execute($"{SteamWorkshop}{SpacewarID.Text}");
                 }
                 SetStatus(string.Format(LocString(LocCode.MISuccess), ARKModDetails.Name), DarkGreen);
             }
@@ -141,7 +142,7 @@ namespace TEKLauncher.Pages
                         if (!Subscribed)
                         {
                             Show("Info", LocString(LocCode.FailedToSub));
-                            Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={ARKDictedID}");
+                            Execute($"{SteamWorkshop}{ARKDictedID}");
                         }
                         SetStatus(string.Format(LocString(LocCode.MISubSuccess), Name), DarkGreen);
                         FinishHandler();

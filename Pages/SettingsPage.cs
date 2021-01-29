@@ -34,7 +34,7 @@ namespace TEKLauncher.Pages
         public SettingsPage()
         {
             InitializeComponent();
-            if (LocCulture == "es")
+            if (LocCulture == "es" || LocCulture == "pt")
                 foreach (Panel Stack in LPGrid.Children)
                     foreach (CheckBox Checkbox in Stack.Children)
                         Checkbox.FontSize = 18D;
@@ -55,15 +55,17 @@ namespace TEKLauncher.Pages
                     Checkbox.Checked += CheckParameter;
                     Checkbox.Unchecked += UncheckParameter;
                 }
-            ProgressBar.ProgressUpdated = ProgressUpdatedHandler;
-            Downloader = new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler };
+            ProgressBar.ProgressUpdated += ProgressUpdatedHandler;
+            Downloader = new Downloader(ProgressBar.Progress);
             SteamDownloader = new ContentDownloader(346111U, FinishHandler, SetStatus, ProgressBar);
         }
+        private bool IsDownloading;
         private string InstallingItem;
         private readonly Downloader Downloader;
+        private readonly TaskbarItemInfo Taskbar = Instance.MWindow.TaskbarItemInfo;
         internal readonly ContentDownloader SteamDownloader;
+        private static readonly string DownloadingString = LocString(LocCode.SPDownloading), NAString = LocString(LocCode.NA);
         private void CheckParameter(object Sender, RoutedEventArgs Args) => LaunchParameters.Add((string)((FrameworkElement)Sender).Tag);
-        private void DownloadBeganHandler() => SetStatus(string.Format(LocString(LocCode.SPDownloading), InstallingItem), YellowBrush);
         private void FailedToDownload()
         {
             SetStatus(string.Format(LocString(LocCode.SPDownloadFailed), InstallingItem), DarkRed);
@@ -86,7 +88,10 @@ namespace TEKLauncher.Pages
                 PreparingToDownload();
                 string ArchivePath = $@"{AppDataFolder}\BattlEye.ta";
                 ProgressBar.SetDownloadMode();
-                if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}BattlEye.ta", GDriveBattlEyeFile))
+                IsDownloading = true;
+                bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}BattlEye.ta", GDriveBattlEyeFile);
+                IsDownloading = false;
+                if (Success)
                 {
                     Start(Game.BEExecutablePath, "4 0").WaitForExit();
                     DeletePath($@"{Game.Path}\ShooterGame\Binaries\Win64\BattlEye");
@@ -105,7 +110,7 @@ namespace TEKLauncher.Pages
                 }
                 else
                     FailedToDownload();
-                Instance.MWindow.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+                Taskbar.ProgressState = TaskbarItemProgressState.None;
             }
         }
         private void FixBloom(object Sender, RoutedEventArgs Args)
@@ -132,7 +137,10 @@ namespace TEKLauncher.Pages
             PreparingToDownload();
             string ArchivePath = $@"{AppDataFolder}\CommonRedist.ta";
             ProgressBar.SetDownloadMode();
-            if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}CommonRedist.ta", GDriveCommonRedistFile))
+            IsDownloading = true;
+            bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}CommonRedist.ta", GDriveCommonRedistFile);
+            IsDownloading = false;
+            if (Success)
             {
                 string CommonRedistFolder = $@"{AppDataFolder}\CommonRedist";
                 SetStatus(LocString(LocCode.ExtractingArchive), YellowBrush);
@@ -156,7 +164,7 @@ namespace TEKLauncher.Pages
             }
             else
                 FailedToDownload();
-            Instance.MWindow.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+            Taskbar.ProgressState = TaskbarItemProgressState.None;
         }
         private void InstallSpacewar(object Sender, RoutedEventArgs Args)
         {
@@ -185,8 +193,8 @@ namespace TEKLauncher.Pages
         }
         private void ProgressUpdatedHandler()
         {
-            Instance.MWindow.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-            Instance.MWindow.TaskbarItemInfo.ProgressValue = ProgressBar.Progress.Ratio;
+            Taskbar.ProgressState = TaskbarItemProgressState.Normal;
+            Taskbar.ProgressValue = ProgressBar.Progress.Ratio;
             if (SteamDownloader.IsValidating)
             {
                 if (ValidationBlock.Visibility == Visibility.Collapsed)
@@ -195,6 +203,8 @@ namespace TEKLauncher.Pages
                 FilesOutdated.Text = SteamDownloader.FilesOutdated.ToString();
                 FilesUpToDate.Text = SteamDownloader.FilesUpToDate.ToString();
             }
+            else if (IsDownloading)
+                SetStatus(string.Format(DownloadingString, InstallingItem, ProgressBar.Progress.ETA < 0L ? NAString : ConvertTime(ProgressBar.Progress.ETA)), YellowBrush);
         }
         private void ReapplyCreamAPI(object Sender, RoutedEventArgs Args)
         {
@@ -235,7 +245,10 @@ namespace TEKLauncher.Pages
                     PreparingToDownload();
                     string ArchivePath = $@"{AppDataFolder}\GlobalFonts.ta";
                     ProgressBar.SetDownloadMode();
-                    if (await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}GlobalFonts.ta", GDriveGlobalFontsFile))
+                    IsDownloading = true;
+                    bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}GlobalFonts.ta", GDriveGlobalFontsFile);
+                    IsDownloading = false;
+                    if (Success)
                     {
                         SetStatus(LocString(LocCode.ExtractingArchive), YellowBrush);
                         if (await DecompressArchiveAsync(ArchivePath, GlobalFolder))
@@ -261,7 +274,7 @@ namespace TEKLauncher.Pages
                         FailedToDownload();
                         new Thread(InvokeInvertUseGlobalFontsCB).Start();
                     }
-                    Instance.MWindow.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+                    Taskbar.ProgressState = TaskbarItemProgressState.None;
                 }
             }
         }
@@ -305,14 +318,17 @@ namespace TEKLauncher.Pages
                 InstallingItem = LocString(LocCode.LocalProfile);
                 PreparingToDownload();
                 ProgressBar.SetDownloadMode();
-                if (await Downloader.TryDownloadFileAsync($@"{LocalProfiles}\PlayerLocalData.arkprofile", $"{FilesStorage}PlayerLocalData.arkprofile", GDriveLocalProfileFile))
+                IsDownloading = true;
+                bool Success = await Downloader.TryDownloadFileAsync($@"{LocalProfiles}\PlayerLocalData.arkprofile", $"{FilesStorage}PlayerLocalData.arkprofile", GDriveLocalProfileFile);
+                IsDownloading = false;
+                if (Success)
                 {
                     SetStatus(LocString(LocCode.SkinUnlockSuccess), DarkGreen);
                     SwitchButtons(true);
                 }
                 else
                     FailedToDownload();
-                Instance.MWindow.TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+                Taskbar.ProgressState = TaskbarItemProgressState.None;
             }
         }
         private void Update(object Sender, RoutedEventArgs Args)

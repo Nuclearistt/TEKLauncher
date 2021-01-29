@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using TEKLauncher.ARK;
 using TEKLauncher.Data;
+using TEKLauncher.Net;
 using TEKLauncher.SteamInterop;
 using TEKLauncher.Windows;
 using static System.Environment;
@@ -39,7 +40,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "7.2.61.0";
+        internal const string Version = "7.3.62.0";
         private App()
         {
             string CultureCode = CurrentUICulture.Name;
@@ -158,11 +159,12 @@ namespace TEKLauncher
             Steam.Initialize();
             Game.Initialize();
             LaunchParameters.Initialize();
-            LoadList();
+            QueueUserWorkItem(LoadList);
             QueueUserWorkItem(FetchSpacewarIDs);
             QueueUserWorkItem(LoadModsDetails);
             QueueUserWorkItem(LoadServers);
             QueueUserWorkItem(LoadWorkshop);
+            QueueUserWorkItem(RUSSIAData.LoadServers);
             CreateDirectory(DownloadsDirectory = $@"{Game.Path}\Downloads").Attributes = FileAttributes.Directory | FileAttributes.Hidden;
             CreateDirectory(ManifestsDirectory = $@"{Game.Path}\Manifests").Attributes = FileAttributes.Directory | FileAttributes.Hidden;
             (MWindow = new MainWindow()).Show();

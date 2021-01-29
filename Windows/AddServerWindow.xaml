@@ -33,13 +33,13 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
-                        <ColumnDefinition Width="9*"/>
+                        <ColumnDefinition Width="9.5*"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Row="1" Grid.Column="1" Name="IPField" Width="350" VerticalAlignment="Center" MaxLength="15" Tag="{UI:LocString ServerIP}" Loaded="TextBoxLoadedHandler" PreviewTextInput="TextInputHandler" TextChanged="TextChangedHandler"/>
-                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                    <TextBox Grid.Row="1" Grid.Column="1" Name="AddressField" Width="350" VerticalAlignment="Center" MaxLength="256" Tag="{UI:LocString ServerAddress}" Loaded="TextBoxLoadedHandler" PreviewTextInput="TextInputHandler" TextChanged="TextChangedHandler"/>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Name="StatusStack" Orientation="Horizontal">
                         <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="22" Text="{UI:LocString Status}"/>
-                        <TextBlock Name="Status" Margin="5, 0, 0, 0" Foreground="{DynamicResource YellowBrush}" FontSize="22" Text="{UI:LocString EnterIP}"/>
+                        <TextBlock Name="Status" Margin="5, 0, 0, 0" Foreground="{DynamicResource YellowBrush}" FontSize="22" Text="{UI:LocString EnterAddress}"/>
                     </StackPanel>
                     <Button Grid.Row="3" Grid.Column="1" Name="AddButton" Width="200" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsEnabled="False" Content="{UI:LocString Add}" Click="Add"/>
                 </Grid>

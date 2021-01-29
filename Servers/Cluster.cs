@@ -28,7 +28,15 @@ namespace TEKLauncher.Servers
                 Server.IsLoaded = false;
                 Server.PlayersOnline = 0;
             }
-            QueueUserWorkItem(Name == "Arkouda" ? RequestArkoudaQuery : Name == "ARKdicted" ? (WaitCallback)LoadServers : RefreshServers);
+            WaitCallback RefreshMethod;
+            switch (Name)
+            {
+                case "Arkouda": RefreshMethod = RequestArkoudaQuery; break;
+                case "ARKdicted": RefreshMethod = LoadServers; break;
+                case "RUSSIA#": RefreshMethod = RUSSIAData.LoadServers; break;
+                default: RefreshMethod = RefreshServers; break;
+            }
+            QueueUserWorkItem(RefreshMethod);
         }
     }
 }

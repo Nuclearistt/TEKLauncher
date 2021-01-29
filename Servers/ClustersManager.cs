@@ -12,10 +12,11 @@ namespace TEKLauncher.Servers
         static ClustersManager()
         {
             for (int Iterator = 3; Iterator < Clusters.Length; Iterator++)
-                Clusters[Iterator].Refresh();
+                if (Iterator != 5)
+                    Clusters[Iterator].Refresh();
         }
-        private static readonly string KillBillsIPS = "2103670342", ARKRussiaIPS = "2174580656";
-        private static readonly IPAddress KillBillsIP = new IPAddress(long.Parse(KillBillsIPS)), ARKRussiaIP = new IPAddress(long.Parse(ARKRussiaIPS));
+        private static readonly string KillBillsIPS = "2103670342";
+        private static readonly IPAddress KillBillsIP = new IPAddress(long.Parse(KillBillsIPS));
         internal static readonly Cluster[] Clusters = new[]
         {
             new Cluster
@@ -167,38 +168,12 @@ namespace TEKLauncher.Servers
             {
                 IsPvE = false,
                 PlayersLimit = 70,
-                Discord = DiscordARKRussia,
+                Discord = DiscordRUSSIA,
                 Hoster = "overmind",
-                Name = "ARK Russia",
-                Info = new Dictionary<string, string>
-                {
-                    [string.Empty] = string.Join("\n",
-                        string.Format(LocString(LocCode.MaxDinoLvl), 240),
-                        string.Format(LocString(LocCode.Taming), 5),
-                        string.Format(LocString(LocCode.Experience), 5),
-                        string.Format(LocString(LocCode.Harvesting), 20),
-                        string.Format(LocString(LocCode.Breeding), 5),
-                        string.Format(LocString(LocCode.Stacks), 10))
-                },
+                Name = "RUSSIA#",
+                Info = new Dictionary<string, string>(),
                 Mods = null,
-                Servers = new[]
-                {
-                    new Server(ARKRussiaIP, TheIsland, 47016, "#2 The Island 10 Man"),
-                    new Server(ARKRussiaIP, TheCenter, 47021, "#7 The Center 10 Man"),
-                    new Server(ARKRussiaIP, Ragnarok, 47015, "#1 Ragnarok 10 Man"),
-                    new Server(ARKRussiaIP, Aberration, 47018, "#4 Aberration 10 Man"),
-                    new Server(ARKRussiaIP, Extinction, 47017, "#3 Extinction 10 Man"),
-                    new Server(ARKRussiaIP, Valguero, 47022, "#8 Valguero 10 Man"),
-                    new Server(ARKRussiaIP, Genesis, 47020, "#6 Genesis 10 Man"),
-                    new Server(ARKRussiaIP, CrystalIsles, 47019, "#5 Crystal Isles 10 Man"),
-                    new Server(ARKRussiaIP, TheIsland, 47028, "#10 The Island 3 Man"),
-                    new Server(ARKRussiaIP, ScorchedEarth, 47033, "#15 Scorched Earth 3 Man"),
-                    new Server(ARKRussiaIP, Ragnarok, 47027, "#9 Ragnarok 3 Man"),
-                    new Server(ARKRussiaIP, Aberration, 47030, "#12 Aberration 3 Man"),
-                    new Server(ARKRussiaIP, Extinction, 47029, "#11 Extinction 3 Man"),
-                    new Server(ARKRussiaIP, Genesis, 47032, "#14 Genesis 3 Man"),
-                    new Server(ARKRussiaIP, CrystalIsles, 47031, "#13 Crystal Isles 3 Man")
-                }
+                Servers = new Server[0]
             },
             new Cluster { Name = LocString(LocCode.YourServers), Servers = new Server[0] }
         };

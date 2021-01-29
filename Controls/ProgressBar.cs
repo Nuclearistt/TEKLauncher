@@ -19,12 +19,11 @@ namespace TEKLauncher.Controls
             if (LocCulture == "ar")
                 SpeedStack.FlowDirection = BytesProgressStack.FlowDirection = FlowDirection.RightToLeft;
             BytesProgress.Text = LocString(LocCode.KB);
-            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.Second)}";
+            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.s)}";
             Progress = new Progress(UpdateProgress);
         }
         private bool NumericMode = false, UnknownTotalMode = false;
         private double HalfHeight, HalfWidth;
-        internal ProgressUpdatedEventHandler ProgressUpdated;
         internal readonly Progress Progress;
         private void LoadedHandler(object Sender, RoutedEventArgs Args)
         {
@@ -85,7 +84,7 @@ namespace TEKLauncher.Controls
             BytesTotal.Text = BytesTotalValue.Text = Slash.Text = string.Empty;
             Percentage.Visibility = Visibility.Collapsed;
             SpeedValue.Text = "0";
-            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.Second)}";
+            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.s)}";
         }
         internal void SetDownloadMode()
         {
@@ -103,8 +102,9 @@ namespace TEKLauncher.Controls
             BytesTotal.Text = BytesProgress.Text = LocString(LocCode.KB);
             Slash.Text = "/";
             Percentage.Text = "0%";
-            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.Second)}";
-            Progress.Current = 0L;
+            Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.s)}";
+            Progress.Previous = Progress.Current = 0L;
+            Progress.ETA = -1L;
         }
         internal void SetNumericMode()
         {
@@ -121,7 +121,9 @@ namespace TEKLauncher.Controls
             BytesProgressValue.Text = "0";
             Slash.Text = "/";
             BytesTotalValue.Text = Progress.Total.ToString();
-            Progress.Current = 0L;
+            Progress.Previous = Progress.Current = 0L;
+            Progress.ETA = -1L;
         }
+        internal event ProgressUpdatedEventHandler ProgressUpdated;
     }
 }

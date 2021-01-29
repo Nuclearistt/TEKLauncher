@@ -20,6 +20,7 @@ namespace TEKLauncher.Utils
             AES.BlockSize = 128;
             AES.KeySize = 256;
         }
+        internal static string HoursString, MinutesString, SecondsString;
         private static readonly Aes AES;
         private static void ExecuteAsUser(string FilePath, string Parameters)
         {
@@ -129,6 +130,18 @@ namespace TEKLauncher.Utils
             }
             Unit = LocString(LocCode.KB);
             return Round(Bytes / 1024D).ToString();
+        }
+        internal static string ConvertTime(long Seconds)
+        {
+            bool HasHours = Seconds > 3599L;
+            string Result = string.Empty;
+            if (HasHours)
+                Result += string.Format(HoursString, Seconds / 3600L);
+            if (Seconds > 59L && !(HasHours && Seconds % 3600L < 60L))
+                Result += string.Format(MinutesString, Seconds % 3600L / 60L);
+            if (Seconds < 300L && Seconds % 60L != 0L)
+                Result += string.Format(SecondsString, Seconds % 60L);
+            return Result.TrimEnd();
         }
     }
 }

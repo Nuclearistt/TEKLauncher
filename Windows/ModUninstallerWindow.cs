@@ -3,6 +3,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using TEKLauncher.ARK;
 using TEKLauncher.SteamInterop;
+using static System.Diagnostics.Process;
+using static System.Threading.Tasks.Task;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
@@ -56,14 +58,37 @@ namespace TEKLauncher.Windows
                 Mods.Clear();
                 if (Steam.IsSpacewarInstalled)
                 {
+                    bool CleanDownloadCache = (bool)DownloadCache.IsChecked, CleanWorkshopCache = (bool)WorkshopCache.IsChecked;
                     string Workshop = Steam.WorkshopPath;
                     Workshop = Workshop.Substring(0, Workshop.Length - 12);
-                    if ((bool)WorkshopCache.IsChecked)
-                        DeletePath($@"{Workshop}\appworkshop_480.acf");
-                    if ((bool)DownloadCache.IsChecked)
+                    if (CleanDownloadCache || CleanWorkshopCache)
                     {
-                        DeletePath($@"{Workshop}\downloads");
-                        DeletePath($@"{Workshop}\temp");
+                        if (!Steam.IsRunning)
+                        {
+                            if (CleanWorkshopCache)
+                                DeletePath($@"{Workshop}\appworkshop_480.acf");
+                            if (CleanDownloadCache)
+                            {
+                                DeletePath($@"{Workshop}\downloads");
+                                DeletePath($@"{Workshop}\temp");
+                            }
+                        }
+                        else if (ShowOptions("Info", LocString(LocCode.SteamShutdownPrompt)))
+                        {
+                            SetStatus(LocString(LocCode.WaitingForSteamShutdown), YellowBrush);
+                            Retract();
+                            Start($@"{Steam.Path}\Steam.exe", "-shutdown").WaitForExit();
+                            while (Steam.IsRunning)
+                                await Delay(1000);
+                            if (CleanWorkshopCache)
+                                DeletePath($@"{Workshop}\appworkshop_480.acf");
+                            if (CleanDownloadCache)
+                            {
+                                DeletePath($@"{Workshop}\downloads");
+                                DeletePath($@"{Workshop}\temp");
+                            }
+                            Start($@"{Steam.Path}\Steam.exe");
+                        }
                     }
                 }
                 SetStatus(LocString(LocCode.MUSuccess), DarkGreen);

@@ -6,13 +6,17 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using TEKLauncher.ARK;
 using TEKLauncher.Controls;
+using TEKLauncher.Data;
+using TEKLauncher.Net;
 using TEKLauncher.Servers;
 using TEKLauncher.Windows;
+using static System.Array;
 using static System.Threading.Tasks.Task;
 using static System.Windows.Application;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.LocalizationManager;
+using static TEKLauncher.Servers.ClustersManager;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -39,32 +43,9 @@ namespace TEKLauncher.Pages
                 string Mode = Cluster.IsPvE ? "PvE" : "PvP";
                 ClusterName.Text = string.Format(LocString(LocCode.ClusterName), Cluster.Name, Mode);
                 Hoster.Text = string.Format(LocString(LocCode.HostedBy), Cluster.Hoster);
-                foreach (KeyValuePair<string, string> InfoBlock in Cluster.Info)
-                {
-                    if (InfoBlock.Key != string.Empty)
-                        InfoStack.Children.Add(new TextBlock
-                        {
-                            Margin = new Thickness(0D, 10D, 0D, 0D),
-                            Foreground = (SolidColorBrush)FindResource("BrightBrush"),
-                            FontSize = 28,
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                            Text = InfoBlock.Key
-                        });
-                    InfoStack.Children.Add(new Border
-                    {
-                        Margin = new Thickness(0D, 5D, 0D, 0D),
-                        Padding = new Thickness(50D, 10D, 50D, 10D),
-                        Background = (SolidColorBrush)FindResource("DarkestDarkBrush"),
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        CornerRadius = new CornerRadius(20D),
-                        Child = new TextBlock
-                        {
-                            Foreground = (SolidColorBrush)FindResource("BrightGrayBrush"),
-                            FontSize = 20,
-                            Text = InfoBlock.Value
-                        }
-                    });
-                }
+                if (IndexOf(Clusters, Cluster) < 2)
+                    LastUpdated.Text = ArkoudaQuery.LastUpdated;
+                LoadInfo();
                 if (Cluster.Mods is null)
                     ModsRadioButton.Visibility = Visibility.Collapsed;
                 else if (Cluster.Mods.Count != 0)
@@ -103,7 +84,7 @@ namespace TEKLauncher.Pages
         private void SubscribeManually(ulong ID)
         {
             Show("Warning", LocString(LocCode.FailedToSub));
-            Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={ID}");
+            Execute($"{Links.SteamWorkshop}{ID}");
         }
         private void SyncServers()
         {
@@ -127,6 +108,35 @@ namespace TEKLauncher.Pages
                 ServersListViewer.Visibility = TabIndex == 0 ? Visibility.Visible : Visibility.Collapsed;
                 InfoStack.Visibility = TabIndex == 1 ? Visibility.Visible : Visibility.Collapsed;
                 ModsListViewer.Visibility = TabIndex == 2 ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+        internal void LoadInfo()
+        {
+            foreach (KeyValuePair<string, string> InfoBlock in Cluster.Info)
+            {
+                if (InfoBlock.Key != string.Empty)
+                    InfoStack.Children.Add(new TextBlock
+                    {
+                        Margin = new Thickness(0D, 10D, 0D, 0D),
+                        Foreground = (SolidColorBrush)FindResource("BrightBrush"),
+                        FontSize = 28,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Text = InfoBlock.Key
+                    });
+                InfoStack.Children.Add(new Border
+                {
+                    Margin = new Thickness(0D, 5D, 0D, 0D),
+                    Padding = new Thickness(50D, 10D, 50D, 10D),
+                    Background = (SolidColorBrush)FindResource("DarkestDarkBrush"),
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    CornerRadius = new CornerRadius(20D),
+                    Child = new TextBlock
+                    {
+                        Foreground = (SolidColorBrush)FindResource("BrightGrayBrush"),
+                        FontSize = 20,
+                        Text = InfoBlock.Value
+                    }
+                });
             }
         }
         internal async void LoadMods()

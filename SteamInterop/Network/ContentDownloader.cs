@@ -40,7 +40,7 @@ namespace TEKLauncher.SteamInterop.Network
         }
         private bool ValidationFailed = false;
         private ulong LatestManifestID, ModID, SpacewarID;
-        private string BaseDownloadPath;
+        private string BaseDownloadPath, ETAString;
         private CancellationTokenSource Cancellator;
         private CDNClient CDNClient;
         private List<string> FilesToDelete;
@@ -228,6 +228,7 @@ namespace TEKLauncher.SteamInterop.Network
             }
             Log("Preallocation complete, proceeding to download...");
         }
+        private void ProgressUpdatedHandler() => SetStatus(string.Format(ETAString, ConvertTime(Progress.ETA)), YellowBrush);
         private void ValidationJob(object Args)
         {
             object[] ArgsArray = (object[])Args;
@@ -349,6 +350,7 @@ namespace TEKLauncher.SteamInterop.Network
             {
                 FileEntry File = LatestManifest.Files[Iterator + Offset], OldFile = OldManifest.Files[Iterator];
                 int Difference = OldFile.Name.CompareTo(File.Name);
+                long szd =  File.Size - OldFile.Size;
                 if (Difference < 0)
                 {
                     if (FilesToDelete is null)
@@ -417,7 +419,6 @@ namespace TEKLauncher.SteamInterop.Network
         {
             string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-", ItemName = SpacewarID == 0UL && DepotID > 346110U ? DepotNames[DepotID] : $"mod {SpacewarID}";
             Log($"Validating {ItemName} files...");
-            SetStatus(LocString(LocCode.ValidatingFiles), YellowBrush);
             IsValidating = true;
             Progress.Total = Manifest.Files.Count;
             Current.Dispatcher.Invoke(ProgressBar.SetNumericMode);
@@ -425,9 +426,12 @@ namespace TEKLauncher.SteamInterop.Network
             if (Changes is null)
                 Changes = new List<FileEntry>();
             Task[] ValidationTasks = new Task[4];
+            ETAString = LocString(LocCode.ValidatingFiles);
+            Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated += ProgressUpdatedHandler);
             for (int Iterator = 0; Iterator < 4; Iterator++)
                 ValidationTasks[Iterator] = Factory.StartNew(ValidationJob, new object[] { Manifest.Files, Changes, StartOffset + Iterator });
             WaitAll(ValidationTasks);
+            Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated -= ProgressUpdatedHandler);
             bool Paused = Cancellator.IsCancellationRequested;
             string FinishType = Paused ? "paused" : "complete";
             Log($"Validation {FinishType}: {FilesUpToDate} files are up to date, {FilesOutdated} are outdated and {FilesMissing} are missing");
@@ -473,9 +477,11 @@ namespace TEKLauncher.SteamInterop.Network
                     Log("Preallocating files...");
                     SetStatus(LocString(LocCode.Preallocating), YellowBrush);
                     Preallocate(Files);
-                    SetStatus(LocString(LocCode.DownloadingMod), YellowBrush);
+                    ETAString = LocString(LocCode.DownloadingMod);
+                    Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated += ProgressUpdatedHandler);
                     IsDownloading = true;
                     CDNClient.DownloadChanges(Files, DownloadSize, Cancellator.Token);
+                    Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated -= ProgressUpdatedHandler);
                     if (Cancellator.IsCancellationRequested || CDNClient.DownloadFailed)
                     {
                         IsDownloading = false;
@@ -525,6 +531,7 @@ namespace TEKLauncher.SteamInterop.Network
                 return;
             else
                 DepotLocks[DepotID] = true;
+            bool DowngradeMode = Settings.DowngradeMode;
             ValidationFailed = false;
             Cancellator = new CancellationTokenSource();
             FilesToDelete = null;
@@ -541,12 +548,25 @@ namespace TEKLauncher.SteamInterop.Network
                     CDNClient = new CDNClient(DepotID, Progress, ProgressBar, SetStatus);
                     DepotManifest OldManifest = null;
                     bool Finish = false;
-                    List<FileEntry> Changes;
-                    if (!(DepotID == 346111U ? Directory.Exists($@"{Game.Path}\ShooterGame") : DLCs.Where(DLC => DLC.DepotID == DepotID).FirstOrDefault()?.IsInstalled ?? true))
+                    List<FileEntry> Changes = null;
+                    if (DowngradeMode)
+                    {
+                        Log("Downgrade mode is enabled");
+                        DepotManifest LatestManifest = CDNClient.GetManifests(LatestManifestID, out OldManifest);
+                        if (OldManifest is null)
+                        {
+                            Log("No manifests found to downgrade to");
+                            SetStatus(LocString(LocCode.NoPrevManifest), YellowBrush);
+                            Finish = true;
+                        }
+                        else
+                            Changes = ComputeChanges(LatestManifest, OldManifest);
+                    }
+                    else if (!(DepotID == 346111U ? Directory.Exists($@"{Game.Path}\ShooterGame") : DLCs.Where(DLC => DLC.DepotID == DepotID).FirstOrDefault()?.IsInstalled ?? true))
                     {
                         Changes = CDNClient.GetManifests(LatestManifestID, out _).Files;
                         FilesMissing = Changes.Count;
-                        DownloadSize = Changes.Sum(File => File.Chunks.Sum(Chunk =>(long)Chunk.CompressedSize));
+                        DownloadSize = Changes.Sum(File => File.Chunks.Sum(Chunk => (long)Chunk.CompressedSize));
                         InstallSize = Changes.Sum(File => File.Size);
                         Log("Installation not found, staging the entire manifest file listing to be installed");
                     }
@@ -598,9 +618,11 @@ namespace TEKLauncher.SteamInterop.Network
                             Log("Preallocating files...");
                             SetStatus(LocString(LocCode.Preallocating), YellowBrush);
                             Preallocate(Changes);
-                            SetStatus(LocString(LocCode.DownloadingUpd), YellowBrush);
+                            SetStatus(string.Format(ETAString = LocString(DowngradeMode ? LocCode.DownloadingPrev : LocCode.DownloadingUpd), LocString(LocCode.NA)), YellowBrush);
+                            Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated += ProgressUpdatedHandler);
                             IsDownloading = true;
                             CDNClient.DownloadChanges(Changes, DownloadSize, Cancellator.Token);
+                            Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated -= ProgressUpdatedHandler);
                             if (Cancellator.IsCancellationRequested || CDNClient.DownloadFailed)
                             {
                                 IsDownloading = false;
@@ -613,15 +635,21 @@ namespace TEKLauncher.SteamInterop.Network
                                 Log("Download complete, installing...");
                                 SetStatus(LocString(LocCode.InstallingUpd), YellowBrush);
                                 InstallChanges(Changes);
-                                if (!(OldManifest is null) && FileExists(OldManifest.Path))
-                                    Delete(OldManifest.Path);
                                 Log("Installation complete!");
                                 if (DepotID == 346111U)
                                 {
-                                    Game.UpdateAvailable = Game.IsCorrupted = false;
-                                    Current.Dispatcher.Invoke(() => Instance.MWindow.SetCurrentVersion(Game.Version ?? LocString(LocCode.Latest), DarkGreen));
+                                    if (DowngradeMode)
+                                    {
+                                        Game.UpdateAvailable = true;
+                                        Current.Dispatcher.Invoke(() => Instance.MWindow.SetCurrentVersion(Game.Version ?? LocString(LocCode.Outdated), YellowBrush));
+                                    }
+                                    else
+                                    {
+                                        Game.UpdateAvailable = Game.IsCorrupted = false;
+                                        Current.Dispatcher.Invoke(() => Instance.MWindow.SetCurrentVersion(Game.Version ?? LocString(LocCode.Latest), DarkGreen));
+                                    }
                                 }
-                                SetStatus(string.Format(LocString(LocCode.UpdateSuccess), DepotNames[DepotID]), DarkGreen);
+                                SetStatus(string.Format(LocString(DowngradeMode ? LocCode.DowngradeSuccess : LocCode.UpdateSuccess), DepotNames[DepotID]), DarkGreen);
                             }
                         }
                     }
@@ -638,6 +666,7 @@ namespace TEKLauncher.SteamInterop.Network
                 return;
             else
                 ModLocks.Add(SpacewarID);
+            bool DowngradeMode = Settings.DowngradeMode;
             this.SpacewarID = SpacewarID;
             ValidationFailed = false;
             Cancellator = new CancellationTokenSource();
@@ -655,9 +684,22 @@ namespace TEKLauncher.SteamInterop.Network
                 {
                     CDNClient = new CDNClient(DepotID, Progress, ProgressBar, SetStatus, ModID);
                     DepotManifest OldManifest = null;
-                    List<FileEntry> Changes = ReadValidationCache(out bool IsIncomplete);
+                    List<FileEntry> Changes = null;
                     bool Finish = false;
-                    if (Changes is null)
+                    if (DowngradeMode)
+                    {
+                        Log("Downgrade mode is enabled");
+                        DepotManifest LatestManifest = CDNClient.GetManifests(LatestManifestID, out OldManifest);
+                        if (OldManifest is null)
+                        {
+                            Log("No manifests found to downgrade to");
+                            SetStatus(LocString(LocCode.NoPrevManifest), YellowBrush);
+                            Finish = true;
+                        }
+                        else
+                            Changes = ComputeChanges(LatestManifest, OldManifest);
+                    }
+                    else if ((Changes = ReadValidationCache(out bool IsIncomplete)) is null)
                     {
                         DepotManifest LatestManifest = CDNClient.GetManifests(LatestManifestID, out OldManifest);
                         if ((Changes = DoValidate || OldManifest is null ? Validate(LatestManifest) : ComputeChanges(OldManifest, LatestManifest)) is null)
@@ -690,9 +732,11 @@ namespace TEKLauncher.SteamInterop.Network
                             Log("Preallocating files...");
                             SetStatus(LocString(LocCode.Preallocating), YellowBrush);
                             Preallocate(Changes);
-                            SetStatus(LocString(LocCode.DownloadingUpd), YellowBrush);
+                            SetStatus(string.Format(ETAString = LocString(DowngradeMode ? LocCode.DownloadingPrev : LocCode.DownloadingUpd), LocString(LocCode.NA)), YellowBrush);
+                            Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated += ProgressUpdatedHandler);
                             IsDownloading = true;
                             CDNClient.DownloadChanges(Changes, DownloadSize, Cancellator.Token);
+                            Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated -= ProgressUpdatedHandler);
                             if (Cancellator.IsCancellationRequested || CDNClient.DownloadFailed)
                             {
                                 IsDownloading = false;
@@ -707,10 +751,8 @@ namespace TEKLauncher.SteamInterop.Network
                                 InstallChanges(Changes);
                                 SetStatus(LocString(LocCode.CommittingUpd), YellowBrush);
                                 (Mods.Find(Mod => Mod.ID == SpacewarID) ?? new Mod($@"{Steam.WorkshopPath}\{SpacewarID}", null)).Install(Progress, ProgressBar);
-                                if (!(OldManifest is null) && FileExists(OldManifest.Path))
-                                    Delete(OldManifest.Path);
                                 Log("Installation complete!");
-                                SetStatus(LocString(LocCode.ModUpdSuccess), DarkGreen);
+                                SetStatus(LocString(DowngradeMode ? LocCode.ModDowngradeSuccess : LocCode.ModUpdSuccess), DarkGreen);
                             }
                         }
                     }

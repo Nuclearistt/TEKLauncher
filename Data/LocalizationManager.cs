@@ -5,6 +5,7 @@ using System.Linq;
 using static System.Windows.Application;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.Utils.TEKArchive;
+using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.Data
 {
@@ -12,7 +13,7 @@ namespace TEKLauncher.Data
     {
         internal static string LocCulture;
         private static readonly Dictionary<LocCode, string> List = new Dictionary<LocCode, string>();
-        internal static readonly string[] SupportedCultures = new[] { "en", "es", "el", "ru", "ar" };
+        internal static readonly string[] SupportedCultures = new[] { "en", "es", "pt", "el", "ru", "ar" };
         internal static void LoadLocalization(string CultureCode)
         {
             if (Lang.Length == 0)
@@ -50,6 +51,9 @@ namespace TEKLauncher.Data
                     List.Add(LocCode.AboutFeatures, AboutFeatures);
                 }
             }
+            HoursString = List[LocCode.Hours];
+            MinutesString = List[LocCode.Minutes];
+            SecondsString = List[LocCode.Seconds];
         }
         internal static string LocString(LocCode Code) => List[Code];
         internal enum LocCode
@@ -83,18 +87,26 @@ namespace TEKLauncher.Data
             InstallingMod,
             ModInstallError,
             FailedToSub,
+            CantUninstModGameRunning,
+            UninstModPrompt,
             FailedToUnsub,
             Dismiss,
             KB,
             MB,
             GB,
-            Second,
+            s,
+            Hours,
+            Minutes,
+            Seconds,
             Join,
+            IPNotResolved,
             DLCNotInstalled,
             Install,
+            LastUpdated,
             KeyFeatures,
             Links,
             DownloadLink,
+            LocalizationFile,
             Discords,
             MainInfo,
             AddServers,
@@ -113,6 +125,8 @@ namespace TEKLauncher.Data
             DwThreadsCount,
             AutoRetry,
             CloseOnGameRun,
+            DowngradeModeTooltip,
+            DowngradeMode,
             CommunismMode,
             GamePathPrompt,
             CantUsePath,
@@ -156,31 +170,6 @@ namespace TEKLauncher.Data
             Play,
             Lang,
             GameLoc,
-            ca,
-            cs,
-            da,
-            de,
-            en,
-            es,
-            eu,
-            fi,
-            fr,
-            hu,
-            it,
-            ja,
-            ka,
-            ko,
-            nl,
-            pl,
-            pt,
-            ru,
-            sv,
-            th,
-            tr,
-            uk,
-            zh,
-            zh_hans,
-            zh_tw,
             CustomLaunchParameters,
             SwitchLangPrompt,
             NeedCreamAPI,
@@ -297,25 +286,34 @@ namespace TEKLauncher.Data
             DownloadingMod,
             DwPaused,
             CInstallingMod,
+            NoPrevManifest,
             GameAlrUpToDate,
             ValidationPaused,
             AlrUpToDate,
+            DownloadingPrev,
             DownloadingUpd,
             InstallingUpd,
+            DowngradeSuccess,
             UpdateSuccess,
             ModAlrUpToDate,
             CommittingUpd,
+            ModDowngradeSuccess,
             ModUpdSuccess,
             CantStartLauncher,
             SelectFolder,
             ModDecompressFailed,
             AddServer,
-            ServerIP,
-            EnterIP,
+            ServerAddress,
+            EnterAddress,
             Add,
-            IPNotValid,
+            ResolvingIP,
+            NoIPFound,
             ScanningServers,
             NoServersFound,
+            AddServersSuccess,
+            RequestingSrvInfo,
+            SrvDidnRespond,
+            SrvNotSpacewar,
             AddServerSuccess,
             WhatsNew,
             WNUpdate,
@@ -360,6 +358,8 @@ namespace TEKLauncher.Data
             MUPrompt,
             MUUninstalling,
             MUFail,
+            SteamShutdownPrompt,
+            WaitingForSteamShutdown,
             MUSuccess,
             StartupMessage,
             SelectARKFolder,

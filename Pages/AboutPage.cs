@@ -16,6 +16,7 @@ namespace TEKLauncher.Pages
             MainInfo.Text = LocString(LocCode.MainInfo);
             Features.Text = LocString(LocCode.AboutFeatures);
             DownloadLink.Tag = GDriveLauncherFile;
+            LocLink.Tag = LocalizationFile;
             PatreonLink.Tag = Patreon;
             ArkoudaLink.Tag = DiscordArkouda;
             ARKdictedLink.Tag = DiscordARKdicted;

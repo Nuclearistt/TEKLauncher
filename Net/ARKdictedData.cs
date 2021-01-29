@@ -2,7 +2,6 @@
 using System.IO;
 using TEKLauncher.ARK;
 using TEKLauncher.Controls;
-using TEKLauncher.Data;
 using TEKLauncher.Pages;
 using TEKLauncher.Servers;
 using static System.Array;
@@ -10,6 +9,7 @@ using static System.Net.IPAddress;
 using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.DLCManager;
+using static TEKLauncher.Data.Links;
 using static TEKLauncher.Servers.ClustersManager;
 
 namespace TEKLauncher.Net
@@ -28,7 +28,7 @@ namespace TEKLauncher.Net
         }
         internal static void LoadServers(object State)
         {
-            byte[] Data = new Downloader().TryDownloadData($"{Links.ARKdicted}workshop/ServersInfo.txt");
+            byte[] Data = new Downloader().TryDownloadData($"{ARKdicted}workshop/ServersInfo.txt");
             if (Data is null)
                 foreach (Server Server in Clusters[2].Servers)
                     Server.Refresh(-1);
@@ -60,7 +60,7 @@ namespace TEKLauncher.Net
         {
             if (Workshop.Count > 0)
                 return;
-            byte[] Data = new Downloader().TryDownloadData($"{Links.ARKdicted}workshop/ModsIds.txt");
+            byte[] Data = new Downloader().TryDownloadData($"{ARKdicted}workshop/ModsIds.txt");
             try
             {
                 using (MemoryStream Stream = new MemoryStream(Data))

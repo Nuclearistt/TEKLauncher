@@ -16,15 +16,17 @@ using static System.Text.Encoding;
 using static System.Threading.Tasks.Task;
 using static System.Windows.Application;
 using static TEKLauncher.App;
+using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Servers.ClustersManager;
+using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.Net
 {
     internal class ArkoudaQuery
     {
-        private bool Expired;
         private List<IPAddress> IPs;
         internal readonly Dictionary<MapCode, byte[]> Checksums = new Dictionary<MapCode, byte[]>(9);
+        internal static string LastUpdated;
         private void ReadHashes(MemoryStream Stream, int Count)
         {
             for (int Iterator = 0; Iterator < Count; Iterator++)
@@ -80,6 +82,7 @@ namespace TEKLauncher.Net
         {
             if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) < 2)
             {
+                Page.LastUpdated.Text = LastUpdated;
                 Page.ServersList.Children.Clear();
                 foreach (Server Server in Page.Cluster.Servers)
                     Page.ServersList.Children.Add(new ServerItem(Server));
@@ -110,7 +113,7 @@ namespace TEKLauncher.Net
             byte[] Buffer = new byte[2];
             Stream.Read(Buffer, 0, 2);
             int Port = ToUInt16(Buffer, 0), PlayersCount = Stream.ReadByte(), CustomNameLength = Stream.ReadByte();
-            if (PlayersCount == 255 || Expired)
+            if (PlayersCount == 255)
                 PlayersCount = -1;
             string CustomName = null;
             if (CustomNameLength != 0)
@@ -133,7 +136,11 @@ namespace TEKLauncher.Net
                 {
                     byte[] Buffer = new byte[8];
                     Reader.Read(Buffer, 0, 8);
-                    Expired = UtcNow.Ticks > ToInt64(Buffer, 0);
+                    long LastUpdatedTimestamp = UtcNow.Ticks - ToInt64(Buffer, 0);
+                    if (LastUpdatedTimestamp < 0L)
+                        LastUpdatedTimestamp += 1300000000L;
+                    LastUpdatedTimestamp /= 10000000L;
+                    LastUpdated = string.Format(LocString(LocCode.LastUpdated), ConvertTime(LastUpdatedTimestamp));
                     int SectionIndex;
                     while ((SectionIndex = Reader.ReadByte()) != -1)
                     {

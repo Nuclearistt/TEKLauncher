@@ -79,6 +79,7 @@
                 <ComboBox.Items>
                     <ComboBoxItem Content="English"/>
                     <ComboBoxItem Content="Español"/>
+                    <ComboBoxItem Content="Português"/>
                     <ComboBoxItem Content="Ελληνικά"/>
                     <ComboBoxItem Content="Русский"/>
                     <ComboBoxItem FlowDirection="RightToLeft" Content="العربية"/>
@@ -89,31 +90,31 @@
             <TextBlock Name="GameLocTB" Foreground="{DynamicResource BrightGrayBrush}" FontSize="22" VerticalAlignment="Center" Text="{UI:LocString GameLoc}"/>
             <ComboBox Grid.Column="1" Name="Localizations" Width="280" Margin="5, 0, 0, 0">
                 <ComboBox.Items>
-                    <ComboBoxItem Content="{UI:LocString ca}"/>
-                    <ComboBoxItem Content="{UI:LocString cs}"/>
-                    <ComboBoxItem Content="{UI:LocString da}"/>
-                    <ComboBoxItem Content="{UI:LocString de}"/>
-                    <ComboBoxItem Content="{UI:LocString en}"/>
-                    <ComboBoxItem Content="{UI:LocString es}"/>
-                    <ComboBoxItem Content="{UI:LocString eu}"/>
-                    <ComboBoxItem Content="{UI:LocString fi}"/>
-                    <ComboBoxItem Content="{UI:LocString fr}"/>
-                    <ComboBoxItem Content="{UI:LocString hu}"/>
-                    <ComboBoxItem Content="{UI:LocString it}"/>
-                    <ComboBoxItem Content="{UI:LocString ja}"/>
-                    <ComboBoxItem Content="{UI:LocString ka}"/>
-                    <ComboBoxItem Content="{UI:LocString ko}"/>
-                    <ComboBoxItem Content="{UI:LocString nl}"/>
-                    <ComboBoxItem Content="{UI:LocString pl}"/>
-                    <ComboBoxItem Content="{UI:LocString pt}"/>
-                    <ComboBoxItem Content="{UI:LocString ru}"/>
-                    <ComboBoxItem Content="{UI:LocString sv}"/>
-                    <ComboBoxItem Content="{UI:LocString th}"/>
-                    <ComboBoxItem Content="{UI:LocString tr}"/>
-                    <ComboBoxItem Content="{UI:LocString uk}"/>
-                    <ComboBoxItem Content="{UI:LocString zh}"/>
-                    <ComboBoxItem Content="{UI:LocString zh_hans}"/>
-                    <ComboBoxItem Content="{UI:LocString zh_tw}"/>
+                    <ComboBoxItem Content="Català"/>
+                    <ComboBoxItem Content="Český"/>
+                    <ComboBoxItem Content="Dansk"/>
+                    <ComboBoxItem Content="Deutsch"/>
+                    <ComboBoxItem Content="English"/>
+                    <ComboBoxItem Content="Español"/>
+                    <ComboBoxItem Content="Euskara"/>
+                    <ComboBoxItem Content="Suomi"/>
+                    <ComboBoxItem Content="Français"/>
+                    <ComboBoxItem Content="Magyar"/>
+                    <ComboBoxItem Content="Italiano"/>
+                    <ComboBoxItem Content="日本語"/>
+                    <ComboBoxItem Content="ქართული"/>
+                    <ComboBoxItem Content="한국어"/>
+                    <ComboBoxItem Content="Nederlands"/>
+                    <ComboBoxItem Content="Polski"/>
+                    <ComboBoxItem Content="Português/Brasil"/>
+                    <ComboBoxItem Content="Русский"/>
+                    <ComboBoxItem Content="Svenska"/>
+                    <ComboBoxItem Content="ภาษาไทย"/>
+                    <ComboBoxItem Content="Türkçe"/>
+                    <ComboBoxItem Content="Українська"/>
+                    <ComboBoxItem Content="中文"/>
+                    <ComboBoxItem Content="中文 (简体)"/>
+                    <ComboBoxItem Content="中文 (台湾)"/>
                 </ComboBox.Items>
             </ComboBox>
         </StackPanel>

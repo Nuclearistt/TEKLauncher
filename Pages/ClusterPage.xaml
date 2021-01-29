@@ -139,6 +139,7 @@
             </StackPanel>
         </Border>
         <Button Grid.Column="2" Name="AddServersButton" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" Content="{UI:LocString AddServers}" Click="AddServer"/>
+        <TextBlock Name="LastUpdated" Grid.Row="1" Grid.ColumnSpan="3" Foreground="{DynamicResource BrightGrayBrush}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Name="MenuBorder" Grid.Row="2" Background="{DynamicResource DarkestDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="25">
             <StackPanel Name="Menu" Margin="10">
                 <RadioButton Content="{UI:LocString CPServers}" IsChecked="True" Checked="SwitchTab" Unchecked="SwitchTab"/>

@@ -22,7 +22,7 @@ namespace TEKLauncher.Windows
         internal UpdaterWindow()
         {
             InitializeComponent();
-            ProgressBar.ProgressUpdated = ProgressUpdatedHandler;
+            ProgressBar.ProgressUpdated += ProgressUpdatedHandler;
         }
         private void DownloadBeganHandler()
         {
@@ -50,6 +50,7 @@ namespace TEKLauncher.Windows
             string Executable;
             using (Process CurrentProcess = GetCurrentProcess())
                 Executable = CurrentProcess.MainModule.FileName;
+            ProgressBar.SetDownloadMode();
             if (await new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler }.TryDownloadFileAsync($"{Executable}.new", $"{FilesStorage}TEKLauncher/TEKLauncher.exe", GDriveLauncherFile))
                 Install(Executable);
             else

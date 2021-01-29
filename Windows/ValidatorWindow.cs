@@ -30,13 +30,13 @@ namespace TEKLauncher.Windows
             this.DoValidate = DoValidate;
             this.DLC = DLC;
             InitializeComponent();
-            if (LocCulture == "el")
+            if (LocCulture == "pt" || LocCulture == "el")
                 Button.FontSize = 12D;
             if (LocCulture == "ar")
                 foreach (Panel Stack in ValidationBlock.Children)
                     Stack.FlowDirection = FlowDirection.RightToLeft;
             TitleBlock.Text = Title = string.Format(LocString(LocCode.DLCValidator), DLC.Name);
-            ProgressBar.ProgressUpdated = ProgressUpdatedHandler;
+            ProgressBar.ProgressUpdated += ProgressUpdatedHandler;
             LastStatus = DLC.Status;
             DLC.SetStatus(ARK.Status.Updating);
             Downloader = new ContentDownloader(DLC.DepotID, FinishHandler, SetStatus, ProgressBar);
@@ -49,7 +49,7 @@ namespace TEKLauncher.Windows
             if (Name.Length > 25)
                 Name = Name.Substring(0, 25);
             TitleBlock.Text = Title = string.Format(LocString(LocCode.ModValidator), Name);
-            ProgressBar.ProgressUpdated = ProgressUpdatedHandler;
+            ProgressBar.ProgressUpdated += ProgressUpdatedHandler;
             Downloader = new ContentDownloader(Mod.OriginID == 0UL ? 480U : 346110U, FinishHandler, SetStatus, ProgressBar);
             new Thread(UpdateJob).Start(this.DoValidate = DoValidate);
         }

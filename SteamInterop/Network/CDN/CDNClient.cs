@@ -184,7 +184,7 @@ namespace TEKLauncher.SteamInterop.Network.CDN
         {
             byte[] DepotKey = DepotKeys[DepotID];
             string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-", LatestManifestFile = $@"{ManifestsDirectory}\{ItemCompound}{LatestManifestID}.manifest";
-            string[] ManifestFiles = Directory.EnumerateFiles(ManifestsDirectory).Where(File => File.Contains(ItemCompound) && File.EndsWith(".manifest") && File != LatestManifestFile).OrderBy(File => GetCreationTime(File)).ToArray();
+            string[] ManifestFiles = Directory.EnumerateFiles(ManifestsDirectory).Where(File => File.Contains(ItemCompound) && File.EndsWith(".manifest") && File != LatestManifestFile).OrderByDescending(File => GetCreationTime(File)).ToArray();
             for (int Iterator = 1; Iterator < ManifestFiles.Length; Iterator++)
                 Delete(ManifestFiles[Iterator]);
             if (ManifestFiles.Length != 0)

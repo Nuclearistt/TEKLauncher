@@ -10,8 +10,8 @@ namespace TEKLauncher.Data
     {
         internal Progress(ProgressUpdatedEventHandler ProgressUpdated) => this.ProgressUpdated = ProgressUpdated;
         private int SpeedUpdated;
-        private long Difference, Previous;
-        internal long Current, Total;
+        private long Difference;
+        internal long Current, ETA = -1L, Previous, Total;
         internal double Ratio;
         private readonly ProgressUpdatedEventHandler ProgressUpdated;
         internal string Percentage => $"{Round(Ratio * 100D)}%";
@@ -27,6 +27,7 @@ namespace TEKLauncher.Data
                     Difference = 1L;
                 Previous = Current;
                 SpeedUpdated = CurrentTime;
+                ETA = (Total - Current) / Difference;
             }
             Application.Current.Dispatcher.Invoke(ProgressUpdated);
         }
@@ -40,6 +41,7 @@ namespace TEKLauncher.Data
                     Difference = 1L;
                 Previous = Current;
                 SpeedUpdated = CurrentTime;
+                ETA = (Total - Current) / Difference;
             }
             try { Application.Current.Dispatcher.Invoke(ProgressUpdated); }
             catch { }
@@ -47,7 +49,7 @@ namespace TEKLauncher.Data
         internal string GetSpeed(out string Unit)
         {
             string Value = ConvertBytesSep(Difference, out string ConversionUnit);
-            Unit = $"{ConversionUnit}/{LocString(LocCode.Second)}";
+            Unit = $"{ConversionUnit}/{LocString(LocCode.s)}";
             return Value;
         }
     }

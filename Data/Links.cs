@@ -24,7 +24,7 @@ namespace TEKLauncher.Data
                     DiscordArkouda = Reader.ReadLine();
                     DiscordARKdicted = Reader.ReadLine();
                     DiscordKillBills = Reader.ReadLine();
-                    DiscordARKRussia = Reader.ReadLine();
+                    DiscordRUSSIA = Reader.ReadLine();
                     DotNETFramework = Reader.ReadLine();
                     FilesStorage = Reader.ReadLine();
                     GDriveBattlEyeFile = Reader.ReadLine();
@@ -33,8 +33,11 @@ namespace TEKLauncher.Data
                     GDriveLauncherFile = Reader.ReadLine();
                     GDriveLocalProfileFile = Reader.ReadLine();
                     GDriveVersionFile = Reader.ReadLine();
+                    LocalizationFile = Reader.ReadLine();
                     Patreon = Reader.ReadLine();
+                    RUSSIA = Reader.ReadLine();
                     SteamWebAPI = Reader.ReadLine();
+                    SteamWorkshop = Reader.ReadLine();
                     SupportChannel = Reader.ReadLine();
                     TrackerWebhook = Reader.ReadLine();
                 }
@@ -49,7 +52,7 @@ namespace TEKLauncher.Data
             DiscordArkouda,
             DiscordARKdicted,
             DiscordKillBills,
-            DiscordARKRussia,
+            DiscordRUSSIA,
             DotNETFramework,
             FilesStorage,
             GDriveBattlEyeFile,
@@ -58,8 +61,11 @@ namespace TEKLauncher.Data
             GDriveLauncherFile,
             GDriveLocalProfileFile,
             GDriveVersionFile,
+            LocalizationFile,
             Patreon,
+            RUSSIA,
             SteamWebAPI,
+            SteamWorkshop,
             SupportChannel,
             TrackerWebhook;
     }

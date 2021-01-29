@@ -11,6 +11,7 @@ using static System.Windows.Clipboard;
 using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
+using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.UI.Message;
@@ -128,8 +129,8 @@ namespace TEKLauncher.Controls
             SetText(Mod.OriginID.ToString());
             AddImage(LocString(LocCode.ModIDCopied), "Success");
         }
-        private void Follow(object Sender, RoutedEventArgs Args) => Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={Mod.ID}");
-        private void FollowO(object Sender, RoutedEventArgs Args) => Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={Mod.OriginID}");
+        private void Follow(object Sender, RoutedEventArgs Args) => Execute($"{SteamWorkshop}{Mod.ID}");
+        private void FollowO(object Sender, RoutedEventArgs Args) => Execute($"{SteamWorkshop}{Mod.OriginID}");
         private void Install(object State)
         {
             bool Failed = false;
@@ -173,15 +174,15 @@ namespace TEKLauncher.Controls
             else
             {
                 Show("Info", LocString(LocCode.FailedToSub));
-                Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={Mod.ID}");
+                Execute($"{SteamWorkshop}{Mod.ID}");
             }
             SubscribeButton.Visibility = Visibility.Collapsed;
         }
         private async void Uninstall(object Sender, RoutedEventArgs Args)
         {
             if (Game.IsRunning)
-                Show("Warning", "Game must be closed for mod to be uninstalled!");
-            else if (ShowOptions("Warning", "Are you sure you want to uninstall this mod?"))
+                Show("Warning", LocString(LocCode.CantUninstModGameRunning));
+            else if (ShowOptions("Warning", LocString(LocCode.UninstModPrompt)))
             {
                 ((Panel)Parent)?.Children?.Remove(this);
                 bool Unsubscribed = false;
@@ -190,7 +191,7 @@ namespace TEKLauncher.Controls
                         Unsubscribed = true;
                 if (!Unsubscribed)
                 {
-                    Execute($"steam://openurl/https://steamcommunity.com/sharedfiles/filedetails/?id={Mod.ID}");
+                    Execute($"{SteamWorkshop}{Mod.ID}");
                     Show("Info", LocString(LocCode.FailedToUnsub));
                 }
                 Mod?.Uninstall();

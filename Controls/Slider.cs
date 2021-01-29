@@ -29,7 +29,7 @@ namespace TEKLauncher.Controls
                 {
                     Width = 2D,
                     Height = 15D,
-                    Margin = new Thickness(14D + Iterator * UnitWidth, 0D, 0D, 0D),
+                    Margin = new Thickness(14.5D + Iterator * UnitWidth, 0D, 0D, 0D),
                     Fill = new SolidColorBrush(FromRgb(0xBB, 0xBB, 0xBB)),
                     HorizontalAlignment = HorizontalAlignment.Left
                 });
@@ -44,8 +44,8 @@ namespace TEKLauncher.Controls
         }
         private void MouseMoveHandler(object Sender, MouseEventArgs Args)
         {
-            double Change = CurrentMarginLeft + GetPosition(null).X - CapturedX;
-            if (Change < 0D)
+            double Offset = CurrentMarginLeft + GetPosition(null).X - CapturedX;
+            if (Offset < 0D)
             {
                 Text.Text = "4";
                 Mark.Margin = new Thickness(0D);
@@ -53,9 +53,9 @@ namespace TEKLauncher.Controls
             }
             else
             {
-                Change = Round(Change / UnitWidth) * UnitWidth;
-                Mark.Margin = new Thickness(Change > MainLine.Width ? MainLine.Width : Change, 0D, 0D, 0D);
-                Text.Text = (DwThreadsCount = Value = (int)(Mark.Margin.Left / UnitWidth + 4D)).ToString();
+                Offset = Round(Offset / UnitWidth) * UnitWidth;
+                Mark.Margin = new Thickness(Offset > MainLine.Width ? MainLine.Width : Offset, 0D, 0D, 0D);
+                Text.Text = (DwThreadsCount = Value = (int)Round(Mark.Margin.Left / UnitWidth + 4D)).ToString();
             }
         }
         private void MouseUpHandler(object Sender, MouseButtonEventArgs Args)

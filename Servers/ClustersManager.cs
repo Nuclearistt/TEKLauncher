@@ -15,7 +15,7 @@ namespace TEKLauncher.Servers
                 if (Iterator != 5)
                     Clusters[Iterator].Refresh();
         }
-        private static readonly string KillBillsIPS = "2103670342";
+        private static readonly string KillBillsIPS = "3282446663";
         private static readonly IPAddress KillBillsIP = new IPAddress(long.Parse(KillBillsIPS));
         internal static readonly Cluster[] Clusters = new[]
         {

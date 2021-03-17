@@ -89,7 +89,7 @@ namespace TEKLauncher.Pages
                 string ArchivePath = $@"{AppDataFolder}\BattlEye.ta";
                 ProgressBar.SetDownloadMode();
                 IsDownloading = true;
-                bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}BattlEye.ta", GDriveBattlEyeFile);
+                bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{Arkouda2}Extra/BattlEye.ta", $"{FilesStorage}BattlEye.ta", GDriveBattlEyeFile);
                 IsDownloading = false;
                 if (Success)
                 {
@@ -138,7 +138,7 @@ namespace TEKLauncher.Pages
             string ArchivePath = $@"{AppDataFolder}\CommonRedist.ta";
             ProgressBar.SetDownloadMode();
             IsDownloading = true;
-            bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}CommonRedist.ta", GDriveCommonRedistFile);
+            bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{Arkouda2}Extra/CommonRedist.ta", $"{FilesStorage}CommonRedist.ta", GDriveCommonRedistFile);
             IsDownloading = false;
             if (Success)
             {
@@ -246,7 +246,7 @@ namespace TEKLauncher.Pages
                     string ArchivePath = $@"{AppDataFolder}\GlobalFonts.ta";
                     ProgressBar.SetDownloadMode();
                     IsDownloading = true;
-                    bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{FilesStorage}GlobalFonts.ta", GDriveGlobalFontsFile);
+                    bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{Arkouda2}Extra/GlobalFonts.ta", $"{FilesStorage}GlobalFonts.ta", GDriveGlobalFontsFile);
                     IsDownloading = false;
                     if (Success)
                     {
@@ -319,7 +319,7 @@ namespace TEKLauncher.Pages
                 PreparingToDownload();
                 ProgressBar.SetDownloadMode();
                 IsDownloading = true;
-                bool Success = await Downloader.TryDownloadFileAsync($@"{LocalProfiles}\PlayerLocalData.arkprofile", $"{FilesStorage}PlayerLocalData.arkprofile", GDriveLocalProfileFile);
+                bool Success = await Downloader.TryDownloadFileAsync($@"{LocalProfiles}\PlayerLocalData.arkprofile", $"{Arkouda2}Extra/PlayerLocalData.arkprofile", $"{FilesStorage}PlayerLocalData.arkprofile", GDriveLocalProfileFile);
                 IsDownloading = false;
                 if (Success)
                 {
@@ -347,7 +347,6 @@ namespace TEKLauncher.Pages
         }
         private void UpdateJob(object DoValidate)
         {
-            Beginning:
             try { SteamDownloader.Update((bool)DoValidate); }
             catch (Exception Exception)
             {
@@ -355,16 +354,11 @@ namespace TEKLauncher.Pages
                 if (Exception is AggregateException)
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
-                {
-                    if (Exception.Message == LocString(LocCode.DownloadFailed) && Settings.AutoRetry)
-                        goto Beginning;
-                    else
-                        Dispatcher.Invoke(() =>
-                        {
-                            SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
-                            FinishHandler();
-                        });
-                }
+                    Dispatcher.Invoke(() =>
+                    {
+                        SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
+                        FinishHandler();
+                    });
                 else
                 {
                     File.WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\n{Exception.StackTrace}");

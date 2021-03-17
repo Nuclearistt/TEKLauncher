@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using TEKLauncher.ARK;
 using TEKLauncher.Data;
+using TEKLauncher.Windows;
 using static System.IO.Directory;
 using static System.Windows.Application;
 using static TEKLauncher.App;
@@ -20,9 +22,8 @@ namespace TEKLauncher.Pages
         {
             InitializeComponent();
             if (LocCulture == "ar")
-                DTCGrid.FlowDirection = PSGrid.FlowDirection = FlowDirection.RightToLeft;
+                VTCGrid.FlowDirection = DTCGrid.FlowDirection = PSGrid.FlowDirection = FlowDirection.RightToLeft;
             GamePath.SetPath(Game.Path);
-            AutoRetry.IsChecked = Settings.AutoRetry;
             CloseOnGameRun.IsChecked = Settings.CloseOnGameRun;
             DowngradeMode.IsChecked = Settings.DowngradeMode;
             Communism.IsChecked = Settings.CommunismMode;
@@ -45,6 +46,11 @@ namespace TEKLauncher.Pages
                 GamePath.SetPath(Game.Path);
             }
         }
+        private void ChangeSpacewarID(object Sender, RoutedEventArgs Args)
+        {
+            if (!Current.Windows.OfType<IDChangerWindow>().Any())
+                new IDChangerWindow().Show();
+        }
         private void CleanDownloadCache(object Sender, RoutedEventArgs Args)
         {
             if (ShowOptions("Warning", LocString(LocCode.CleanDwCachePrompt)))
@@ -60,11 +66,6 @@ namespace TEKLauncher.Pages
                 DeleteSettings = true;
                 Current.Shutdown();
             }
-        }
-        private void SetAutoRetry(object Sender, RoutedEventArgs Args)
-        {
-            if (IsLoaded)
-                Settings.AutoRetry = (bool)AutoRetry.IsChecked;
         }
         private void SetCloseOnGameRun(object Sender, RoutedEventArgs Args)
         {

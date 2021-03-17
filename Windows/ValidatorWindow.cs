@@ -196,7 +196,6 @@ namespace TEKLauncher.Windows
         }
         private void UpdateJob(object DoValidate)
         {
-            Beginning:
             try
             {
                 if (Mod is null)
@@ -210,16 +209,11 @@ namespace TEKLauncher.Windows
                 if (Exception is AggregateException)
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
-                {
-                    if (Exception.Message == LocString(LocCode.DownloadFailed) && AutoRetry)
-                        goto Beginning;
-                    else
-                        Dispatcher.Invoke(() =>
-                        {
-                            SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
-                            FinishHandler();
-                        });
-                }
+                    Dispatcher.Invoke(() =>
+                    {
+                        SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
+                        FinishHandler();
+                    });
                 else
                 {
                     WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\n{Exception.StackTrace}");

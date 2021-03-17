@@ -30,6 +30,7 @@ using static TEKLauncher.ARK.UserServers;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Net.ARKdictedData;
+using static TEKLauncher.Net.HTTPClient;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.SteamInterop.Network.Logger;
 using static TEKLauncher.SteamInterop.Network.SteamClient;
@@ -40,7 +41,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "7.3.62.0";
+        internal const string Version = "8.0.63.0";
         private App()
         {
             string CultureCode = CurrentUICulture.Name;
@@ -140,6 +141,7 @@ namespace TEKLauncher
             Disconnect();
             Close();
             Retract();
+            CloseSession();
             SaveList();
             Settings.Save();
             Environment.Exit(0);

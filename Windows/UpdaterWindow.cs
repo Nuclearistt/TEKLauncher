@@ -51,7 +51,7 @@ namespace TEKLauncher.Windows
             using (Process CurrentProcess = GetCurrentProcess())
                 Executable = CurrentProcess.MainModule.FileName;
             ProgressBar.SetDownloadMode();
-            if (await new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler }.TryDownloadFileAsync($"{Executable}.new", $"{FilesStorage}TEKLauncher/TEKLauncher.exe", GDriveLauncherFile))
+            if (await new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler }.TryDownloadFileAsync($"{Executable}.new", $"{Arkouda2}TEKLauncher/TEKLauncher.exe", $"{FilesStorage}TEKLauncher/TEKLauncher.exe", GDriveLauncherFile))
                 Install(Executable);
             else
             {

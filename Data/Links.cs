@@ -18,6 +18,7 @@ namespace TEKLauncher.Data
                 {
                     ARKdicted = Reader.ReadLine();
                     ArkoudaQuery = Reader.ReadLine();
+                    Arkouda2 = Reader.ReadLine();
                     CA = Reader.ReadLine();
                     CI = Reader.ReadLine();
                     CrashReporterWebhook = Reader.ReadLine();
@@ -46,6 +47,7 @@ namespace TEKLauncher.Data
         internal static readonly string
             ARKdicted,
             ArkoudaQuery,
+            Arkouda2,
             CA,
             CI,
             CrashReporterWebhook,

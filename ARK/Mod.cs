@@ -33,10 +33,12 @@ namespace TEKLauncher.ARK
         }
         internal bool IsInstalled, UpdateAvailable;
         internal bool? IsSubscribed;
+        internal ulong ID;
+        internal string ImageFile, ModFilePath, ModsPath, Path;
         internal Status Status = Status.Installed;
         internal ModDetails Details, OriginDetails;
-        internal readonly ulong ID, OriginID;
-        internal readonly string ImageFile, ModFilePath, ModsPath, Name, Path;
+        internal readonly ulong OriginID;
+        internal readonly string Name;
         internal void Install(Progress Progress, ProgressBar ProgressBar)
         {
             List<string> Names = new List<string>();

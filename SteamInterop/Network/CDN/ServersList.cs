@@ -42,10 +42,10 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                     }
                 }
         }
-        internal static ServerRecord NextServer()
+        internal static string NextServer()
         {
             lock (ListLock)
-                return Servers.Count == 0 ? default : Servers.Pop();
+                return Servers.Count == 0 ? default : Servers.Pop().Host;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Controls="clr-namespace:TEKLauncher.Controls" xmlns:UI="clr-namespace:TEKLauncher.UI"
-        x:Class="TEKLauncher.Windows.ChangelogWindow" Title="{UI:LocString WhatsNew}" Width="800" Height="600"
+        x:Class="TEKLauncher.Windows.ChangelogWindow" Title="{UI:LocString WhatsNew}" Width="950" Height="700"
         WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
     <Border Margin="12.5" Background="Black" CornerRadius="25" UseLayoutRounding="True" MouseLeftButtonDown="Drag">
         <Border.Effect>

@@ -12,14 +12,20 @@ namespace TEKLauncher.Controls
 {
     public partial class Slider : UserControl
     {
-        public Slider()
-        {
-            Value = DwThreadsCount;
-            InitializeComponent();
-            Text.Text = Value.ToString();
-        }
-        private int Value;
+        public Slider() => InitializeComponent();
+        private bool DwThreads;
         private double CapturedX, CurrentMarginLeft, UnitWidth;
+        private int Value
+        {
+            get => DwThreads ? DwThreadsCount : ValThreadsCount;
+            set
+            {
+                if (DwThreads)
+                    DwThreadsCount = value;
+                else
+                    ValThreadsCount = value;
+            }
+        }
         private void AdjustSize()
         {
             UnitWidth = (MainLine.Width = Root.ActualWidth - 30D) / 16D;
@@ -34,7 +40,12 @@ namespace TEKLauncher.Controls
                     HorizontalAlignment = HorizontalAlignment.Left
                 });
         }
-        private void LoadedHandler(object Sender, RoutedEventArgs Args) => AdjustSize();
+        private void LoadedHandler(object Sender, RoutedEventArgs Args)
+        {
+            DwThreads = Tag is null;
+            Text.Text = Value.ToString();
+            AdjustSize();
+        }
         private void MouseDownHandler(object Sender, MouseButtonEventArgs Args)
         {
             Capture(Mark);
@@ -49,13 +60,13 @@ namespace TEKLauncher.Controls
             {
                 Text.Text = "4";
                 Mark.Margin = new Thickness(0D);
-                DwThreadsCount = Value = 4;
+                Value = 4;
             }
             else
             {
                 Offset = Round(Offset / UnitWidth) * UnitWidth;
                 Mark.Margin = new Thickness(Offset > MainLine.Width ? MainLine.Width : Offset, 0D, 0D, 0D);
-                Text.Text = (DwThreadsCount = Value = (int)Round(Mark.Margin.Left / UnitWidth + 4D)).ToString();
+                Text.Text = (Value = (int)Round(Mark.Margin.Left / UnitWidth + 4D)).ToString();
             }
         }
         private void MouseUpHandler(object Sender, MouseButtonEventArgs Args)

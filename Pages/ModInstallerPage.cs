@@ -21,7 +21,6 @@ using static TEKLauncher.App;
 using static TEKLauncher.ARK.ModManager;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
-using static TEKLauncher.Data.Settings;
 using static TEKLauncher.Net.ARKdictedData;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.UI.Message;
@@ -53,7 +52,6 @@ namespace TEKLauncher.Pages
         }
         private void DownloadJob()
         {
-            Beginning:
             try { Downloader.DownloadMod(ARKModID, SpacewarModID, ref ARKModDetails, ref SpacewarModDetails); }
             catch (Exception Exception)
             {
@@ -61,17 +59,12 @@ namespace TEKLauncher.Pages
                 if (Exception is AggregateException)
                     Exception = Exception.InnerException;
                 if (Exception is ValidatorException)
-                {
-                    if (Exception.Message == LocString(LocCode.DownloadFailed) && AutoRetry)
-                        goto Beginning;
-                    else
-                        Dispatcher.Invoke(() =>
-                        {
-                            SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
-                            FinishHandler();
-                            DeletePath($@"{Game.Path}\ShooterGame\Content\Mods\{SpacewarModID}");
-                        });
-                }
+                    Dispatcher.Invoke(() =>
+                    {
+                        SetStatus(string.Format(LocString(LocCode.ValidatorExc), Exception.Message), DarkRed);
+                        FinishHandler();
+                        DeletePath($@"{Game.Path}\ShooterGame\Content\Mods\{SpacewarModID}");
+                    });
                 else
                 {
                     WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\n{Exception.StackTrace}");

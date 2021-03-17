@@ -22,7 +22,7 @@ namespace TEKLauncher.Controls
             Speed.Text = $"{LocString(LocCode.KB)}/{LocString(LocCode.s)}";
             Progress = new Progress(UpdateProgress);
         }
-        private bool NumericMode = false, UnknownTotalMode = false;
+        private bool NumericMode, PercentageMode, UnknownTotalMode;
         private double HalfHeight, HalfWidth;
         internal readonly Progress Progress;
         private void LoadedHandler(object Sender, RoutedEventArgs Args)
@@ -41,7 +41,7 @@ namespace TEKLauncher.Controls
                 BytesProgressValue.Text = Progress.Current.ToString();
                 BytesTotalValue.Text = Progress.Total.ToString();
             }
-            else
+            else if (!PercentageMode)
             {
                 BytesProgressValue.Text = ConvertBytesSep(Progress.Current, out string Unit);
                 BytesProgress.Text = Unit;
@@ -58,8 +58,11 @@ namespace TEKLauncher.Controls
                 Arc.Point = new Point(HalfWidth + (HalfWidth - 7D) * Sin(Angle), HalfHeight - (HalfHeight - 7D) * Cos(Angle));
                 if (!NumericMode)
                 {
-                    BytesTotalValue.Text = ConvertBytesSep(Progress.Total, out string Unit);
-                    BytesTotal.Text = Unit;
+                    if (!PercentageMode)
+                    {
+                        BytesTotalValue.Text = ConvertBytesSep(Progress.Total, out string Unit);
+                        BytesTotal.Text = Unit;
+                    }
                     Percentage.Text = Progress.Total > 104857600L ? Progress.PrecisePercentage : Progress.Percentage;
                 }
             }
@@ -88,13 +91,13 @@ namespace TEKLauncher.Controls
         }
         internal void SetDownloadMode()
         {
-            if (NumericMode || UnknownTotalMode)
+            if (NumericMode || PercentageMode || UnknownTotalMode)
             {
-                UnknownTotalMode = NumericMode = false;
+                UnknownTotalMode = PercentageMode = NumericMode = false;
                 ElementBorder.Fill = (SolidColorBrush)FindResource("DarkestDarkBrush");
                 ProgressLine.Stroke = (SolidColorBrush)FindResource("CyanBrush");
                 BytesTotalValue.FontSize = Slash.FontSize = BytesProgress.FontSize = BytesProgressValue.FontSize = 20D;
-                SpeedStack.Visibility = Percentage.Visibility = BytesTotal.Visibility = BytesProgress.Visibility = Visibility.Visible;
+                SpeedStack.Visibility = Percentage.Visibility = BytesTotal.Visibility = BytesProgress.Visibility = BytesProgressStack.Visibility = Visibility.Visible;
             }
             Arc.IsLargeArc = false;
             Arc.Point = new Point(HalfWidth, 7D);
@@ -111,9 +114,11 @@ namespace TEKLauncher.Controls
             if (!NumericMode)
             {
                 NumericMode = true;
+                PercentageMode = false;
                 ElementBorder.Fill = (SolidColorBrush)FindResource("DarkestDarkBrush");
                 ProgressLine.Stroke = (SolidColorBrush)FindResource("OrangeBrush");
                 BytesTotalValue.FontSize = Slash.FontSize = BytesProgressValue.FontSize = 38D;
+                BytesProgressStack.Visibility = Visibility.Visible;
                 SpeedStack.Visibility = Percentage.Visibility = BytesTotal.Visibility = BytesProgress.Visibility = Visibility.Collapsed;
             }
             Arc.IsLargeArc = false;
@@ -122,6 +127,23 @@ namespace TEKLauncher.Controls
             Slash.Text = "/";
             BytesTotalValue.Text = Progress.Total.ToString();
             Progress.Previous = Progress.Current = 0L;
+            Progress.ETA = -1L;
+        }
+        internal void SetPercentageMode()
+        {
+            UnknownTotalMode = NumericMode = false;
+            if (!PercentageMode)
+            {
+                PercentageMode = true;
+                ElementBorder.Fill = (SolidColorBrush)FindResource("DarkestDarkBrush");
+                ProgressLine.Stroke = (SolidColorBrush)FindResource("OrangeBrush");
+                Percentage.Visibility = Visibility.Visible;
+                SpeedStack.Visibility = BytesProgressStack.Visibility = Visibility.Collapsed;
+            }
+            Arc.IsLargeArc = false;
+            Arc.Point = new Point(HalfWidth, 7D);
+            Percentage.Text = "0%";
+            Progress.Current = 0L;
             Progress.ETA = -1L;
         }
         internal event ProgressUpdatedEventHandler ProgressUpdated;

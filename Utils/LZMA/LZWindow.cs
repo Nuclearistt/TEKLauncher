@@ -40,7 +40,6 @@ namespace TEKLauncher.Utils.LZMA
         }
         internal void Initialize(Stream Stream)
         {
-            Flush();
             StreamPosition = Position = 0U;
             this.Stream = Stream;
         }

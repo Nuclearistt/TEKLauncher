@@ -5,7 +5,6 @@ using static System.Array;
 using static System.IntPtr;
 using static System.Math;
 using static System.IO.Directory;
-using static System.Security.Cryptography.Aes;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
 using static TEKLauncher.Utils.WinAPI;
@@ -14,14 +13,7 @@ namespace TEKLauncher.Utils
 {
     internal static class UtilFunctions
     {
-        static UtilFunctions()
-        {
-            AES = Create();
-            AES.BlockSize = 128;
-            AES.KeySize = 256;
-        }
         internal static string HoursString, MinutesString, SecondsString;
-        private static readonly Aes AES;
         private static void ExecuteAsUser(string FilePath, string Parameters)
         {
             IntPtr ShellWindow = GetShellWindow();
@@ -72,7 +64,7 @@ namespace TEKLauncher.Utils
         internal static void Execute(string URI) => WinAPI.Execute(Zero, "open", URI, null, null, 1);
         internal static bool FileExists(string FilePath) => GetFileSize(FilePath) != -1L;
         internal static bool IsConnectionAvailable() => GetConnectionState(out int Flags) && ((Flags & 1) | (Flags & 2)) != 0;
-        internal static byte[] AESDecrypt(byte[] Input, byte[] Key)
+        internal static byte[] AESDecrypt(byte[] Input, byte[] Key, Aes AES)
         {
             byte[] Cipher = new byte[Input.Length - 16], EncryptedIV = new byte[16], IV, Output;
             Copy(Input, EncryptedIV, 16);
@@ -141,6 +133,8 @@ namespace TEKLauncher.Utils
                 Result += string.Format(MinutesString, Seconds % 3600L / 60L);
             if (Seconds < 300L && Seconds % 60L != 0L)
                 Result += string.Format(SecondsString, Seconds % 60L);
+            else if (Seconds == 0L)
+                Result = string.Format(SecondsString, 0);
             return Result.TrimEnd();
         }
     }

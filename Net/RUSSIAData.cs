@@ -19,7 +19,7 @@ namespace TEKLauncher.Net
     {
         private static void RefreshClusterPage()
         {
-            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 5)
+            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 3)
             {
                 Page.InfoStack.Children.Clear();
                 Page.LoadInfo();
@@ -30,44 +30,48 @@ namespace TEKLauncher.Net
         }
         internal static void LoadServers(object State)
         {
-            byte[] Data = new Downloader().TryDownloadData($"{RUSSIA}maps");
-            if (Data is null)
-                foreach (Server Server in Clusters[5].Servers)
-                    Server.Refresh(-1);
-            else
+            try
             {
-                Server[] Servers;
-                using (MemoryStream Stream = new MemoryStream(Data))
-                using (StreamReader Reader = new StreamReader(Stream))
+                byte[] Data = new Downloader().TryDownloadData($"{RUSSIA}maps");
+                if (Data is null)
+                    foreach (Server Server in Clusters[5].Servers)
+                        Server.Refresh(-1);
+                else
                 {
-                    IPAddress IP = Parse(Reader.ReadLine());
-                    int Count = int.Parse(Reader.ReadLine());
-                    Servers = new Server[Count];
-                    for (int Iterator = 0; Iterator < Count; Iterator++)
+                    Server[] Servers;
+                    using (MemoryStream Stream = new MemoryStream(Data))
+                    using (StreamReader Reader = new StreamReader(Stream))
                     {
-                        string[] Fields = Reader.ReadLine().Split();
-                        int Port = int.Parse(Fields[0]);
-                        MapCode Map = (MapCode)int.Parse(Fields[1]);
-                        string CustomName = Fields.Length == 3 ? Fields[2].Replace('+', ' ') : null;
-                        Servers[Iterator] = new Server(IP, Map, Port, CustomName);
+                        IPAddress IP = Parse(Reader.ReadLine());
+                        int Count = int.Parse(Reader.ReadLine());
+                        Servers = new Server[Count];
+                        for (int Iterator = 0; Iterator < Count; Iterator++)
+                        {
+                            string[] Fields = Reader.ReadLine().Split();
+                            int Port = int.Parse(Fields[0]);
+                            MapCode Map = (MapCode)int.Parse(Fields[1]);
+                            string CustomName = Fields.Length == 3 ? Fields[2].Replace('+', ' ') : null;
+                            Servers[Iterator] = new Server(IP, Map, Port, CustomName);
+                        }
+                        List<string> Info = new List<string>();
+                        while (!Reader.EndOfStream)
+                        {
+                            string InfoLine = Reader.ReadLine();
+                            string[] Fields = InfoLine.Split();
+                            if (Fields.Length == 2 && Fields[0][0] == '{' && Fields[0][2] == '}')
+                                InfoLine = string.Format(LocString(LocCode.MaxDinoLvl + int.Parse(Fields[0][1].ToString())), float.Parse(Fields[1]));
+                            Info.Add(InfoLine);
+                        }
+                        Clusters[5].Info[string.Empty] = string.Join("\n", Info);
                     }
-                    List<string> Info = new List<string>();
-                    while (!Reader.EndOfStream)
-                    {
-                        string InfoLine = Reader.ReadLine();
-                        string[] Fields = InfoLine.Split();
-                        if (Fields.Length == 2 && Fields[0][0] == '{' && Fields[0][2] == '}')
-                            InfoLine = string.Format(LocString(LocCode.MaxDinoLvl + int.Parse(Fields[0][1].ToString())), float.Parse(Fields[1]));
-                        Info.Add(InfoLine);
-                    }
-                    Clusters[5].Info[string.Empty] = string.Join("\n", Info);
+                    Sort(Servers, (A, B) => A.Code.CompareTo(B.Code));
+                    Clusters[5].Servers = Servers;
+                    Current.Dispatcher.Invoke(RefreshClusterPage);
+                    foreach (Server Server in Clusters[5].Servers)
+                        Server.Refresh();
                 }
-                Sort(Servers, (A, B) => A.Code.CompareTo(B.Code));
-                Clusters[5].Servers = Servers;
-                Current.Dispatcher.Invoke(RefreshClusterPage);
-                foreach (Server Server in Clusters[5].Servers)
-                    Server.Refresh();
             }
+            catch { }
         }
     }
 }

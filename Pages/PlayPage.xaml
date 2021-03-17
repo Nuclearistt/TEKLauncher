@@ -118,6 +118,6 @@
                 </ComboBox.Items>
             </ComboBox>
         </StackPanel>
-        <TextBox Grid.Row="3" Grid.Column="3" Name="CustomLaunchParameters" Margin="20, 0, 20, 0" VerticalAlignment="Top" Tag="{UI:LocString CustomLaunchParameters}"/>
+        <TextBox Grid.Row="3" Grid.Column="3" Name="CustomLaunchParameters" Margin="20, 0, 20, 0" VerticalAlignment="Top" Tag="{UI:LocString CustomLaunchParameters}" TextChanged="TextChangedHandler"/>
     </Grid>
 </Page>

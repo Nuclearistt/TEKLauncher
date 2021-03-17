@@ -33,6 +33,12 @@ namespace TEKLauncher.Controls
             AddImage(LocString(LocCode.ModIDCopied), "Success");
         }
         private void Follow(object Sender, RoutedEventArgs Args) => Execute($"{SteamWorkshop}{ID}");
-        private void Install(object Sender, RoutedEventArgs Args) => Instance.MWindow.PageFrame.Content = new ModInstallerPage(ID);
+        private void Install(object Sender, RoutedEventArgs Args)
+        {
+            if (ulong.TryParse(ID, out _))
+                Instance.MWindow.PageFrame.Content = new ModInstallerPage(ID);
+            else
+                throw new ArgumentException($"Incorrect item ID: {ID ?? "null"}");
+        }
     }
 }

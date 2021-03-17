@@ -86,7 +86,7 @@ namespace TEKLauncher.Windows
                 else
                 {
                     SetStatus(LocString(LocCode.RequestingSrvInfo), YellowBrush);
-                    Server Server = await ResolveServerAsync(IP, Port);
+                    Server Server = (await ResolveServerAsync(IP, Port)) ?? await FindServerAsync(IP, Port);
                     if (Server is null)
                         SetStatus(LocString(LocCode.SrvDidnRespond), DarkRed);
                     else if ((int)Server.Code == -1)

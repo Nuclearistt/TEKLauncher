@@ -80,18 +80,23 @@ namespace TEKLauncher.Controls
             {
                 InstalledStatus.Foreground = YellowBrush;
                 InstalledStatus.Text = LocString(LocCode.NotInstalled);
-                InstallButton.Visibility = Visibility.Visible;
+                if (!InfoFileMissing)
+                    InstallButton.Visibility = Visibility.Visible;
             }
             if (Mod.IsSubscribed == true)
             {
                 SubscribedStatus.Foreground = DarkGreen;
                 SubscribedStatus.Text = LocString(LocCode.Subscribed);
             }
-            else
+            else if (Mod.IsSubscribed == false)
             {
                 SubscribedStatus.Foreground = YellowBrush;
                 SubscribedStatus.Text = LocString(LocCode.NotSubscribed);
                 SubscribeButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                SubscribedStatus.Visibility = Visibility.Collapsed;
             }
             if (Mod.Status != Status.Updating)
             {

@@ -105,7 +105,7 @@ namespace TEKLauncher.SteamInterop.Steamworks
                         SteamClient = Zero;
                         UnloadLibrary();
                     }
-                using (StringHandle Handle = new StringHandle("STEAMUGC_INTERFACE_VERSION014"))
+                using (StringHandle Handle = new StringHandle("STEAMUGC_INTERFACE_VERSION015"))
                     if ((ISteamUGC = GetSteamUGC(SteamClient, SteamUser, SteamPipe, Handle)).ToInt64() == 0L)
                     {
                         SteamClient = ISteamUser = Zero;

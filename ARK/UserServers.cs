@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -27,6 +26,37 @@ namespace TEKLauncher.ARK
         private static readonly string UServersFile = $@"{AppDataFolder}\UserServers.bin";
         private static readonly Dictionary<string, IPAddress> ResolvedIPs = new Dictionary<string, IPAddress>();
         internal static readonly List<KeyValuePair<Server, string>> UServers = new List<KeyValuePair<Server, string>>();
+        private static Server FindServer(IPAddress IP, int GamePort)
+        {
+            byte[] ServersList = new Downloader().TryDownloadData($"{SteamWebAPI}ISteamApps/GetServersAtAddress/v0001?addr={IP}&format=xml");
+            if (ServersList is null)
+                return null;
+            XmlDocument Document = new XmlDocument();
+            using (MemoryStream Stream = new MemoryStream(ServersList))
+                Document.Load(Stream);
+            XmlNodeList Items = Document.DocumentElement.ChildNodes;
+            if (Items[0].InnerText != "true")
+                return null;
+            Items = Items[1].ChildNodes;
+            foreach (XmlNode Item in Items)
+            {
+                XmlNodeList Fields = Item.ChildNodes;
+                if (!int.TryParse(Fields[7].InnerText, out int Result) || Result != GamePort)
+                    continue;
+                if (!int.TryParse(Fields[2].InnerText, out Result) || Result != 480)
+                    return null;
+                string Address = Fields[0].InnerText;
+                if (!int.TryParse(Address.Substring(Address.IndexOf(':') + 1), out int Port))
+                    return null;
+                return ResolveServer(IP, Port);
+            }
+            return null;
+        }
+        private static Server FindServer(object Args)
+        {
+            object[] ArgsArray = (object[])Args;
+            return FindServer((IPAddress)ArgsArray[0], (int)ArgsArray[1]);
+        }
         private static Server ResolveServer(IPAddress IP, int Port)
         {
             IPEndPoint Endpoint = new IPEndPoint(IP, Port);
@@ -81,11 +111,11 @@ namespace TEKLauncher.ARK
         }
         private static Server[] GetServersForIP(IPAddress IP)
         {
-            byte[] CMList = new Downloader().TryDownloadData($"{SteamWebAPI}ISteamApps/GetServersAtAddress/v0001?addr={IP}&format=xml");
-            if (CMList is null)
+            byte[] ServersList = new Downloader().TryDownloadData($"{SteamWebAPI}ISteamApps/GetServersAtAddress/v0001?addr={IP}&format=xml");
+            if (ServersList is null)
                 return null;
             XmlDocument Document = new XmlDocument();
-            using (MemoryStream Stream = new MemoryStream(CMList))
+            using (MemoryStream Stream = new MemoryStream(ServersList))
                 Document.Load(Stream);
             XmlNodeList Items = Document.DocumentElement.ChildNodes;
             if (Items[0].InnerText != "true")
@@ -163,6 +193,7 @@ namespace TEKLauncher.ARK
                     UServer.Key.WriteToFile(Writer, UServer.Value);
             }
         }
+        internal static Task<Server> FindServerAsync(IPAddress IP, int GamePort) => Factory.StartNew(FindServer, new object[] { IP, GamePort });
         internal static Task<Server> ResolveServerAsync(IPAddress IP, int Port) => Factory.StartNew(ResolveServer, new object[] { IP, Port });
         internal static Task<Server[]> GetServersForIPAsync(IPAddress IP) => Factory.StartNew(GetServersForIP, IP);
     }

@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using TEKLauncher.ARK;
+using TEKLauncher.Data;
 using static System.Array;
 using static System.IO.File;
 using static System.Windows.Application;
@@ -39,6 +40,7 @@ namespace TEKLauncher.Pages
             Languages.SelectionChanged += SelectionChangedHandler;
             Localizations.SelectedIndex = GameLang;
             Localizations.SelectionChanged += SelectionChangedHandler;
+            CustomLaunchParameters.Text = Settings.CustomLaunchParameters;
         }
         private void InvertUseSpacewarCB() => UseSpacewarCB.IsChecked = !(bool)UseSpacewarCB.IsChecked;
         private void InvokeInvertUseSpacewarCB() => Dispatcher.Invoke(InvertUseSpacewarCB);
@@ -112,5 +114,6 @@ namespace TEKLauncher.Pages
                 }
             }
         }
+        private void TextChangedHandler(object Sender, TextChangedEventArgs Args) => Settings.CustomLaunchParameters = CustomLaunchParameters.Text;
     }
 }

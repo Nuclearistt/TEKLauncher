@@ -28,33 +28,37 @@ namespace TEKLauncher.Net
         }
         internal static void LoadServers(object State)
         {
-            byte[] Data = new Downloader().TryDownloadData($"{ARKdicted}workshop/ServersInfo.txt");
-            if (Data is null)
-                foreach (Server Server in Clusters[2].Servers)
-                    Server.Refresh(-1);
-            else
+            try
             {
-                List<Server> Servers = new List<Server>();
-                using (MemoryStream Stream = new MemoryStream(Data))
-                using (StreamReader Reader = new StreamReader(Stream))
-                    while (!Reader.EndOfStream)
-                    {
-                        string[] Fields = Reader.ReadLine().Split();
-                        string Name = Fields[0].Substring(Fields[0].IndexOf('+') + 1).Replace('+', ' ');
-                        if (Fields[1] == "PVP")
-                            Name += " PvP";
-                        MapCode Map = Name == "The Island" ? MapCode.TheIsland : MapCode.Mod;
-                        foreach (DLC DLC in DLCs)
-                            if (Name == DLC.Name)
-                                Map = DLC.Code;
-                        Servers.Add(new Server(Parse(Fields[2]), Map, int.Parse(Fields[3]), Map == MapCode.Mod ? Name : null));
-                    }
-                Servers.Sort((A, B) => A.Code.CompareTo(B.Code));
-                Clusters[2].Servers = Servers.ToArray();
-                Current.Dispatcher.Invoke(RefreshClusterPage);
-                foreach (Server Server in Clusters[2].Servers)
-                    Server.Refresh();
+                byte[] Data = new Downloader().TryDownloadData($"{ARKdicted}workshop/ServersInfo.txt");
+                if (Data is null)
+                    foreach (Server Server in Clusters[2].Servers)
+                        Server.Refresh(-1);
+                else
+                {
+                    List<Server> Servers = new List<Server>();
+                    using (MemoryStream Stream = new MemoryStream(Data))
+                    using (StreamReader Reader = new StreamReader(Stream))
+                        while (!Reader.EndOfStream)
+                        {
+                            string[] Fields = Reader.ReadLine().Split();
+                            string Name = Fields[0].Substring(Fields[0].IndexOf('+') + 1).Replace('+', ' ');
+                            if (Fields[1] == "PVP")
+                                Name += " PvP";
+                            MapCode Map = Name == "The Island" ? MapCode.TheIsland : MapCode.Mod;
+                            foreach (DLC DLC in DLCs)
+                                if (Name == DLC.Name)
+                                    Map = DLC.Code;
+                            Servers.Add(new Server(Parse(Fields[2]), Map, int.Parse(Fields[3]), Map == MapCode.Mod ? Name : null));
+                        }
+                    Servers.Sort((A, B) => A.Code.CompareTo(B.Code));
+                    Clusters[2].Servers = Servers.ToArray();
+                    Current.Dispatcher.Invoke(RefreshClusterPage);
+                    foreach (Server Server in Clusters[2].Servers)
+                        Server.Refresh();
+                }
             }
+            catch { }
         }
         internal static void LoadWorkshop(object State)
         {

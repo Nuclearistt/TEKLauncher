@@ -57,7 +57,7 @@ namespace TEKLauncher.Windows
         internal SettingsPage SettingsPage;
         private async void CheckForLauncherUpdates()
         {
-            string OnlineVersion = await new Downloader().TryDownloadStringAsync($"{FilesStorage}TEKLauncher/Version.txt", GDriveVersionFile);
+            string OnlineVersion = await new Downloader().TryDownloadStringAsync($"{Arkouda2}TEKLauncher/Version.txt", $"{FilesStorage}TEKLauncher/Version.txt", GDriveVersionFile);
             if (!(OnlineVersion is null || OnlineVersion == App.Version))
             {
                 string DisplayVersion = OnlineVersion.EndsWith(".0") ? OnlineVersion.Substring(0, OnlineVersion.Length - 2) : OnlineVersion;

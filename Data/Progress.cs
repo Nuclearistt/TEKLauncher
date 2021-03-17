@@ -46,6 +46,14 @@ namespace TEKLauncher.Data
             try { Application.Current.Dispatcher.Invoke(ProgressUpdated); }
             catch { }
         }
+        internal void IncreaseNoETA(long Increment)
+        {
+            Ratio = (double)(Current += Increment) / Total;
+            Previous = Current;
+            SpeedUpdated = TickCount;
+            try { Application.Current.Dispatcher.Invoke(ProgressUpdated); }
+            catch { }
+        }
         internal string GetSpeed(out string Unit)
         {
             string Value = ConvertBytesSep(Difference, out string ConversionUnit);

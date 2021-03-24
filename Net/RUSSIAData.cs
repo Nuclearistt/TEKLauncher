@@ -11,6 +11,7 @@ using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.Servers.ClustersManager;
 
 namespace TEKLauncher.Net
@@ -32,7 +33,7 @@ namespace TEKLauncher.Net
         {
             try
             {
-                byte[] Data = new Downloader().TryDownloadData($"{RUSSIA}maps");
+                byte[] Data = TryDownloadData($"{RUSSIA}maps");
                 if (Data is null)
                     foreach (Server Server in Clusters[5].Servers)
                         Server.Refresh(-1);

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TEKLauncher.Controls;
-using TEKLauncher.Net;
 using TEKLauncher.Pages;
 using TEKLauncher.SteamInterop.Network.CM.Messages.Bodies;
 using static System.IO.Directory;
@@ -12,6 +11,7 @@ using static System.Threading.Tasks.Task;
 using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.SteamInterop.Steam;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.SteamInterop.Network.SteamClient;
@@ -27,7 +27,7 @@ namespace TEKLauncher.ARK
         private static ModDetails[] GetModsDetails(object IDs) => GetModsDetails((ulong[])IDs);
         internal static void FetchSpacewarIDs(object State)
         {
-            string List = new Downloader().TryDownloadString($"{Arkouda2}Extra/SpacewarIDs.txt", $"{FilesStorage}SpacewarIDs.txt");
+            string List = TryDownloadString($"{Arkouda2}Extra/SpacewarIDs.txt", $"{FilesStorage}SpacewarIDs.txt");
             if (List is null)
             {
                 using (Stream ResourceStream = GetResourceStream(new Uri("pack://application:,,,/Resources/SpacewarIDs.ta")).Stream)

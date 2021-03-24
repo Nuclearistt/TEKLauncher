@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using TEKLauncher.ARK;
@@ -17,9 +16,17 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
 {
     internal class DepotManifest
     {
+        static DepotManifest()
+        {
+            AppIDRelPathHash = AppIDRelPath.GetHashCode();
+            for (int Iterator = 0; Iterator < 6; Iterator++)
+                ExclusionHashes[Iterator] = Exclusions[Iterator].GetHashCode();
+        }
         internal DepotManifest(string ManifestPath, uint DepotID)
         {
             ID = System.IO.Path.GetFileNameWithoutExtension(ManifestPath).Split('-')[1];
+            if (DepotID == 346111U)
+                IsCAInstalled = IsInstalled;
             if ((Path = ManifestPath).EndsWith("t"))
             {
                 Path += "d";
@@ -38,6 +45,7 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
                         Aes Decryptor = Create();
                         Decryptor.BlockSize = 128;
                         Decryptor.KeySize = 256;
+                        List<FileEntry> Exclusions = new List<FileEntry>();
                         using (Decryptor)
                             for (int Iterator = 0; Iterator < Files.Count; Iterator++)
                             {
@@ -48,21 +56,24 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
                                 try { DecryptedName = AESDecrypt(EncryptedName, DepotKey, Decryptor); }
                                 catch { throw new ValidatorException(LocString(LocCode.ManifestDecryptFailed)); }
                                 File.Name = UTF8.GetString(DecryptedName).TrimEnd('\0');
+                                if (DepotID == 346110U && File.Name.EndsWith(".uncompressed_size") || DepotID == 346111U && IsExclusion(File))
+                                    Exclusions.Add(File);
                             }
+                        foreach (FileEntry File in Exclusions)
+                            Files.Remove(File);
                         Files.Sort(Comparator);
-                        CheckForExclusions();
                         using (FileStream Writer = File.Create(Path))
                         {
                             Writer.Write(GetBytes(Files.Count), 0, 4);
                             foreach (FileEntry File in Files)
                                 File.WriteToFile(Writer);
                         }
-                        try { Delete(ManifestPath); }
-                        catch { }
                     }
                     else
                         throw new ValidatorException(LocString(LocCode.ManifestCorrupted));
                 }
+                try { Delete(ManifestPath); }
+                catch { }
             }
             else
                 using (FileStream Reader = OpenRead(Path))
@@ -75,40 +86,43 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
                     {
                         FileEntry File = new FileEntry();
                         File.ReadFromFile(Reader);
-                        Files.Add(File);
+                        if (!(DepotID == 346110U && File.Name.EndsWith(".uncompressed_size") || DepotID == 346111U && IsExclusion(File)))
+                            Files.Add(File);
                     }
-                    CheckForExclusions();
                 }
         }
-        private void CheckForExclusions()
-        {
-            List<FileEntry> ToExclude = new List<FileEntry>();
-            foreach (FileEntry File in Files)
-            {
-                bool IsExclusion = false;
-                foreach (string Exclusion in Exclusions)
-                    if (File.Name == Exclusion)
-                    {
-                        IsExclusion = true;
-                        break;
-                    }
-                if (IsExclusion || IsInstalled && File.Name.Contains("steam_api64") || File.Name.EndsWith(".uncompressed_size") || File.Name == AppIDRelPath && FileExists($@"{Game.Path}\{AppIDRelPath}"))
-                    ToExclude.Add(File);
-            }
-            foreach (FileEntry File in ToExclude)
-                Files.Remove(File);
-        }
+        private readonly bool IsCAInstalled;
+        internal readonly string ID, Path;
+        internal readonly List<FileEntry> Files;
+        private static readonly int AppIDRelPathHash;
+        private static readonly int[] ExclusionHashes = new int[6];
         private static readonly string AppIDRelPath = @"ShooterGame\Binaries\Win64\steam_appid.txt";
         private static readonly string[] Exclusions = new[]
         {
-            @"Engine\Config\BaseEditorLayout.ini",
             @"Engine\Config\Base.ini",
+            @"Engine\Config\BaseEditorLayout.ini",
+            @"Engine\Config\BaseScalability.ini",
             @"ShooterGame\Binaries\Win64\officialservers.ini",
             @"ShooterGame\Binaries\Win64\news.ini",
             @"ShooterGame\Binaries\Win64\officialserverstatus.ini"
         };
-        internal readonly string ID, Path;
-        internal readonly List<FileEntry> Files;
-        private static readonly Comparison<FileEntry> Comparator = (A, B) => A.Name.CompareTo(B.Name);
+        private bool IsExclusion(FileEntry File)
+        {
+            if (IsCAInstalled && File.Name.EndsWith("steam_api64.dll"))
+                return true;
+            int HashCode = File.Name.GetHashCode();
+            if (HashCode == AppIDRelPathHash && File.Name == AppIDRelPath && FileExists($@"{Game.Path}\{AppIDRelPath}"))
+                return true;
+            bool IsExclusion = false;
+            for (int Iterator = 0; Iterator < 6; Iterator++)
+                if (HashCode == ExclusionHashes[Iterator])
+                    if (File.Name == Exclusions[Iterator])
+                    {
+                        IsExclusion = true;
+                        break;
+                    }
+            return IsExclusion;
+        }
+        private int Comparator(FileEntry A, FileEntry B) => A.Name.CompareTo(B.Name);
     }
 }

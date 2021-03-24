@@ -3,7 +3,6 @@ using System.Threading;
 using TEKLauncher.SteamInterop.Network.CM;
 using TEKLauncher.SteamInterop.Network.CM.Messages.Bodies;
 using TEKLauncher.Utils;
-using static System.Threading.WaitHandle;
 using static TEKLauncher.SteamInterop.Network.Logger;
 
 namespace TEKLauncher.SteamInterop.Network
@@ -29,13 +28,14 @@ namespace TEKLauncher.SteamInterop.Network
             {
                 if (!Client.IsLogged)
                 {
-                    CancellationTokenSource Cancellator = new CancellationTokenSource();
-                    Client.LoggedOn = () => Cancellator.Cancel();
+                    ManualResetEvent Event = new ManualResetEvent(false);
+                    Client.LoggedOn = () => Event.Set();
                     if (Client.IsConnected)
                         Client.LogOn();
                     else
                         Client.Connect();
-                    WaitAny(new[] { Cancellator.Token.WaitHandle }, 7000);
+                    Event.WaitOne(7000);
+                    Event.Close();
                 }
                 return Client.IsLogged;
             }
@@ -44,17 +44,18 @@ namespace TEKLauncher.SteamInterop.Network
         {
             lock (Lock)
             {
-                CancellationTokenSource Cancellator = new CancellationTokenSource();
+                ManualResetEvent Event = new ManualResetEvent(false);
                 if (Depots is null)
                 {
                     Client.AppInfoReceived = (VDFStruct AppInfo) =>
                     {
                         try { Depots = AppInfo["depots"]; }
                         catch { }
-                        Cancellator.Cancel();
+                        Event.Set();
                     };
                     Client.RequestAppInfo();
-                    WaitAny(new[] { Cancellator.Token.WaitHandle }, 5000);
+                    Event.WaitOne(5000);
+                    Event.Close();
                     if (Depots is null)
                     {
                         Client.Disconnect();
@@ -74,15 +75,16 @@ namespace TEKLauncher.SteamInterop.Network
         {
             lock (Lock)
             {
-                CancellationTokenSource Cancellator = new CancellationTokenSource();
+                ManualResetEvent Event = new ManualResetEvent(false);
                 ulong ManifestID = 0UL;
                 Client.ModInfoReceived = (ID) =>
                 {
                     ManifestID = ID;
-                    Cancellator.Cancel();
+                    Event.Set();
                 };
                 Client.RequestModInfo(AppID, ModID);
-                WaitAny(new[] { Cancellator.Token.WaitHandle }, 5000);
+                Event.WaitOne(5000);
+                Event.Close();
                 if (ManifestID == 0UL)
                     Client.Disconnect();
                 return ManifestID;
@@ -92,15 +94,16 @@ namespace TEKLauncher.SteamInterop.Network
         {
             lock (Lock)
             {
-                CancellationTokenSource Cancellator = new CancellationTokenSource();
+                ManualResetEvent Event = new ManualResetEvent(false);
                 List<ItemDetails> ModsDetails = null;
                 Client.ModsDetailsReceived = (Details) =>
                 {
                     ModsDetails = Details;
-                    Cancellator.Cancel();
+                    Event.Set();
                 };
                 Client.RequestModsDetails(IDs);
-                WaitAny(new[] { Cancellator.Token.WaitHandle }, 7000);
+                Event.WaitOne(5000);
+                Event.Close();
                 if (ModsDetails is null)
                     Client.Disconnect();
                 return ModsDetails;
@@ -110,17 +113,18 @@ namespace TEKLauncher.SteamInterop.Network
         {
             lock (Lock)
             {
-                CancellationTokenSource Cancellator = new CancellationTokenSource();
+                ManualResetEvent Event = new ManualResetEvent(false);
                 int TotalMods = 0;
                 List<ItemDetails> QueryDetails = null;
                 Client.QueryReceived = (Details, Total) =>
                 {
                     TotalMods = Total;
                     QueryDetails = Details;
-                    Cancellator.Cancel();
+                    Event.Set();
                 };
                 Client.RequestQuery(Page, Search);
-                WaitAny(new[] { Cancellator.Token.WaitHandle }, 5000);
+                Event.WaitOne(5000);
+                Event.Close();
                 if (QueryDetails is null)
                     Client.Disconnect();
                 TotalCount = TotalMods;

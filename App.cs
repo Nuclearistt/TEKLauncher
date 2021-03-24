@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -14,6 +15,7 @@ using TEKLauncher.Data;
 using TEKLauncher.Net;
 using TEKLauncher.SteamInterop;
 using TEKLauncher.Windows;
+using static System.AppDomain;
 using static System.Environment;
 using static System.IntPtr;
 using static System.Globalization.CultureInfo;
@@ -21,7 +23,6 @@ using static System.IO.Directory;
 using static System.Net.ServicePointManager;
 using static System.Net.WebRequest;
 using static System.Text.Encoding;
-using static System.Threading.Thread;
 using static System.Threading.ThreadPool;
 using static System.Windows.FrameworkElement;
 using static Microsoft.Win32.Registry;
@@ -30,7 +31,6 @@ using static TEKLauncher.ARK.UserServers;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Net.ARKdictedData;
-using static TEKLauncher.Net.HTTPClient;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.SteamInterop.Network.Logger;
 using static TEKLauncher.SteamInterop.Network.SteamClient;
@@ -41,16 +41,15 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "8.0.63.0";
+        internal const string Version = "8.0.64.1";
         private App()
         {
-            string CultureCode = CurrentUICulture.Name;
-            CurrentThread.CurrentCulture = CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+            CurrentDomain.UnhandledException += CriticalExceptionHandler;
+            string CultureCode = (OSCulture = CurrentUICulture).Name;
+            CurrentCulture = CurrentUICulture = new CultureInfo("en-US");
+            DefaultConnectionLimit = 20;
             if (OSVersion.Version.Minor == 1)
-            {
-                Expect100Continue = true;
                 SecurityProtocol = SecurityProtocolType.Tls12;
-            }
             using (NamedPipeClientStream PipeClient = new NamedPipeClientStream(".", "TEKLauncher", PipeDirection.Out))
                 try { PipeClient.Connect(250); PipeClient.Close(); Current.Shutdown(); }
                 catch (TimeoutException) { }
@@ -92,6 +91,7 @@ namespace TEKLauncher
                 new StartupWindow().Show();
         }
         internal MainWindow MWindow;
+        internal readonly CultureInfo OSCulture;
         internal readonly NamedPipeServerStream PipeServer;
         internal static bool InstallMode = false;
         internal static string DownloadsDirectory, ManifestsDirectory;
@@ -106,7 +106,7 @@ namespace TEKLauncher
                 HttpWebRequest Request = CreateHttp(TrackerWebhook);
                 Request.ContentType = "application/json";
                 Request.Method = "POST";
-                Request.Timeout = 4000;
+                Request.ReadWriteTimeout = Request.Timeout = 6000;
                 byte[] Content = UTF8.GetBytes(@"{""content"":""New TEK Launcher user detected!""}");
                 try
                 {
@@ -118,12 +118,20 @@ namespace TEKLauncher
                 catch { }
             }
         }
+        [HandleProcessCorruptedStateExceptions]
+        private void CriticalExceptionHandler(object Sender, UnhandledExceptionEventArgs Args)
+        {
+            Exception Exception = (Exception)Args.ExceptionObject;
+            while (Exception is AggregateException)
+                Exception = Exception.InnerException;
+            File.WriteAllText($@"{AppDataFolder}\CriticalCrash.txt", $"{Exception.GetType()}\r\n{Exception.Message}\r\n{Exception.StackTrace}");
+        }
         private void ExceptionHandler(object Sender, DispatcherUnhandledExceptionEventArgs Args)
         {
             Exception Exception = Args.Exception;
             if (Exception is AggregateException)
                 Exception = Exception.InnerException;
-            File.WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.Message}\r\n{Exception.StackTrace}");
+            File.WriteAllText($@"{AppDataFolder}\LastCrash.txt", $"{Exception.GetType()}\r\n{Exception.Message}\r\n{Exception.StackTrace}");
             new CrashWindow(Exception).ShowDialog();
             Args.Handled = true;
             Shutdown();
@@ -141,7 +149,6 @@ namespace TEKLauncher
             Disconnect();
             Close();
             Retract();
-            CloseSession();
             SaveList();
             Settings.Save();
             Environment.Exit(0);

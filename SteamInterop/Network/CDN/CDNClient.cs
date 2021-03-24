@@ -9,17 +9,20 @@ using TEKLauncher.Data;
 using TEKLauncher.Net;
 using TEKLauncher.SteamInterop.Network.Manifest;
 using TEKLauncher.Utils;
+using static System.Globalization.CultureInfo;
 using static System.IO.File;
 using static System.Security.Cryptography.Aes;
+using static System.Threading.WaitHandle;
 using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Data.Settings;
-using static TEKLauncher.Net.HTTPClient;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.SteamInterop.Network.ContentDownloader;
 using static TEKLauncher.SteamInterop.Network.Logger;
 using static TEKLauncher.SteamInterop.Network.CDN.ServersList;
 using static TEKLauncher.Utils.UtilFunctions;
+using static TEKLauncher.Utils.Zip;
 
 namespace TEKLauncher.SteamInterop.Network.CDN
 {
@@ -28,18 +31,22 @@ namespace TEKLauncher.SteamInterop.Network.CDN
         internal CDNClient(uint DepotID, Progress Progress, ProgressBar ProgressBar, SetStatusDelegate SetStatusMethod)
         {
             Log("Instance of CDN client created");
-            Initialize(ThreadsCount = DwThreadsCount);
-            BaseObjectPath = $"depot/{this.DepotID = DepotID}/chunk/";
-            Hosts = new string[ThreadsCount];
+            ThreadsCount = DwThreadsCount;
+            this.DepotID = DepotID;
+            BaseURLs = new string[ThreadsCount];
             Decryptors = new Aes[ThreadsCount];
+            WaitHandles = new ManualResetEvent[ThreadsCount];
             for (int Iterator = 0; Iterator < ThreadsCount; Iterator++)
             {
-                Hosts[Iterator] = NextServer();
                 Aes Decryptor = Create();
                 Decryptor.BlockSize = 128;
                 Decryptor.KeySize = 256;
                 Decryptors[Iterator] = Decryptor;
+                WaitHandles[Iterator] = new ManualResetEvent(false);
             }
+            Initialize(ThreadsCount);
+            for (int Iterator = 0; Iterator < ThreadsCount; Iterator++)
+                BaseURLs[Iterator] = $"http://{NextServer()}/depot/{this.DepotID = DepotID}/";
             Log($"Picked {ThreadsCount} the least busy CDN servers");
             BaseDownloadPath = $@"{DownloadsDirectory}\{DepotID}";
             DepotKey = DepotKeys[DepotID];
@@ -55,34 +62,37 @@ namespace TEKLauncher.SteamInterop.Network.CDN
         }
         ~CDNClient()
         {
-            foreach (Aes Decryptor in Decryptors)
-                Decryptor.Dispose();
+            for (int Iterator = 0; Iterator < ThreadsCount; Iterator++)
+            {
+                Decryptors[Iterator].Clear();
+                WaitHandles[Iterator].Close();
+            }
         }
         private int ChunkIndex, FileIndex;
         private CancellationToken Token;
         private Exception CaughtException;
-        internal bool DownloadFailed = false;
+        internal bool DownloadFailed;
         private readonly byte[] DepotKey;
         private readonly int ThreadsCount;
         private readonly uint DepotID;
         private readonly ulong ModID;
-        private readonly string BaseDownloadPath, BaseObjectPath;
-        private readonly string[] Hosts;
+        private readonly string BaseDownloadPath;
+        private readonly string[] BaseURLs;
         private readonly object ProgressLock = new object();
         private readonly Aes[] Decryptors;
+        private readonly ManualResetEvent[] WaitHandles;
         private readonly Progress Progress;
         private readonly ProgressBar ProgressBar;
         private readonly SetStatusDelegate SetStatus;
         private readonly VZip Decompressor;
-        private void DownloadJob(object Args)
+        private async void DownloadJob(object Args)
         {
             object[] ArgsArray = (object[])Args;
             List<FileEntry> Files = (List<FileEntry>)ArgsArray[0];
             int Offset = (int)ArgsArray[1], Total = Files.Count;
-            HTTPConnection Downloader = null;
             try
             {
-                Downloader = CreateConnection(Hosts[Offset]);
+                CurrentUICulture = Instance.OSCulture;
                 for (;;)
                 {
                     int CurrentChunk, CurrentFile;
@@ -127,11 +137,16 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                         if (!HashMatch)
                         {
                             Data = null;
-                            string ID = BitConverter.ToString(Chunk.GID).Replace("-", string.Empty), Message = null;
-                            for (int AttemptsCount = 0; AttemptsCount < 5; AttemptsCount++)
+                            string GID = BitConverter.ToString(Chunk.GID).Replace("-", string.Empty), Message = null;
+                            for (int AttemptsCount = 0; AttemptsCount < 5 + ThreadsCount; AttemptsCount++)
                             {
-                                try { Data = Downloader.DownloadChunk($"{BaseObjectPath}{ID}", Chunk.CompressedSize); }
-                                catch (ValidatorException Exception) { Message = Exception.Message; }
+                                try { Data = await DownloadSteamChunk(BaseURLs[Offset < 5 ? Offset : Offset - 5], GID, Chunk.CompressedSize, Token); }
+                                catch (Exception Exception)
+                                {
+                                    while (Exception is AggregateException)
+                                        Exception = Exception.InnerException;
+                                    Message = Exception.Message;
+                                }
                                 if (Token.IsCancellationRequested)
                                     return;
                                 if (Data is null)
@@ -141,7 +156,7 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                                 {
                                     Data = AESDecrypt(Data, DepotKey, Decryptors[Offset]);
                                     ErrorIndex++;
-                                    Data = Data[0] == 'V' && Data[1] == 'Z' ? Decompressor.Decompress(Data, Offset) : Zip.Decompress(Data);
+                                    Data = Data[0] == 'V' && Data[1] == 'Z' ? Decompressor.Decompress(Data, Offset) : Decompress(Data);
                                 }
                                 catch
                                 {
@@ -159,7 +174,7 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                             }
                             if (Data is null)
                             {
-                                Log($"({Hosts[Offset]}) Failed to download chunk {ID} for depot {DepotID}: {Message}");
+                                Log($"({BaseURLs[Offset]}) Failed to download chunk {GID}: {Message}");
                                 throw new ValidatorException(Message);
                             }
                             Writer.Position = Position;
@@ -180,28 +195,19 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 DownloadFailed = true;
                 CaughtException = Exception;
             }
-            finally
-            {
-                if (!(Downloader is null))
-                    Downloader.Close();
-            }
+            finally { WaitHandles[Offset].Set(); }
         }
         internal Exception DownloadChanges(List<FileEntry> Files, long DownloadSize, CancellationToken Token)
         {
-            DownloadFailed = false;
-            ChunkIndex = FileIndex = 0;
             this.Token = Token;
             Progress.Total = DownloadSize;
             Current.Dispatcher.Invoke(ProgressBar.SetDownloadMode);
-            Thread[] DownloadThreads = new Thread[ThreadsCount];
             for (int Iterator = 0; Iterator < ThreadsCount; Iterator++)
             {
-                Thread DownloadThread = new Thread(DownloadJob);
-                DownloadThread.Start(new object[] { Files, Iterator });
-                DownloadThreads[Iterator] = DownloadThread;
+                WaitHandles[Iterator].Reset();
+                new Thread(DownloadJob).Start(new object[] { Files, Iterator });
             }
-            foreach (Thread DownloadThread in DownloadThreads)
-                DownloadThread.Join();
+            WaitAll(WaitHandles);
             return CaughtException;
         }
         internal DepotManifest GetManifests(ulong LatestManifestID, out DepotManifest OldManifest)
@@ -240,10 +246,10 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 string CompressedManifestFile = $"{LatestManifestFile}c";
                 SetStatus(LocString(LocCode.DwLatestManifest), YellowBrush);
                 Current.Dispatcher.Invoke(ProgressBar.SetDownloadMode);
-                if (!new Downloader(Progress).TryDownloadFile(CompressedManifestFile, $"https://{Hosts[0]}/depot/{DepotID}/manifest/{LatestManifestID}/5"))
+                if (!new Downloader(Progress).TryDownloadFile(CompressedManifestFile, $"{BaseURLs[0]}manifest/{LatestManifestID}/5"))
                     throw new ValidatorException(LocString(LocCode.DwManifestFailed));
                 Log("Download complete, decompressing manifest...");
-                Zip.Decompress(CompressedManifestFile, LatestManifestFile);
+                Decompress(CompressedManifestFile, LatestManifestFile);
                 Delete(CompressedManifestFile);
             }
             Log("Reading latest manifest...");

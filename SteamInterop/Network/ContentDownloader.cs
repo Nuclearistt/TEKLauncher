@@ -11,6 +11,7 @@ using TEKLauncher.Controls;
 using TEKLauncher.Data;
 using TEKLauncher.SteamInterop.Network.CDN;
 using TEKLauncher.SteamInterop.Network.Manifest;
+using TEKLauncher.Utils;
 using static System.BitConverter;
 using static System.Math;
 using static System.IO.File;
@@ -233,7 +234,8 @@ namespace TEKLauncher.SteamInterop.Network
                         catch (IOException Exception)
                         {
                             Log($@"Install failed for depot {DepotID}: {Exception.Message} (""{SourcePath}"">""{DestinationPath}"")");
-                            throw new ValidatorException(LocString(LocCode.InstallFailedVCDupe));
+                            if (Exception is FileNotFoundException)
+                                throw new ValidatorException(LocString(LocCode.InstallFailedVCDupe));
                         }
                     }
                     Progress.Increase();
@@ -243,6 +245,16 @@ namespace TEKLauncher.SteamInterop.Network
                         DeletePath($@"{BaseLocalPath}\{File}");
                 DeletePath($@"{DownloadsDirectory}\{ItemCompound}{LatestManifestID}.vcache");
                 DeleteDirectory(BaseDownloadPath);
+                if (DepotID == 346111U)
+                {
+                    string BELIni = $@"{BaseLocalPath}\Engine\Config\BaseEditorLayout.ini", BIni = $@"{BaseLocalPath}\Engine\Config\Base.ini";
+                    if (!FileExists(BELIni))
+                        using (FileStream Writer = Create(BELIni))
+                            Writer.SetLength(0L);
+                    if (!FileExists(BIni))
+                        using (FileStream Writer = Create(BIni))
+                            Writer.SetLength(0L);
+                }
             }
         }
         private void Preallocate(List<FileEntry> Files)
@@ -379,11 +391,32 @@ namespace TEKLauncher.SteamInterop.Network
             string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-", VCacheFile = $@"{DownloadsDirectory}\{ItemCompound}{LatestManifestID}.vcache";
             foreach (string VCache in Directory.EnumerateFiles(DownloadsDirectory).Where(File => File.Contains(ItemCompound) && File.EndsWith(".vcache") && File != VCacheFile))
                 Delete(VCache);
-            if (FileExists(VCacheFile))
-                using (FileStream CacheReader = OpenRead(VCacheFile))
+            if (GetFileSize(VCacheFile) > 7L)
+                using (FileStream CacheReader = Open(VCacheFile, FileMode.Open, FileAccess.ReadWrite))
                 {
-                    IsIncomplete = CacheReader.ReadByte() == 1;
                     byte[] Buffer = new byte[8];
+                    CacheReader.Position = CacheReader.Length - 4L;
+                    CacheReader.Read(Buffer, 0, 4);
+                    if (Buffer[0] == 0xFF && Buffer[1] == 0xFF && Buffer[2] == 0xFF && Buffer[3] == 0xFF)
+                    {
+                        CacheReader.Position -= 8L;
+                        CacheReader.Read(Buffer, 0, 8);
+                        byte[] CRCBuffer = new byte[4];
+                        Array.Copy(Buffer, CRCBuffer, 4);
+                        CacheReader.Position = 0L;
+                        CacheReader.SetLength(CacheReader.Length - 8L);
+                        using (CRC32 CRC = new CRC32())
+                            if (!CRC.ComputeHash(CacheReader).SequenceEqual(CRCBuffer))
+                            {
+                                CacheReader.Close();
+                                DeletePath(VCacheFile);
+                                IsIncomplete = false;
+                                return null;
+                            }
+                        CacheReader.Write(Buffer, 0, 8);
+                    }
+                    CacheReader.Position = 0L;
+                    IsIncomplete = CacheReader.ReadByte() == 1;
                     CacheReader.Read(Buffer, 0, 8);
                     DownloadSize = ToInt64(Buffer, 0);
                     CacheReader.Read(Buffer, 0, 8);
@@ -548,9 +581,9 @@ namespace TEKLauncher.SteamInterop.Network
             bool Paused = Cancellator.IsCancellationRequested;
             string FinishType = Paused ? "paused" : "complete";
             Log($"Validation {FinishType}: {FilesUpToDate} files are up to date, {FilesOutdated} are outdated and {FilesMissing} are missing");
-            if (Changes.Count != 0)
+            if (Paused || Changes.Count != 0)
             {
-                using (FileStream CacheWriter = Create($@"{DownloadsDirectory}\{ItemCompound}{LatestManifestID}.vcache"))
+                using (FileStream CacheWriter = Open($@"{DownloadsDirectory}\{ItemCompound}{LatestManifestID}.vcache", FileMode.Create, FileAccess.ReadWrite))
                 {
                     CacheWriter.WriteByte((byte)(Paused ? 1 : 0));
                     CacheWriter.Write(GetBytes(DownloadSize), 0, 8);
@@ -560,6 +593,12 @@ namespace TEKLauncher.SteamInterop.Network
                     CacheWriter.Write(GetBytes(FilesMissing), 0, 4);
                     foreach (FileEntry File in Changes)
                         File.WriteToFile(CacheWriter);
+                    CacheWriter.Position = 0L;
+                    byte[] CRCHash;
+                    using (CRC32 CRC = new CRC32())
+                        CRCHash = CRC.ComputeHash(CacheWriter);
+                    CacheWriter.Write(CRCHash, 0, 4);
+                    CacheWriter.Write(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }, 0, 4);
                 }
                 Log($"Validation cache written to {ItemCompound}{LatestManifestID}.vcache");
             }
@@ -775,12 +814,11 @@ namespace TEKLauncher.SteamInterop.Network
         }
         internal void UpdateMod(bool DoValidate, ulong ModID, ulong SpacewarID)
         {
-            if (ModLocks.Contains(SpacewarID))
+            if (ModLocks.Contains(this.SpacewarID = SpacewarID))
                 return;
             else
                 ModLocks.Add(SpacewarID);
             bool DowngradeMode = Settings.DowngradeMode;
-            this.SpacewarID = SpacewarID;
             Cancellator = new CancellationTokenSource();
             RelocSizes = null;
             Relocations = null;

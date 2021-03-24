@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Xml;
-using TEKLauncher.Net;
 using TEKLauncher.Servers;
 using static System.BitConverter;
 using static System.Convert;
@@ -16,6 +15,7 @@ using static System.Threading.Tasks.Task;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.Servers.ClustersManager;
 using static TEKLauncher.Utils.UtilFunctions;
 
@@ -28,7 +28,7 @@ namespace TEKLauncher.ARK
         internal static readonly List<KeyValuePair<Server, string>> UServers = new List<KeyValuePair<Server, string>>();
         private static Server FindServer(IPAddress IP, int GamePort)
         {
-            byte[] ServersList = new Downloader().TryDownloadData($"{SteamWebAPI}ISteamApps/GetServersAtAddress/v0001?addr={IP}&format=xml");
+            byte[] ServersList = TryDownloadData($"{SteamWebAPI}ISteamApps/GetServersAtAddress/v0001?addr={IP}&format=xml");
             if (ServersList is null)
                 return null;
             XmlDocument Document = new XmlDocument();
@@ -111,7 +111,7 @@ namespace TEKLauncher.ARK
         }
         private static Server[] GetServersForIP(IPAddress IP)
         {
-            byte[] ServersList = new Downloader().TryDownloadData($"{SteamWebAPI}ISteamApps/GetServersAtAddress/v0001?addr={IP}&format=xml");
+            byte[] ServersList = TryDownloadData($"{SteamWebAPI}ISteamApps/GetServersAtAddress/v0001?addr={IP}&format=xml");
             if (ServersList is null)
                 return null;
             XmlDocument Document = new XmlDocument();

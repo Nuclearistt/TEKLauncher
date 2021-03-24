@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Xml;
-using TEKLauncher.Net;
+using static System.Net.Dns;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.SteamInterop.Network.Logger;
 using static TEKLauncher.SteamInterop.Network.CM.CMClient;
 
@@ -20,7 +24,7 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 if (Servers.Count < ThreadsCount)
                 {
                     Log($"CDN servers list has less than {ThreadsCount} elements, requesting list from web API");
-                    byte[] CDNList = new Downloader().TryDownloadData($"{SteamWebAPI}IContentServerDirectoryService/GetServersForSteamPipe/v1?cellid={CellID}&format=xml");
+                    byte[] CDNList = TryDownloadData($"{SteamWebAPI}IContentServerDirectoryService/GetServersForSteamPipe/v1?cellid={CellID}&format=xml");
                     if (CDNList is null)
                     {
                         Log("Failed to fetch list from web API");
@@ -36,7 +40,39 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                         for (int Iterator = 0; Iterator < Records.Length; Iterator++)
                         {
                             XmlNodeList Nodes = Messages[Iterator].ChildNodes;
-                            Records[Iterator] = new ServerRecord { Load = double.TryParse(Nodes[4].InnerText, out double Result) ? Result : 0D, Host = Nodes[7].InnerText };
+                            string URL = null;
+                            foreach (XmlNode Node in Nodes)
+                                if (Node.Name == "vhost")
+                                {
+                                    URL = Node.InnerText;
+                                    break;
+                                }
+                            if (URL is null)
+                            {
+                                Log("Failed to find vhost entry");
+                                throw new ValidatorException(LocString(LocCode.IPNotResolved));
+                            }
+                            string Host = null;
+                            try
+                            {
+                                IPAddress[] Addresses = GetHostAddresses(URL);
+                                bool IPv4Found = false;
+                                foreach (IPAddress Address in Addresses)
+                                    if (Address.AddressFamily == AddressFamily.InterNetwork)
+                                    {
+                                        IPv4Found = true;
+                                        Host = Address.ToString();
+                                        break;
+                                    }
+                                if (!IPv4Found)
+                                    Host = Addresses[0].MapToIPv4().ToString();
+                            }
+                            catch (Exception Exception)
+                            {
+                                Log($"An exception occurred while resolving IP of {URL}: {Exception.GetType()}; {Exception.Message}");
+                                throw new ValidatorException(LocString(LocCode.IPNotResolved));
+                            }
+                            Records[Iterator] = new ServerRecord { Load = double.TryParse(Nodes[4].InnerText, out double Result) ? Result : 0D, Host = Host };
                         }
                         Servers = new Stack<ServerRecord>(Records.OrderBy(Record => Record.Load));
                     }

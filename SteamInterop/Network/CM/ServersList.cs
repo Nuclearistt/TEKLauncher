@@ -2,10 +2,10 @@
 using System.IO;
 using System.Net;
 using System.Xml;
-using TEKLauncher.Net;
 using static System.Net.IPAddress;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.SteamInterop.Network.Logger;
 using static TEKLauncher.SteamInterop.Network.CM.CMClient;
 
@@ -21,7 +21,7 @@ namespace TEKLauncher.SteamInterop.Network.CM
                 if (Servers.Count == 0)
                 {
                     Log("CM servers list empty, requesting list from web API");
-                    byte[] CMList = new Downloader().TryDownloadData($"{SteamWebAPI}ISteamDirectory/GetCMList/v1?cellid={CellID}&format=xml");
+                    byte[] CMList = TryDownloadData($"{SteamWebAPI}ISteamDirectory/GetCMList/v1?cellid={CellID}&format=xml");
                     if (CMList is null)
                     {
                         Log("Failed to fetch list from web API");

@@ -17,7 +17,6 @@ using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.Game;
 using static TEKLauncher.Data.LocalizationManager;
-using static TEKLauncher.Data.Settings;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
 

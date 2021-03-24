@@ -17,6 +17,7 @@ using static System.Threading.Tasks.Task;
 using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.LocalizationManager;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.Servers.ClustersManager;
 using static TEKLauncher.Utils.UtilFunctions;
 
@@ -127,7 +128,7 @@ namespace TEKLauncher.Net
         }
         internal bool Request()
         {
-            byte[] Query = new Downloader().TryDownloadData(Links.ArkoudaQuery);
+            byte[] Query = TryDownloadData(Links.ArkoudaQuery);
             if (Query is null)
                 return false;
             try

@@ -10,6 +10,7 @@ using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.Data.Links;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.Servers.ClustersManager;
 
 namespace TEKLauncher.Net
@@ -30,7 +31,7 @@ namespace TEKLauncher.Net
         {
             try
             {
-                byte[] Data = new Downloader().TryDownloadData($"{ARKdicted}workshop/ServersInfo.txt");
+                byte[] Data = TryDownloadData($"{ARKdicted}workshop/ServersInfo.txt");
                 if (Data is null)
                     foreach (Server Server in Clusters[2].Servers)
                         Server.Refresh(-1);
@@ -64,7 +65,7 @@ namespace TEKLauncher.Net
         {
             if (Workshop.Count > 0)
                 return;
-            byte[] Data = new Downloader().TryDownloadData($"{ARKdicted}workshop/ModsIds.txt");
+            byte[] Data = TryDownloadData($"{ARKdicted}workshop/ModsIds.txt");
             try
             {
                 using (MemoryStream Stream = new MemoryStream(Data))

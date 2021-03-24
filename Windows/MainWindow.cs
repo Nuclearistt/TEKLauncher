@@ -28,6 +28,7 @@ using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.ARK.Game;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
+using static TEKLauncher.Net.Downloader;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.UI.Notifications;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -57,7 +58,7 @@ namespace TEKLauncher.Windows
         internal SettingsPage SettingsPage;
         private async void CheckForLauncherUpdates()
         {
-            string OnlineVersion = await new Downloader().TryDownloadStringAsync($"{Arkouda2}TEKLauncher/Version.txt", $"{FilesStorage}TEKLauncher/Version.txt", GDriveVersionFile);
+            string OnlineVersion = await TryDownloadStringAsync($"{Arkouda2}TEKLauncher/Version.txt", $"{FilesStorage}TEKLauncher/Version.txt", GDriveVersionFile);
             if (!(OnlineVersion is null || OnlineVersion == App.Version))
             {
                 string DisplayVersion = OnlineVersion.EndsWith(".0") ? OnlineVersion.Substring(0, OnlineVersion.Length - 2) : OnlineVersion;

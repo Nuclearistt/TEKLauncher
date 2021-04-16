@@ -61,6 +61,11 @@ namespace TEKLauncher.Pages
                 new AddServerWindow().Show();
         }
         private void Callback(object State) => Dispatcher.Invoke(SyncServers);
+        private void FixMods(object Sender, RoutedEventArgs Args)
+        {
+            if (!Current.Windows.OfType<ModsFixerWindow>().Any())
+                new ModsFixerWindow(Cluster.Mods[(string)((Button)Sender).Tag]).Show();
+        }
         private void GoBack(object Sender, RoutedEventArgs Args) => Instance.MWindow.PageFrame.Content = new ServersPage();
         private void JoinDiscord(object Sender, RoutedEventArgs Args) => Execute(Cluster.Discord);
         private void Refresh(object Sender, RoutedEventArgs Args)
@@ -144,15 +149,34 @@ namespace TEKLauncher.Pages
             ulong[] SubscribedMods = await Run(() => TryDeploy() ? SteamAPI.GetSubscribedMods() : new ulong[0]);
             foreach (KeyValuePair<string, ModRecord[]> Mods in Cluster.Mods)
             {
+                Grid Header = new Grid { Margin = new Thickness(0D, 10D, 0D, 0D) };
+                Header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0D, GridUnitType.Auto) });
+                Header.ColumnDefinitions.Add(new ColumnDefinition());
+                Header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0D, GridUnitType.Auto) });
                 if (Mods.Key != string.Empty)
-                    ModsList.Children.Add(new TextBlock
+                {
+                    TextBlock Name = new TextBlock
                     {
-                        Margin = new Thickness(0D, 10D, 0D, 0D),
                         Foreground = (SolidColorBrush)FindResource("BrightBrush"),
                         FontSize = 28,
-                        HorizontalAlignment = HorizontalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
                         Text = Mods.Key
-                    });
+                    };
+                    Grid.SetColumn(Name, 0);
+                    Header.Children.Add(Name);
+                }
+                Button FixModsButton = new Button
+                {
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Tag = Mods.Key,
+                    Content = LocString(LocCode.FixMods)
+                };
+                FixModsButton.Click += FixMods;
+                Grid.SetColumn(FixModsButton, 2);
+                Header.Children.Add(FixModsButton);
+                ModsList.Children.Add(Header);
                 foreach (ModRecord Mod in Mods.Value)
                 {
                     StackPanel Stack = new StackPanel();

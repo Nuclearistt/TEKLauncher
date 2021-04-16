@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using TEKLauncher.ARK;
+using TEKLauncher.Utils;
+using static System.Array;
 using static System.BitConverter;
 using static System.Convert;
 using static System.IO.File;
@@ -67,6 +70,12 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
                             Writer.Write(GetBytes(Files.Count), 0, 4);
                             foreach (FileEntry File in Files)
                                 File.WriteToFile(Writer);
+                            Writer.Position = 0L;
+                            byte[] CRCHash;
+                            using (CRC32 CRC = new CRC32())
+                                CRCHash = CRC.ComputeHash(Writer);
+                            Writer.Write(CRCHash, 0, 4);
+                            Writer.Write(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }, 0, 4);
                         }
                     }
                     else
@@ -76,9 +85,28 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
                 catch { }
             }
             else
-                using (FileStream Reader = OpenRead(Path))
+                using (FileStream Reader = Open(Path, FileMode.Open, FileAccess.ReadWrite))
                 {
-                    byte[] Buffer = new byte[4];
+                    byte[] Buffer = new byte[8];
+                    Reader.Position = Reader.Length - 4L;
+                    Reader.Read(Buffer, 0, 4);
+                    if (Buffer[0] == 0xFF && Buffer[1] == 0xFF && Buffer[2] == 0xFF && Buffer[3] == 0xFF)
+                    {
+                        Reader.Position -= 8L;
+                        Reader.Read(Buffer, 0, 8);
+                        byte[] CRCBuffer = new byte[4];
+                        Copy(Buffer, CRCBuffer, 4);
+                        Reader.Position = 0L;
+                        Reader.SetLength(Reader.Length - 8L);
+                        using (CRC32 CRC = new CRC32())
+                            if (!CRC.ComputeHash(Reader).SequenceEqual(CRCBuffer))
+                            {
+                                Reader.Close();
+                                throw new ValidatorException(LocString(LocCode.ManifestCorrupted));
+                            }
+                        Reader.Write(Buffer, 0, 8);
+                    }
+                    Reader.Position = 0L;
                     Reader.Read(Buffer, 0, 4);
                     int FilesCount = ToInt32(Buffer, 0);
                     Files = new List<FileEntry>(FilesCount);
@@ -123,6 +151,6 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
                     }
             return IsExclusion;
         }
-        private int Comparator(FileEntry A, FileEntry B) => A.Name.CompareTo(B.Name);
+        private static int Comparator(FileEntry A, FileEntry B) => A.Name.CompareTo(B.Name);
     }
 }

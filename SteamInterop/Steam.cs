@@ -18,6 +18,7 @@ namespace TEKLauncher.SteamInterop
         private static int ARKEntryEndLine = 0, ParametersStringLine = 0;
         private static string LocalConfigFile, LocalSpacewarPath;
         internal static bool IsARKPurchased = false;
+        internal static int ActiveUserID;
         internal static string Path;
         internal static bool IsRunning
         {
@@ -78,7 +79,7 @@ namespace TEKLauncher.SteamInterop
                 Current.Shutdown();
             }
             object ActiveUser = CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess")?.GetValue("ActiveUser");
-            if (!(ActiveUser is null) && FileExists(LocalConfigFile = $@"{Path}\userdata\{(int)ActiveUser}\config\localconfig.vdf"))
+            if (!(ActiveUser is null) && FileExists(LocalConfigFile = $@"{Path}\userdata\{ActiveUserID = (int)ActiveUser}\config\localconfig.vdf"))
                 using (StreamReader Reader = new StreamReader(LocalConfigFile))
                 {
                     bool ARKEntryFound = false;

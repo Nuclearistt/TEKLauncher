@@ -37,6 +37,9 @@
                 <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">
                     <Hyperlink Name="PatreonLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">Patreon</Hyperlink>
                 </TextBlock>
+                <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">
+                    <Hyperlink Name="PaypalLink" Foreground="{DynamicResource CyanBrush}" Click="FollowLink">Paypal</Hyperlink>
+                </TextBlock>
                 <TextBlock Foreground="{DynamicResource BrightBrush}" FontSize="20" Text="{UI:LocString Discords}"/>
                 <StackPanel Margin="20, 0, 0, 0">
                     <TextBlock Foreground="{DynamicResource BrightGrayBrush}" FontSize="18" Text="• ">

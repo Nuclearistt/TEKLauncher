@@ -79,29 +79,7 @@ namespace TEKLauncher.Servers
                         string.Format(LocString(LocCode.Harvesting), 3),
                         string.Format(LocString(LocCode.Breeding), 3))
                 },
-                Mods = new Dictionary<string, ModRecord[]>
-                {
-                    ["Main cluster"] = new[]
-                    {
-                        new ModRecord(2018014354UL, "Dino storage v2", "40.44MB"),
-                        new ModRecord(2006380780UL, "Awesome Spyglass", "3.26MB"),
-                        new ModRecord(2006374844UL, "Dino Tracker", "9.56MB"),
-                        new ModRecord(2060802637UL, "Super Structures", "66.7MB"),
-                        new ModRecord(2006356933UL, "Rare Sightings", "342.62MB"),
-                        new ModRecord(2004919122UL, "CKFR", "657.89MB"),
-                        new ModRecord(2006816645UL, "Death Helper", "4.24MB")
-                    },
-                    ["Hope servers"] = new[]
-                    {
-                        new ModRecord(2006901571UL, "Hope Map", "953.58MB"),
-                        new ModRecord(2148393197UL, "Primal Fear", "2.77GB"),
-                        new ModRecord(2018014354UL, "Dino Storage v2", "40.44MB"),
-                        new ModRecord(2006380780UL, "Awesome Spyglass", "3.26MB"),
-                        new ModRecord(2060802637UL, "Super Structures", "66.7MB"),
-                        new ModRecord(2200902771UL, "Primal Fear Genesis Expansion", "98.37MB"),
-                        new ModRecord(2006408866UL, "Simple Spawners", "50.53MB")
-                    }
-                },
+                Mods = new Dictionary<string, ModRecord[]>(),
                 Servers = new Server[0]
             },
             new Cluster

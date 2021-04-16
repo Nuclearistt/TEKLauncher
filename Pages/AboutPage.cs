@@ -18,6 +18,7 @@ namespace TEKLauncher.Pages
             DownloadLink.Tag = GDriveLauncherFile;
             LocLink.Tag = LocalizationFile;
             PatreonLink.Tag = Patreon;
+            PaypalLink.Tag = Paypal;
             ArkoudaLink.Tag = DiscordArkouda;
             ARKdictedLink.Tag = DiscordARKdicted;
         }

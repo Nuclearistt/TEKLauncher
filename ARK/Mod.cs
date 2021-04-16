@@ -8,6 +8,7 @@ using static System.BitConverter;
 using static System.IO.File;
 using static System.Text.Encoding;
 using static System.Windows.Application;
+using static TEKLauncher.App;
 using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.ARK
@@ -121,6 +122,14 @@ namespace TEKLauncher.ARK
             {
                 DeletePath(ModsPath);
                 DeletePath(ModFilePath);
+            }
+            if (DeleteFromWorkshop && DeleteFromMods)
+            {
+                ulong ItemID = OriginID == 0UL ? ID : OriginID;
+                foreach (string VCache in Directory.EnumerateFiles(DownloadsDirectory).Where(File => File.Contains($".{ItemID}-")))
+                    Delete(VCache);
+                foreach (string Manifest in Directory.EnumerateFiles(ManifestsDirectory).Where(File => File.Contains($".{ItemID}-")))
+                    Delete(Manifest);
             }
         }
         private static string ReadString(FileStream Stream)

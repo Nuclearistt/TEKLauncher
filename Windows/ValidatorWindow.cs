@@ -42,15 +42,20 @@ namespace TEKLauncher.Windows
         }
         internal ValidatorWindow(Mod Mod, bool DoValidate)
         {
+            this.DoValidate = DoValidate;
             this.Mod = Mod;
             InitializeComponent();
+            if (LocCulture == "pt" || LocCulture == "el")
+                Button.FontSize = 12D;
+            if (LocCulture == "ar")
+                foreach (Panel Stack in ValidationBlock.Children)
+                    Stack.FlowDirection = FlowDirection.RightToLeft;
             string Name = Mod.OriginID == 0UL ? Mod.Details.Status == 1 ? Mod.Details.Name : Mod.Name : Mod.OriginDetails.Status == 1 ? Mod.OriginDetails.Name : Mod.Name;
             if (Name.Length > 25)
                 Name = Name.Substring(0, 25);
             TitleBlock.Text = Title = string.Format(LocString(LocCode.ModValidator), Name);
             ProgressBar.ProgressUpdated += ProgressUpdatedHandler;
             Downloader = new ContentDownloader(Mod.OriginID == 0UL ? 480U : 346110U, FinishHandler, SetStatus, ProgressBar);
-            new Thread(UpdateJob).Start(this.DoValidate = DoValidate);
         }
         private bool CloseCancelling, Finished = true, Succeeded;
         internal bool Shutdown = false;

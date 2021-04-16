@@ -18,7 +18,15 @@ namespace TEKLauncher.Net
     internal static class ARKdictedData
     {
         internal static readonly Dictionary<ulong, ulong> Workshop = new Dictionary<ulong, ulong>();
-        private static void RefreshClusterPage()
+        private static void RefreshMods()
+        {
+            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 2)
+            {
+                Page.ModsList.Children.Clear();
+                Page.LoadMods();
+            }
+        }
+        private static void RefreshServers()
         {
             if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 2)
             {
@@ -26,6 +34,27 @@ namespace TEKLauncher.Net
                 foreach (Server Server in Page.Cluster.Servers)
                     Page.ServersList.Children.Add(new ServerItem(Server));
             }
+        }
+        internal static void LoadMods(object State)
+        {
+            byte[] Data = TryDownloadData($"{ARKdicted}workshop/modinfo.txt");
+            if (Data is null)
+                return;
+            List<ModRecord> List = new List<ModRecord>();
+            using (MemoryStream Stream = new MemoryStream(Data))
+            using (StreamReader Reader = new StreamReader(Stream))
+                while (!Reader.EndOfStream)
+                {
+                    string Line = Reader.ReadLine();
+                    if (string.IsNullOrEmpty(Line) || Line.IndexOf(',') == -1)
+                        continue;
+                    string[] Fields = Line.Split(',');
+                    if (Fields.Length != 3 || !ulong.TryParse(Fields[0], out ulong ID))
+                        continue;
+                    List.Add(new ModRecord(ID, Fields[1], Fields[2]));
+                }
+            Clusters[2].Mods[string.Empty] = List.ToArray();
+            Current.Dispatcher.Invoke(RefreshMods);
         }
         internal static void LoadServers(object State)
         {
@@ -54,7 +83,7 @@ namespace TEKLauncher.Net
                         }
                     Servers.Sort((A, B) => A.Code.CompareTo(B.Code));
                     Clusters[2].Servers = Servers.ToArray();
-                    Current.Dispatcher.Invoke(RefreshClusterPage);
+                    Current.Dispatcher.Invoke(RefreshServers);
                     foreach (Server Server in Clusters[2].Servers)
                         Server.Refresh();
                 }

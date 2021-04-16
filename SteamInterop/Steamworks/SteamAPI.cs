@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using TEKLauncher.Controls;
+using TEKLauncher.Data;
 using TEKLauncher.Utils;
 using static System.IntPtr;
-using static System.Threading.Thread;
 using static System.Threading.Tasks.Task;
+using static System.Windows.Application;
+using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
+using static TEKLauncher.Data.LocalizationManager;
+using static TEKLauncher.Utils.UtilFunctions;
 using static TEKLauncher.Utils.WinAPI;
 
 namespace TEKLauncher.SteamInterop.Steamworks
@@ -16,8 +22,10 @@ namespace TEKLauncher.SteamInterop.Steamworks
         private IntPtr HModule = Zero, ISteamUGC, ISteamUser, SteamClient;
         private CallResult<SubscribeResult> SubscribeCallResult;
         private CallResult<UnsubscribeResult> UnsubscribeCallResult;
+        private static readonly string ETAString = LocString(LocCode.DownloadingMod), NAString = LocString(LocCode.NA);
         internal bool IsLoaded => HModule.ToInt64() != 0L;
         internal string SteamID => GetSteamID(ISteamUser).ToString();
+        internal delegate void SetStatusDelegate(string Text, SolidColorBrush Color);
         private void SubscribedHandler(SubscribeResult Result, bool IOFailure) => CallbackCompleteFlag = (Result.Result == 1 && !IOFailure) ? 1 : -1;
         private void UnloadLibrary()
         {
@@ -26,19 +34,66 @@ namespace TEKLauncher.SteamInterop.Steamworks
             HModule = Zero;
         }
         private void UnsubscribedHandler(UnsubscribeResult Result, bool IOFailure) => CallbackCompleteFlag = (Result.Result == 1 && !IOFailure) ? 1 : -1;
+        private bool TrackDownloadProgress(object Args)
+        {
+            object[] ArgsArray = (object[])Args;
+            ulong ID = (ulong)ArgsArray[0];
+            ProgressBar ProgressBar = (ProgressBar)ArgsArray[1];
+            SetStatusDelegate SetStatusMethod = (SetStatusDelegate)ArgsArray[2];
+            void SetStatus(string Text, SolidColorBrush Color) => Current.Dispatcher.Invoke(() => SetStatusMethod(Text, Color));
+            Progress Progress = ProgressBar.Progress;
+            if (!InitiateDownload(ISteamUGC, ID, false) || !GetDownloadProgress(ISteamUGC, ID, out _, out long Total))
+            {
+                SetStatus(LocString(LocCode.FailedToInitiateDw), DarkRed);
+                return false;
+            }
+            int TimeoutCounter = 7;
+            while (Total == 0L && --TimeoutCounter != 0)
+            {
+                Delay(1000).Wait();
+                GetDownloadProgress(ISteamUGC, ID, out _, out Total);
+            }
+            if (Total == 0L)
+            {
+                SetStatus(LocString(LocCode.ProgressTrackerTimeout), DarkRed);
+                return false;
+            }
+            TimeoutCounter = 70;
+            void ProgressUpdatedHandler() => SetStatus(string.Format(ETAString, Progress.ETA < 0L ? NAString : ConvertTime(Progress.ETA)), YellowBrush);
+            Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated += ProgressUpdatedHandler);
+            Progress.Total = Total;
+            Current.Dispatcher.Invoke(ProgressBar.SetDownloadMode);
+            while (GetDownloadProgress(ISteamUGC, ID, out long Downloaded, out Total) && --TimeoutCounter != 0)
+            {
+                Delay(100).Wait();
+                if (Downloaded == 0L && Total == 0L)
+                    break;
+                if (Downloaded != Progress.Current)
+                    TimeoutCounter = 70;
+                Progress.Increase(Downloaded - Progress.Current);
+            }
+            Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated -= ProgressUpdatedHandler);
+            if ((GetModState(ISteamUGC, ID) & 4U) == 0U)
+            {
+                SetStatus(LocString(TimeoutCounter == 0 ? LocCode.ProgressTrackerTimeout : LocCode.ProgresTrackerStopped), DarkRed);
+                return false;
+            }
+            Progress.Increase(Progress.Total - Progress.Current);
+            return true;
+        }
         private bool SubscribeMod(object ModID)
         {
             try
             {
                 while (CallbackCompleteFlag != 0)
-                    Sleep(100);
+                    Delay(100).Wait();
                 SubscribeCallResult = new CallResult<SubscribeResult>(SubscribeMod(ISteamUGC, (ulong)ModID), SubscribedHandler);
-                int TimePassed = 0;
+                int TimeoutCounter = 0;
                 while (CallbackCompleteFlag == 0)
                 {
                     RunCallbacks();
-                    Sleep(100);
-                    if (TimePassed++ == 20)
+                    Delay(100).Wait();
+                    if (TimeoutCounter++ == 20)
                     {
                         SubscribeCallResult.Dispose();
                         return false;
@@ -56,13 +111,13 @@ namespace TEKLauncher.SteamInterop.Steamworks
             try
             {
                 while (CallbackCompleteFlag != 0)
-                    Sleep(100);
+                    Delay(100).Wait();
                 UnsubscribeCallResult = new CallResult<UnsubscribeResult>(UnsubscribeMod(ISteamUGC, (ulong)ModID), UnsubscribedHandler);
                 int TimePassed = 0;
                 while (CallbackCompleteFlag == 0)
                 {
                     RunCallbacks();
-                    Sleep(100);
+                    Delay(100).Wait();
                     if (TimePassed++ == 20)
                     {
                         UnsubscribeCallResult.Dispose();
@@ -114,6 +169,7 @@ namespace TEKLauncher.SteamInterop.Steamworks
             }
             catch { UnloadLibrary(); }
         }
+        internal Task<bool> TrackDownloadProgressAsync(ulong ModID, ProgressBar ProgressBar, SetStatusDelegate SetStatus) => Factory.StartNew(TrackDownloadProgress, new object[] { ModID, ProgressBar, SetStatus });
         internal Task<bool> SubscribeModAsync(ulong ModID) => Factory.StartNew(SubscribeMod, ModID);
         internal Task<bool> UnsubscribeModAsync(ulong ModID) => Factory.StartNew(UnsubscribeMod, ModID);
         internal ulong[] GetSubscribedMods()
@@ -136,8 +192,12 @@ namespace TEKLauncher.SteamInterop.Steamworks
         private static extern void RunCallbacks();
         [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_Shutdown")]
         private static extern void Shutdown();
+        [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_ISteamUGC_GetItemDownloadInfo")]
+        private static extern bool GetDownloadProgress(IntPtr ISteamUGC, ulong ModID, out long Downloaded, out long Total);
         [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_Init")]
         private static extern bool Initialize();
+        [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_ISteamUGC_DownloadItem")]
+        private static extern bool InitiateDownload(IntPtr ISteamUGC, ulong ModID, bool HighPriority);
         [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_GetHSteamPipe")]
         private static extern int GetSteamPipe();
         [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_GetHSteamUser")]
@@ -146,6 +206,8 @@ namespace TEKLauncher.SteamInterop.Steamworks
         private static extern int GetSubscribedMods(IntPtr ISteamUGC, [In][Out]ulong[] IDsArray, int ModsCount);
         [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_ISteamUGC_GetNumSubscribedItems")]
         private static extern int GetSubscribedModsCount(IntPtr ISteamUGC);
+        [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_ISteamUGC_GetItemState")]
+        private static extern uint GetModState(IntPtr ISteamUGC, ulong ModID);
         [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_ISteamUser_GetSteamID")]
         private static extern ulong GetSteamID(IntPtr ISteamUser);
         [DllImport("steam_api64", CallingConvention = CallingConvention.Cdecl, EntryPoint = "SteamAPI_ISteamUGC_SubscribeItem")]

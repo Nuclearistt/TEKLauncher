@@ -463,7 +463,7 @@ namespace TEKLauncher.SteamInterop.Network
                 else if (Difference > 0)
                 {
                     FilesMissing++;
-                    DownloadSize += File.Chunks.Sum(Chunk => Chunk.CompressedSize);
+                    DownloadSize += File.Chunks.Sum(Chunk => (long)Chunk.CompressedSize);
                     InstallSize += File.Size;
                     Changes.Add(File);
                     Offset++;
@@ -541,7 +541,7 @@ namespace TEKLauncher.SteamInterop.Network
             {
                 FileEntry File = LatestManifest.Files[Iterator1];
                 FilesMissing++;
-                DownloadSize += File.Chunks.Sum(Chunk => Chunk.CompressedSize);
+                DownloadSize += File.Chunks.Sum(Chunk => (long)Chunk.CompressedSize);
                 InstallSize += File.Size;
                 Changes.Add(File);
             }
@@ -608,7 +608,10 @@ namespace TEKLauncher.SteamInterop.Network
         internal void DownloadMod(ulong ModID, ulong SpacewarModID, ref ModDetails Details, ref ModDetails SpacewarDetails)
         {
             if (ModLocks.Contains(SpacewarID = SpacewarModID))
+            {
+                SetStatus(LocString(LocCode.ModAlrUpdating), DarkRed);
                 return;
+            }
             else
                 ModLocks.Add(SpacewarID);
             FilesUpToDate = FilesOutdated = FilesMissing = 0;
@@ -681,7 +684,10 @@ namespace TEKLauncher.SteamInterop.Network
         internal void Update(bool DoValidate)
         {
             if (DepotLocks[DepotID])
+            {
+                SetStatus(LocString(LocCode.ItemAlrUpdating), DarkRed);
                 return;
+            }
             else
                 DepotLocks[DepotID] = true;
             bool DowngradeMode = Settings.DowngradeMode;
@@ -812,10 +818,13 @@ namespace TEKLauncher.SteamInterop.Network
             DepotLocks[DepotID] = false;
             Current.Dispatcher.Invoke(Finish);
         }
-        internal void UpdateMod(bool DoValidate, ulong ModID, ulong SpacewarID)
+        internal ulong UpdateMod(bool DoValidate, ulong ModID, ulong SpacewarID)
         {
             if (ModLocks.Contains(this.SpacewarID = SpacewarID))
-                return;
+            {
+                SetStatus(LocString(LocCode.ModAlrUpdating), DarkRed);
+                return 0UL;
+            }
             else
                 ModLocks.Add(SpacewarID);
             bool DowngradeMode = Settings.DowngradeMode;
@@ -921,6 +930,7 @@ namespace TEKLauncher.SteamInterop.Network
             if (ModLocks.Contains(SpacewarID))
                 ModLocks.Remove(SpacewarID);
             Current.Dispatcher.Invoke(Finish);
+            return LatestManifestID;
         }
         private struct Relocation
         {

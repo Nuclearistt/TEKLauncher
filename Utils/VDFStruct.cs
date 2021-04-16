@@ -35,5 +35,17 @@ namespace TEKLauncher.Utils
                     Children.Add(new VDFStruct { Key = Fields[1], Value = Fields[3] });
             }
         }
+        internal void Write(StreamWriter Writer, string Indent = "")
+        {
+            if (Value is null)
+            {
+                Writer.WriteLine($"{Indent}\"{Key}\"\n{Indent}{{");
+                foreach (VDFStruct Child in Children)
+                    Child.Write(Writer, Indent + "\t");
+                Writer.WriteLine($"{Indent}}}");
+            }
+            else
+                Writer.WriteLine($"{Indent}\"{Key}\"\t\t\"{Value}\"");
+        }
     }
 }

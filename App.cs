@@ -41,7 +41,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "8.0.64.1";
+        internal const string Version = "8.1.65.0";
         private App()
         {
             CurrentDomain.UnhandledException += CriticalExceptionHandler;
@@ -140,10 +140,15 @@ namespace TEKLauncher
         {
             MWindow?.SettingsPage?.SteamDownloader?.Pause();
             MWindow?.ModInstallerPage?.Downloader?.Pause();
-            foreach (ValidatorWindow DLCWindow in Windows.OfType<ValidatorWindow>())
+            foreach (ValidatorWindow ValidatorWindow in Windows.OfType<ValidatorWindow>())
             {
-                DLCWindow.Shutdown = true;
-                DLCWindow.Close();
+                ValidatorWindow.Shutdown = true;
+                ValidatorWindow.Close();
+            }
+            foreach (ModsFixerWindow ModsFixerWindow in Windows.OfType<ModsFixerWindow>())
+            {
+                ModsFixerWindow.Shutdown = true;
+                ModsFixerWindow.Close();
             }
             PipeServer?.Close();
             Disconnect();
@@ -171,6 +176,7 @@ namespace TEKLauncher
             QueueUserWorkItem(LoadList);
             QueueUserWorkItem(FetchSpacewarIDs);
             QueueUserWorkItem(LoadModsDetails);
+            QueueUserWorkItem(LoadMods);
             QueueUserWorkItem(LoadServers);
             QueueUserWorkItem(LoadWorkshop);
             QueueUserWorkItem(RUSSIAData.LoadServers);

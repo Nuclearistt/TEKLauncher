@@ -66,6 +66,8 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                                     }
                                 if (!IPv4Found)
                                     Host = Addresses[0].MapToIPv4().ToString();
+                                if (Host.Length == 0)
+                                    Host = URL;
                             }
                             catch (Exception Exception)
                             {

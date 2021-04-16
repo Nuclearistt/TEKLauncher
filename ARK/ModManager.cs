@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TEKLauncher.Controls;
 using TEKLauncher.Pages;
 using TEKLauncher.SteamInterop.Network.CM.Messages.Bodies;
+using static System.DateTimeOffset;
 using static System.IO.Directory;
 using static System.Threading.Tasks.Task;
 using static System.Windows.Application;
@@ -47,7 +48,7 @@ namespace TEKLauncher.ARK
                 if (IsSpacewarInstalled && Exists(WorkshopPath))
                 {
                     ulong[] SubscribedMods = TryDeploy() ? SteamAPI.GetSubscribedMods() : null;
-                    foreach (string Path in EnumerateDirectories(WorkshopPath).Where(Mod => Mod.Substring(Mod.LastIndexOf('\\') + 1).All(Symbol => char.IsDigit(Symbol))))
+                    foreach (string Path in EnumerateDirectories(WorkshopPath).Where(Mod => ulong.TryParse(Mod.Substring(Mod.LastIndexOf('\\') + 1), out _)))
                         if (Mods.Find(Mod => Mod.Path == Path) is null)
                             Mods.Add(new Mod(Path, SubscribedMods));
                 }
@@ -106,7 +107,7 @@ namespace TEKLauncher.ARK
                         ref ModDetails ResultItem = ref Result[Iterator];
                         ResultItem.AppID = Item.AppID;
                         ResultItem.ID = Item.ID;
-                        ResultItem.LastUpdated = Item.LastUpdated;
+                        ResultItem.LastUpdated = FromUnixTimeSeconds(Item.LastUpdated).Ticks;
                         ResultItem.Name = Item.Name;
                         ResultItem.PreviewURL = Item.PreviewURL;
                         ResultItem.Status = Item.Result == 1 ? 1 : Item.Result == 9 ? 2 : 0;

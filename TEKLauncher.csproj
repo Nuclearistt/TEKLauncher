@@ -167,6 +167,9 @@
     <Compile Include="Windows\MessageWindow.cs">
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\ModsFixerWindow.cs">
+      <DependentUpon>ModsFixerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ModUninstallerWindow.cs">
       <DependentUpon>ModUninstallerWindow.xaml</DependentUpon>
     </Compile>

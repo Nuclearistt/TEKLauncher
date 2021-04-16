@@ -36,6 +36,7 @@ namespace TEKLauncher.Data
                     GDriveVersionFile = Reader.ReadLine();
                     LocalizationFile = Reader.ReadLine();
                     Patreon = Reader.ReadLine();
+                    Paypal = Reader.ReadLine();
                     RUSSIA = Reader.ReadLine();
                     SteamWebAPI = Reader.ReadLine();
                     SteamWorkshop = Reader.ReadLine();
@@ -65,6 +66,7 @@ namespace TEKLauncher.Data
             GDriveVersionFile,
             LocalizationFile,
             Patreon,
+            Paypal,
             RUSSIA,
             SteamWebAPI,
             SteamWorkshop,

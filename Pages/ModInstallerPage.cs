@@ -22,6 +22,7 @@ using static TEKLauncher.ARK.ModManager;
 using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Net.ARKdictedData;
+using static TEKLauncher.SteamInterop.Steam;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -126,18 +127,33 @@ namespace TEKLauncher.Pages
                         SetStatus(LocString(LocCode.MIRequestingDetails), YellowBrush);
                         ModDetails[] Response = await GetModsDetailsAsync(ARKDictedID);
                         ModDetails Details = (Response?.Length ?? 0) == 0 ? default : Response[0];
-                        string Name = Details.Status == 1 ? Details.Name : "ARKdicted mod";
+                        string Name = Details.Status == 1 ? Details.Name : LocString(LocCode.MIDefaultModName);
                         SetStatus(string.Format(LocString(LocCode.MISubscribing), Name), YellowBrush);
                         bool Subscribed = false;
                         if (await TryDeployAsync())
                             if (await SteamAPI.SubscribeModAsync(ARKDictedID))
                                 Subscribed = true;
-                        if (!Subscribed)
+                        if (Subscribed)
+                        {
+                            SetStatus(LocString(LocCode.MIWaitingForSteam), YellowBrush);
+                            if (await SteamAPI.TrackDownloadProgressAsync(ARKDictedID, ProgressBar, SetStatus))
+                            {
+                                SetStatus(LocString(LocCode.CInstallingMod), YellowBrush);
+                                Mod Mod = Mods.Find(ListMod => ListMod.ID == ARKDictedID);
+                                if (!(Mod is null))
+                                    Mods.Remove(Mod);
+                                Mod = new Mod($@"{WorkshopPath}\{ARKDictedID}", null) { IsSubscribed = true, Details = Details };
+                                await Run(() => Mod.Install(ProgressBar.Progress, ProgressBar));
+                                Mods.Add(Mod);
+                                SetStatus(string.Format(LocString(LocCode.MISuccess), Name), DarkGreen);
+                            }
+                        }
+                        else
                         {
                             Show("Info", LocString(LocCode.FailedToSub));
                             Execute($"{SteamWorkshop}{ARKDictedID}");
+                            SetStatus(string.Format(LocString(LocCode.MISubSuccess), Name), DarkGreen);
                         }
-                        SetStatus(string.Format(LocString(LocCode.MISubSuccess), Name), DarkGreen);
                         FinishHandler();
                         return;
                     }

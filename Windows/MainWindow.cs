@@ -152,19 +152,25 @@ namespace TEKLauncher.Windows
         private void RunDLCUpdater() => Menu.DLCs.IsChecked = true;
         private void RunGameUpdate()
         {
-            Menu.Settings.IsChecked = true;
+            Settings.DowngradeMode = false;
+            if (SettingsPage is null)
+                SettingsPage = new SettingsPage();
             if (SettingsPage.IsLoaded)
                 SettingsPage.Update(false);
             else
                 SettingsPage.Loaded += (Sender, Args) => SettingsPage.Update(false);
+            Menu.Settings.IsChecked = true;
         }
         private void RunGameValidate()
         {
-            Menu.Settings.IsChecked = true;
+            Settings.DowngradeMode = false;
+            if (SettingsPage is null)
+                SettingsPage = new SettingsPage();
             if (SettingsPage.IsLoaded)
                 SettingsPage.Update(true);
             else
                 SettingsPage.Loaded += (Sender, Args) => SettingsPage.Update(true);
+            Menu.Settings.IsChecked = true;
         }
         private void RunLauncherUpdater()
         {

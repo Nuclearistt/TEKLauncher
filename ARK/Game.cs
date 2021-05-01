@@ -40,7 +40,9 @@ namespace TEKLauncher.ARK
             set
             {
                 Directory.CreateDirectory($@"{Path}\ShooterGame\Binaries\Win64");
-                WriteAllText($@"{Path}\ShooterGame\Binaries\Win64\steam_appid.txt", value.ToString());
+                string FilePath = $@"{Path}\ShooterGame\Binaries\Win64\steam_appid.txt";
+                SetAttributes(FilePath, GetAttributes(FilePath) & ~FileAttributes.ReadOnly);
+                WriteAllText(FilePath, value.ToString());
             }
         }
         internal static string BEExecutablePath => $@"{Path}\ShooterGame\Binaries\Win64\ShooterGame_BE.exe";

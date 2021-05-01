@@ -722,6 +722,8 @@ namespace TEKLauncher.SteamInterop.Network
                         else
                             Changes = ComputeChanges(LatestManifest, OldManifest);
                     }
+                    if (!Directory.Exists(DownloadsDirectory))
+                        throw new ValidatorException(LocString(LocCode.NoDownloadsDir));
                     else if (!(DepotID == 346111U ? Directory.Exists($@"{Game.Path}\ShooterGame") : DLCs.Where(DLC => DLC.DepotID == DepotID).FirstOrDefault()?.IsInstalled ?? true))
                     {
                         Changes = CDNClient.GetManifests(LatestManifestID, out _).Files;

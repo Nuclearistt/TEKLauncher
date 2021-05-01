@@ -55,6 +55,7 @@ namespace TEKLauncher.Pages
                     Checkbox.Checked += CheckParameter;
                     Checkbox.Unchecked += UncheckParameter;
                 }
+            UpdateButton.Content = LocString(Settings.DowngradeMode ? LocCode.Downgrade : LocCode.Update);
             ProgressBar.ProgressUpdated += ProgressUpdatedHandler;
             Downloader = new Downloader(ProgressBar.Progress);
             SteamDownloader = new ContentDownloader(346111U, FinishHandler, SetStatus, ProgressBar);
@@ -282,7 +283,10 @@ namespace TEKLauncher.Pages
         {
             UseGlobalFonts.IsEnabled = InstallReqButton.IsEnabled = ValidateButton.IsEnabled = UnlockButton.IsEnabled = FixBEButton.IsEnabled = State;
             if (Update)
-                UpdateButton.Content = LocString((LocCode)Parse(typeof(LocCode), ((VectorImage)UpdateButton.Template.FindName("Icon", UpdateButton)).Source = State ? "Update" : "Pause"));
+            {
+                UpdateButton.Content = LocString(State ? Settings.DowngradeMode ? LocCode.Downgrade : LocCode.Update : LocCode.Pause);
+                ((VectorImage)UpdateButton.Template.FindName("Icon", UpdateButton)).Source = State ? "Update" : "Pause";
+            }
             else
                 UpdateButton.IsEnabled = State;
         }
@@ -333,10 +337,10 @@ namespace TEKLauncher.Pages
         }
         private void Update(object Sender, RoutedEventArgs Args)
         {
-            if ((string)UpdateButton.Content == LocString(LocCode.Update))
-                Update(false);
-            else
+            if ((string)UpdateButton.Content == LocString(LocCode.Pause))
                 SteamDownloader.Pause();
+            else
+                Update(false);
         }
         private void UpdateCreamAPIButtons()
         {

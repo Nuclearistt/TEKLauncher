@@ -41,7 +41,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "8.1.65.0";
+        internal const string Version = "8.1.66.0";
         private App()
         {
             CurrentDomain.UnhandledException += CriticalExceptionHandler;
@@ -82,9 +82,6 @@ namespace TEKLauncher
                     try { File.Delete(OldExecutable); }
                     catch { }
             }
-            foreach (string Folder in new[] { $@"{CurrentDirectory}\ARK", $@"{CurrentDirectory}\ARKSurvivalEvolved", $@"{CurrentDirectory}\ArkGameData" })
-                if (Exists(Folder))
-                    Settings.ARKPath = Folder;
             if (Settings.KeyExists("ARKPath"))
                 Initialize();
             else

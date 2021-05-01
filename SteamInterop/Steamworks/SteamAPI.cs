@@ -73,7 +73,7 @@ namespace TEKLauncher.SteamInterop.Steamworks
                 Progress.Increase(Downloaded - Progress.Current);
             }
             Current.Dispatcher.Invoke(() => ProgressBar.ProgressUpdated -= ProgressUpdatedHandler);
-            if ((GetModState(ISteamUGC, ID) & 4U) == 0U)
+            if ((GetModState(ISteamUGC, ID) & 4U) == 0U && Total - Progress.Current > 10485760L)
             {
                 SetStatus(LocString(TimeoutCounter == 0 ? LocCode.ProgressTrackerTimeout : LocCode.ProgresTrackerStopped), DarkRed);
                 return false;

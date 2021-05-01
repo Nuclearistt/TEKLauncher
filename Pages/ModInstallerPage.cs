@@ -138,14 +138,24 @@ namespace TEKLauncher.Pages
                             SetStatus(LocString(LocCode.MIWaitingForSteam), YellowBrush);
                             if (await SteamAPI.TrackDownloadProgressAsync(ARKDictedID, ProgressBar, SetStatus))
                             {
-                                SetStatus(LocString(LocCode.CInstallingMod), YellowBrush);
-                                Mod Mod = Mods.Find(ListMod => ListMod.ID == ARKDictedID);
-                                if (!(Mod is null))
-                                    Mods.Remove(Mod);
-                                Mod = new Mod($@"{WorkshopPath}\{ARKDictedID}", null) { IsSubscribed = true, Details = Details };
-                                await Run(() => Mod.Install(ProgressBar.Progress, ProgressBar));
-                                Mods.Add(Mod);
-                                SetStatus(string.Format(LocString(LocCode.MISuccess), Name), DarkGreen);
+                                string ModFolder = $@"{WorkshopPath}\{ARKDictedID}";
+                                SetStatus(LocString(LocCode.MIWaitingModCopy), YellowBrush);
+                                int TimeoutCounter = 60;
+                                while (!Exists($@"{ModFolder}\mod.info") && --TimeoutCounter != 0)
+                                    await Delay(1000);
+                                if (TimeoutCounter == 0)
+                                    SetStatus(LocString(LocCode.MIModCopyTimeout), DarkRed);
+                                else
+                                {
+                                    SetStatus(LocString(LocCode.CInstallingMod), YellowBrush);
+                                    Mod Mod = Mods.Find(ListMod => ListMod.ID == ARKDictedID);
+                                    if (!(Mod is null))
+                                        Mods.Remove(Mod);
+                                    Mod = new Mod(ModFolder, null) { IsSubscribed = true, Details = Details };
+                                    await Run(() => Mod.Install(ProgressBar.Progress, ProgressBar));
+                                    Mods.Add(Mod);
+                                    SetStatus(string.Format(LocString(LocCode.MISuccess), Name), DarkGreen);
+                                }
                             }
                         }
                         else

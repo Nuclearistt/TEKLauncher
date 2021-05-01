@@ -190,6 +190,7 @@ namespace TEKLauncher.Controls
             else if (ShowOptions("Warning", LocString(LocCode.UninstModPrompt)))
             {
                 ((Panel)Parent)?.Children?.Remove(this);
+                Mod?.Uninstall();
                 bool Unsubscribed = false;
                 if (await TryDeployAsync() && !(Mod is null))
                     if (await SteamAPI.UnsubscribeModAsync(Mod.ID))
@@ -199,7 +200,6 @@ namespace TEKLauncher.Controls
                     Execute($"{SteamWorkshop}{Mod.ID}");
                     Show("Info", LocString(LocCode.FailedToUnsub));
                 }
-                Mod?.Uninstall();
                 if (!(Mod is null))
                     Mods?.Remove(Mod);
             }

@@ -40,38 +40,16 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                         for (int Iterator = 0; Iterator < Records.Length; Iterator++)
                         {
                             XmlNodeList Nodes = Messages[Iterator].ChildNodes;
-                            string URL = null;
+                            string Host = null;
                             foreach (XmlNode Node in Nodes)
                                 if (Node.Name == "vhost")
                                 {
-                                    URL = Node.InnerText;
+                                    Host = Node.InnerText;
                                     break;
                                 }
-                            if (URL is null)
+                            if (Host is null)
                             {
                                 Log("Failed to find vhost entry");
-                                throw new ValidatorException(LocString(LocCode.IPNotResolved));
-                            }
-                            string Host = null;
-                            try
-                            {
-                                IPAddress[] Addresses = GetHostAddresses(URL);
-                                bool IPv4Found = false;
-                                foreach (IPAddress Address in Addresses)
-                                    if (Address.AddressFamily == AddressFamily.InterNetwork)
-                                    {
-                                        IPv4Found = true;
-                                        Host = Address.ToString();
-                                        break;
-                                    }
-                                if (!IPv4Found)
-                                    Host = Addresses[0].MapToIPv4().ToString();
-                                if (Host.Length == 0)
-                                    Host = URL;
-                            }
-                            catch (Exception Exception)
-                            {
-                                Log($"An exception occurred while resolving IP of {URL}: {Exception.GetType()}; {Exception.Message}");
                                 throw new ValidatorException(LocString(LocCode.IPNotResolved));
                             }
                             Records[Iterator] = new ServerRecord { Load = double.TryParse(Nodes[4].InnerText, out double Result) ? Result : 0D, Host = Host };

@@ -36,6 +36,14 @@ namespace TEKLauncher.Windows
             {
                 UninstallButton.IsEnabled = false;
                 SetStatus(LocString(LocCode.MUUninstalling), YellowBrush);
+                await InitializeModsListAsync();
+                foreach (Mod Mod in Mods)
+                    Mod.Uninstall((bool)WorkshopMods.IsChecked, (bool)GameMods.IsChecked);
+                if ((bool)WorkshopMods.IsChecked)
+                    Mods.Clear();
+                else if ((bool)GameMods.IsChecked)
+                    foreach (Mod Mod in Mods)
+                        Mod.IsInstalled = false;
                 if ((bool)UnsubscribeMods.IsChecked)
                 {
                     if (await TryDeployAsync())
@@ -50,12 +58,8 @@ namespace TEKLauncher.Windows
                             }
                     }
                     else if (!ShowOptions("Info", LocString(LocCode.MUFail)))
-                            return;
+                        return;
                 }
-                await InitializeModsListAsync();
-                foreach (Mod Mod in Mods)
-                    Mod.Uninstall((bool)WorkshopMods.IsChecked, (bool)GameMods.IsChecked);
-                Mods.Clear();
                 if (Steam.IsSpacewarInstalled)
                 {
                     bool CleanDownloadCache = (bool)DownloadCache.IsChecked, CleanWorkshopCache = (bool)WorkshopCache.IsChecked;

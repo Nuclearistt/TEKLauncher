@@ -18,7 +18,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{StaticResource ImageButton}" Name="UpdateButton" Content="{UI:LocString Update}" Tag="Update" Click="Update"/>
+                <Button Grid.Column="0" Style="{StaticResource ImageButton}" Name="UpdateButton" Tag="Update" Click="Update"/>
                 <Button Grid.Column="2" Style="{StaticResource ImageButton}" Name="FixBEButton" Content="{UI:LocString FixBE}" Tag="Repair" Click="FixBattlEye"/>
                 <Button Grid.Column="4" Style="{StaticResource ImageButton}" Name="UnlockButton" Content="{UI:LocString UnlockSkins}" Tag="Unlock" Click="UnlockSkins"/>
                 <Button Grid.Column="6" Style="{StaticResource ImageButton}" Content="{UI:LocString UninstallAllMods}" Tag="Delete" Click="UninstallAllMods"/>

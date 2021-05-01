@@ -17,6 +17,7 @@ using static System.Windows.Media.Brushes;
 using static TEKLauncher.App;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Servers.ClustersManager;
+using static TEKLauncher.SteamInterop.Steam;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
 using static TEKLauncher.UI.Message;
 using static TEKLauncher.Utils.UtilFunctions;
@@ -63,7 +64,9 @@ namespace TEKLauncher.Pages
         private void Callback(object State) => Dispatcher.Invoke(SyncServers);
         private void FixMods(object Sender, RoutedEventArgs Args)
         {
-            if (!Current.Windows.OfType<ModsFixerWindow>().Any())
+            if (!IsSpacewarInstalled)
+                Show("Error", LocString(LocCode.SpacewarRequired));
+            else if (!Current.Windows.OfType<ModsFixerWindow>().Any())
                 new ModsFixerWindow(Cluster.Mods[(string)((Button)Sender).Tag]).Show();
         }
         private void GoBack(object Sender, RoutedEventArgs Args) => Instance.MWindow.PageFrame.Content = new ServersPage();

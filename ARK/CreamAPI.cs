@@ -32,8 +32,12 @@ namespace TEKLauncher.ARK
             Game.AppID = 346110;
             foreach (string File in CreamAPIFiles)
                 using (Stream ResourceStream = GetResourceStream(new Uri($"pack://application:,,,/Resources/CreamAPI/{File}.ta")).Stream)
-                using (FileStream Writer = Create($@"{Directories[File == "steam_api64.dll" ? 0 : 1]}\{File}"))
-                    DecompressSingleFile(ResourceStream, Writer);
+                {
+                    string FilePath = $@"{Directories[File == "steam_api64.dll" ? 0 : 1]}\{File}";
+                    SetAttributes(FilePath, GetAttributes(FilePath) & ~FileAttributes.ReadOnly);
+                    using (FileStream Writer = Create(FilePath))
+                        DecompressSingleFile(ResourceStream, Writer);
+                }
         }
         internal static void Uninstall()
         {

@@ -80,7 +80,12 @@ namespace TEKLauncher.Pages
         private void SetDowngradeMode(object Sender, RoutedEventArgs Args)
         {
             if (IsLoaded)
+            {
                 Settings.DowngradeMode = (bool)DowngradeMode.IsChecked;
+                SettingsPage SPage = Instance.MWindow.SettingsPage;
+                if (!(SPage is null) && (string)SPage.UpdateButton.Content != LocString(LocCode.Pause))
+                    SPage.UpdateButton.Content = LocString(Settings.DowngradeMode ? LocCode.Downgrade : LocCode.Update);
+            }
         }
     }
 }

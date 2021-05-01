@@ -46,7 +46,7 @@ namespace TEKLauncher.SteamInterop.Network.CDN
             }
             Initialize(ThreadsCount);
             for (int Iterator = 0; Iterator < ThreadsCount; Iterator++)
-                BaseURLs[Iterator] = $"http://{NextServer()}/depot/{this.DepotID = DepotID}/";
+                BaseURLs[Iterator] = $"https://{NextServer()}/depot/{this.DepotID = DepotID}/";
             Log($"Picked {ThreadsCount} the least busy CDN servers");
             BaseDownloadPath = $@"{DownloadsDirectory}\{DepotID}";
             DepotKey = DepotKeys[DepotID];
@@ -249,7 +249,14 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                 if (!new Downloader(Progress).TryDownloadFile(CompressedManifestFile, $"{BaseURLs[0]}manifest/{LatestManifestID}/5"))
                     throw new ValidatorException(LocString(LocCode.DwManifestFailed));
                 Log("Download complete, decompressing manifest...");
-                Decompress(CompressedManifestFile, LatestManifestFile);
+                try { Decompress(CompressedManifestFile, LatestManifestFile); }
+                catch
+                {
+                    Delete(CompressedManifestFile);
+                    if (Exists(LatestManifestFile))
+                        Delete(LatestManifestFile);
+                    throw new ValidatorException(LocString(LocCode.ManifestCorrupted));
+                }
                 Delete(CompressedManifestFile);
             }
             Log("Reading latest manifest...");

@@ -232,7 +232,7 @@ namespace TEKLauncher.Windows
                     ModStatus.Text = LocString(LocCode.MFVerificationComplete);
                     if (ACFChanged)
                     {
-                        SetStatus(LocString(LocCode.MFApplyingModifications), DarkGreen);
+                        SetStatus(LocString(LocCode.MFApplyingModifications), YellowBrush);
                         if (!Steam.IsRunning)
                             using (StreamWriter Writer = new StreamWriter(ACFPath))
                                 ACF.Write(Writer);

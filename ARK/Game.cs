@@ -41,7 +41,8 @@ namespace TEKLauncher.ARK
             {
                 Directory.CreateDirectory($@"{Path}\ShooterGame\Binaries\Win64");
                 string FilePath = $@"{Path}\ShooterGame\Binaries\Win64\steam_appid.txt";
-                SetAttributes(FilePath, GetAttributes(FilePath) & ~FileAttributes.ReadOnly);
+                if (Exists(FilePath))
+                    SetAttributes(FilePath, GetAttributes(FilePath) & ~FileAttributes.ReadOnly);
                 WriteAllText(FilePath, value.ToString());
             }
         }

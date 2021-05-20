@@ -16,7 +16,7 @@ namespace TEKLauncher.SteamInterop
     internal static class Steam
     {
         private static int ARKEntryEndLine = 0, ParametersStringLine = 0;
-        private static string LocalConfigFile, LocalSpacewarPath;
+        private static string LocalConfigFile, SpacewarPath;
         internal static bool IsARKPurchased = false;
         internal static int ActiveUserID;
         internal static string Path;
@@ -33,7 +33,7 @@ namespace TEKLauncher.SteamInterop
                 return !(SteamProcess is null);
             }
         }
-        internal static bool IsSpacewarInstalled => !(WorkshopPath is null);
+        internal static bool IsSpacewarInstalled => !(SpacewarPath is null);
         internal static string LaunchParameters
         {
             get
@@ -59,17 +59,7 @@ namespace TEKLauncher.SteamInterop
                 WriteAllLines(LocalConfigFile, Lines.ToArray());
             }
         }
-        internal static string WorkshopPath
-        {
-            get
-            {
-                string SpacewarPath = (string)LocalMachine?.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 480")?.GetValue("InstallLocation");
-                if (SpacewarPath is null || !Directory.Exists(SpacewarPath))
-                    SpacewarPath = LocalSpacewarPath;
-                return SpacewarPath is null ? null : $@"{SpacewarPath.Substring(0, SpacewarPath.Length - 15)}workshop\content\480";
-
-            }
-        }
+        internal static string WorkshopPath => SpacewarPath is null ? null : $@"{SpacewarPath.Substring(0, SpacewarPath.Length - 15)}workshop\content\480";
         internal static void Initialize()
         {
             Path = (string)LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("InstallPath");
@@ -117,8 +107,7 @@ namespace TEKLauncher.SteamInterop
                         }
                 }
                 catch { }
-            if (SpacewarPaths.Count != 0 && SpacewarPaths.Find(Path => Path == RegistrySpacewarPath) is null)
-                LocalSpacewarPath = SpacewarPaths[0];
+            SpacewarPath = SpacewarPaths.Count != 0 && SpacewarPaths.Find(Path => Path == RegistrySpacewarPath) is null ? SpacewarPaths[0] : RegistrySpacewarPath;
         }
     }
 }

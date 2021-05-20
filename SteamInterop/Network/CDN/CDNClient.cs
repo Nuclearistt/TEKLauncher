@@ -140,7 +140,7 @@ namespace TEKLauncher.SteamInterop.Network.CDN
                             string GID = BitConverter.ToString(Chunk.GID).Replace("-", string.Empty), Message = null;
                             for (int AttemptsCount = 0; AttemptsCount < 5 + ThreadsCount; AttemptsCount++)
                             {
-                                try { Data = await DownloadSteamChunk(BaseURLs[Offset < 5 ? Offset : Offset - 5], GID, Chunk.CompressedSize, Token); }
+                                try { Data = await DownloadSteamChunk(BaseURLs[AttemptsCount < 5 ? Offset : AttemptsCount - 5], GID, Chunk.CompressedSize, Token); }
                                 catch (Exception Exception)
                                 {
                                     while (Exception is AggregateException)

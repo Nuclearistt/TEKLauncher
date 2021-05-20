@@ -57,30 +57,7 @@ namespace TEKLauncher.SteamInterop.Network
         private readonly ProgressBar ProgressBar;
         private readonly SetStatusDelegate SetStatus;
         private static readonly string NAString = LocString(LocCode.NA);
-        private static readonly Dictionary<uint, bool> DepotLocks = new Dictionary<uint, bool>
-        {
-            [346111U] = false,
-            [346114U] = false,
-            [375351U] = false,
-            [375354U] = false,
-            [375357U] = false,
-            [473851U] = false,
-            [473854U] = false,
-            [473857U] = false,
-            [1318685U] = false
-        };
-        private static readonly Dictionary<uint, string> DepotNames = new Dictionary<uint, string>
-        {
-            [346111U] = LocString(LocCode.Game),
-            [346114U] = "The Center DLC",
-            [375351U] = "Scorched Earth DLC",
-            [375354U] = "Ragnarok DLC",
-            [375357U] = "Aberration DLC",
-            [473851U] = "Extinction DLC",
-            [473854U] = "Valguero DLC",
-            [473857U] = "Genesis DLC",
-            [1318685U] = "Crystal Isles DLC"
-        };
+        private static readonly List<uint> DepotLocks = new List<uint>();
         private static readonly List<ulong> ModLocks = new List<ulong>();
         internal static readonly Dictionary<uint, byte[]> DepotKeys = new Dictionary<uint, byte[]>
         {
@@ -386,6 +363,7 @@ namespace TEKLauncher.SteamInterop.Network
             return Difference;
         }
         private int OffsetComparison(ChunkEntry A, ChunkEntry B) => A.Offset.CompareTo(B.Offset);
+        private string GetDepotName(uint DepotID) => DepotID == 346111U ? LocString(LocCode.Game) : $"{DLCs.First(DLC => DLC.DepotID == DepotID).Name} DLC";
         private List<FileEntry> ReadValidationCache(out bool IsIncomplete)
         {
             string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-", VCacheFile = $@"{DownloadsDirectory}\{ItemCompound}{LatestManifestID}.vcache";
@@ -550,7 +528,7 @@ namespace TEKLauncher.SteamInterop.Network
         }
         private List<FileEntry> Validate(DepotManifest Manifest, List<FileEntry> Changes = null, int StartOffset = 0)
         {
-            string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-", ItemName = SpacewarID == 0UL && DepotID > 346110U ? DepotNames[DepotID] : $"mod {SpacewarID}";
+            string ItemCompound = ModID == 0UL ? $"{DepotID}-" : $"{DepotID}.{ModID}-", ItemName = SpacewarID == 0UL && DepotID > 346110U ? GetDepotName(DepotID) : $"mod {SpacewarID}";
             Log($"Validating {ItemName} files...");
             IsValidating = true;
             Progress.Total = Manifest.Files.Sum(File => File.Size);
@@ -677,19 +655,22 @@ namespace TEKLauncher.SteamInterop.Network
         internal void ReleaseLock()
         {
             if (SpacewarID == 0UL)
-                DepotLocks[DepotID] = false;
+            {
+                if (DepotLocks.Contains(DepotID))
+                    DepotLocks.Remove(DepotID);
+            }
             else if (ModLocks.Contains(SpacewarID))
                 ModLocks.Remove(SpacewarID);
         }
         internal void Update(bool DoValidate)
         {
-            if (DepotLocks[DepotID])
+            if (DepotLocks.Contains(DepotID))
             {
                 SetStatus(LocString(LocCode.ItemAlrUpdating), DarkRed);
                 return;
             }
             else
-                DepotLocks[DepotID] = true;
+                DepotLocks.Add(DepotID);
             bool DowngradeMode = Settings.DowngradeMode;
             Cancellator = new CancellationTokenSource();
             RelocSizes = null;
@@ -737,7 +718,7 @@ namespace TEKLauncher.SteamInterop.Network
                         string CurrentManifestFile = $@"{ManifestsDirectory}\{DepotID}-CurrentID.txt";
                         if (!DoValidate && !(DepotID == 346111U && Game.UpdateAvailable) && FileExists(CurrentManifestFile) && ulong.TryParse(ReadAllText(CurrentManifestFile), out ulong CID) && CID == LatestManifestID)
                         {
-                            SetStatus(DepotID == 346111U ? LocString(LocCode.GameAlrUpToDate) : string.Format(LocString(LocCode.AlrUpToDate), DepotNames[DepotID]), DarkGreen);
+                            SetStatus(DepotID == 346111U ? LocString(LocCode.GameAlrUpToDate) : string.Format(LocString(LocCode.AlrUpToDate), GetDepotName(DepotID)), DarkGreen);
                             Finish = true;
                         }
                         else
@@ -769,7 +750,7 @@ namespace TEKLauncher.SteamInterop.Network
                             Log("No changes required, finishing up");
                             if (DepotID == 346111U)
                                 Game.UpdateAvailable = Game.IsCorrupted = false;
-                            SetStatus(string.Format(LocString(LocCode.AlrUpToDate), DepotNames[DepotID]), DarkGreen);
+                            SetStatus(string.Format(LocString(LocCode.AlrUpToDate), GetDepotName(DepotID)), DarkGreen);
                             WriteAllText($@"{ManifestsDirectory}\{DepotID}-CurrentID.txt", LatestManifestID.ToString());
                         }
                         else
@@ -809,7 +790,7 @@ namespace TEKLauncher.SteamInterop.Network
                                     }
                                 }
                                 WriteAllText($@"{ManifestsDirectory}\{DepotID}-CurrentID.txt", DowngradeMode ? OldManifest.ID : LatestManifestID.ToString());
-                                SetStatus(string.Format(LocString(DowngradeMode ? LocCode.DowngradeSuccess : LocCode.UpdateSuccess), DepotNames[DepotID]), DarkGreen);
+                                SetStatus(string.Format(LocString(DowngradeMode ? LocCode.DowngradeSuccess : LocCode.UpdateSuccess), GetDepotName(DepotID)), DarkGreen);
                             }
                         }
                     }
@@ -817,7 +798,8 @@ namespace TEKLauncher.SteamInterop.Network
             }
             else
                 SetStatus(LocString(LocCode.ConnectToSteamFailed), DarkRed);
-            DepotLocks[DepotID] = false;
+            if (DepotLocks.Contains(DepotID))
+                DepotLocks.Remove(DepotID);
             Current.Dispatcher.Invoke(Finish);
         }
         internal ulong UpdateMod(bool DoValidate, ulong ModID, ulong SpacewarID)

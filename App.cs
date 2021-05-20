@@ -21,14 +21,11 @@ using static System.IntPtr;
 using static System.Globalization.CultureInfo;
 using static System.IO.Directory;
 using static System.Net.ServicePointManager;
-using static System.Net.WebRequest;
-using static System.Text.Encoding;
 using static System.Threading.ThreadPool;
 using static System.Windows.FrameworkElement;
 using static Microsoft.Win32.Registry;
 using static TEKLauncher.ARK.ModManager;
 using static TEKLauncher.ARK.UserServers;
-using static TEKLauncher.Data.Links;
 using static TEKLauncher.Data.LocalizationManager;
 using static TEKLauncher.Net.ARKdictedData;
 using static TEKLauncher.SteamInterop.SteamworksAPI;
@@ -41,7 +38,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "8.1.66.0";
+        internal const string Version = "8.1.67.0";
         private App()
         {
             CurrentDomain.UnhandledException += CriticalExceptionHandler;
@@ -74,7 +71,6 @@ namespace TEKLauncher
             StyleProperty.OverrideMetadata(typeof(Window), new FrameworkPropertyMetadata { DefaultValue = FindResource(typeof(Window)) });
             if (LocCulture == "ar")
                 StyleProperty.OverrideMetadata(typeof(TextBlock), new FrameworkPropertyMetadata { DefaultValue = FindResource("RTLTB") });
-            QueueUserWorkItem(CheckTrackerInfo);
             using (Process CurrentProcess = Process.GetCurrentProcess())
             {
                 string OldExecutable = $"{CurrentProcess.MainModule.FileName}.old";
@@ -96,25 +92,6 @@ namespace TEKLauncher
         internal static readonly string AppDataFolder = $@"{GetFolderPath(SpecialFolder.ApplicationData)}\TEK Launcher";
         internal object CurrentPage => MWindow?.PageFrame?.Content;
         internal static App Instance => (App)Current;
-        private void CheckTrackerInfo(object State)
-        {
-            if (LocalMachine.OpenSubKey(@"SOFTWARE\TEKLauncher")?.GetValue("Tracked") is null)
-            {
-                HttpWebRequest Request = CreateHttp(TrackerWebhook);
-                Request.ContentType = "application/json";
-                Request.Method = "POST";
-                Request.ReadWriteTimeout = Request.Timeout = 6000;
-                byte[] Content = UTF8.GetBytes(@"{""content"":""New TEK Launcher user detected!""}");
-                try
-                {
-                    using (Stream RequestStream = Request.GetRequestStream())
-                        RequestStream.Write(Content, 0, Content.Length);
-                    Request.GetResponse().Dispose();
-                    LocalMachine.CreateSubKey(@"SOFTWARE\TEKLauncher").SetValue("Tracked", 1);
-                }
-                catch { }
-            }
-        }
         [HandleProcessCorruptedStateExceptions]
         private void CriticalExceptionHandler(object Sender, UnhandledExceptionEventArgs Args)
         {

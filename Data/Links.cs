@@ -41,7 +41,6 @@ namespace TEKLauncher.Data
                     SteamWebAPI = Reader.ReadLine();
                     SteamWorkshop = Reader.ReadLine();
                     SupportChannel = Reader.ReadLine();
-                    TrackerWebhook = Reader.ReadLine();
                 }
             }
         }
@@ -70,7 +69,6 @@ namespace TEKLauncher.Data
             RUSSIA,
             SteamWebAPI,
             SteamWorkshop,
-            SupportChannel,
-            TrackerWebhook;
+            SupportChannel;
     }
 }

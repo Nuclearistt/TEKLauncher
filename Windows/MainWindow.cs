@@ -19,6 +19,7 @@ using static System.Type;
 using static System.IO.File;
 using static System.Linq.Expressions.Expression;
 using static System.Security.Cryptography.SHA1;
+using static System.Threading.Tasks.Task;
 using static System.Windows.Application;
 using static System.Windows.SystemParameters;
 using static System.Windows.Media.Brushes;
@@ -105,7 +106,10 @@ namespace TEKLauncher.Windows
                 if (DLCUpdatesAvailable)
                     DLCNotification.FinishLoading(LocString(LocCode.DLCUpdsAvailable));
                 else
+                {
+                    await Delay(1000);
                     DLCNotification.Hide();
+                }
             }
             else
             {

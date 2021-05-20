@@ -34,7 +34,8 @@ namespace TEKLauncher.ARK
                 using (Stream ResourceStream = GetResourceStream(new Uri($"pack://application:,,,/Resources/CreamAPI/{File}.ta")).Stream)
                 {
                     string FilePath = $@"{Directories[File == "steam_api64.dll" ? 0 : 1]}\{File}";
-                    SetAttributes(FilePath, GetAttributes(FilePath) & ~FileAttributes.ReadOnly);
+                    if (Exists(FilePath))
+                        SetAttributes(FilePath, GetAttributes(FilePath) & ~FileAttributes.ReadOnly);
                     using (FileStream Writer = Create(FilePath))
                         DecompressSingleFile(ResourceStream, Writer);
                 }

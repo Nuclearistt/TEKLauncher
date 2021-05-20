@@ -145,10 +145,12 @@ namespace TEKLauncher.Windows
         {
             try
             {
-                if (ACF is null)
-                    using (StreamReader Reader = new StreamReader(ACFPath))
+                string ACFFile = ACFPath;
+                bool ACFExists = Exists(ACFFile);
+                if (ACF is null && ACFExists)
+                    using (StreamReader Reader = new StreamReader(ACFFile))
                         ACF = new VDFStruct(Reader);
-                while (ModIndex < Mods.Length)
+                for (; ModIndex < Mods.Length; ModIndex++)
                 {
                     Dispatcher.Invoke(() => ModStatus.Text = string.Format(LocString(LocCode.MFVerifying), ModIndex + 1, Mods.Length, Mods[ModIndex].Name));
                     ulong ID = Mods[ModIndex].ID, ManifestID = Downloader.UpdateMod(true, ID, ID);
@@ -156,6 +158,8 @@ namespace TEKLauncher.Windows
                         return;
                     if (await TryDeployAsync())
                         await SteamAPI.SubscribeModAsync(ID);
+                    if (!ACFExists)
+                        continue;
                     VDFStruct ItemsInstalled = ACF["WorkshopItemsInstalled"], ItemDetails = ACF["WorkshopItemDetails"], IIEntry = ItemsInstalled[ID.ToString()], IDEntry = ItemDetails[ID.ToString()];
                     ItemDetails Details = null;
                     void GetItemDetails()
@@ -220,7 +224,6 @@ namespace TEKLauncher.Windows
                         IDEntry["timeupdated"].Value = Details.LastUpdated.ToString();
                         IDEntry["timetouched"].Value = Steam.ActiveUserID.ToString();
                     }
-                    ModIndex++;
                 }
                 await Dispatcher.Invoke(async () =>
                 {

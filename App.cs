@@ -38,7 +38,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "8.1.67.0";
+        internal const string Version = "8.2.68.0";
         private App()
         {
             CurrentDomain.UnhandledException += CriticalExceptionHandler;
@@ -79,7 +79,15 @@ namespace TEKLauncher
                     catch { }
             }
             if (Settings.KeyExists("ARKPath"))
-                Initialize();
+            {
+                if (Exists(Path.GetPathRoot(Settings.ARKPath)))
+                    Initialize();
+                else
+                {
+                    Settings.RemoveKey("ARKPath");
+                    new StartupWindow().Show();
+                }
+            }
             else
                 new StartupWindow().Show();
         }

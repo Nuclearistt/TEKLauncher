@@ -22,7 +22,7 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
         static DepotManifest()
         {
             AppIDRelPathHash = AppIDRelPath.GetHashCode();
-            for (int Iterator = 0; Iterator < 6; Iterator++)
+            for (int Iterator = 0; Iterator < 5; Iterator++)
                 ExclusionHashes[Iterator] = Exclusions[Iterator].GetHashCode();
         }
         internal DepotManifest(string ManifestPath, uint DepotID)
@@ -123,13 +123,12 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
         internal readonly string ID, Path;
         internal readonly List<FileEntry> Files;
         private static readonly int AppIDRelPathHash;
-        private static readonly int[] ExclusionHashes = new int[6];
+        private static readonly int[] ExclusionHashes = new int[5];
         private static readonly string AppIDRelPath = @"ShooterGame\Binaries\Win64\steam_appid.txt";
         private static readonly string[] Exclusions = new[]
         {
             @"Engine\Config\Base.ini",
             @"Engine\Config\BaseEditorLayout.ini",
-            @"Engine\Config\BaseScalability.ini",
             @"ShooterGame\Binaries\Win64\officialservers.ini",
             @"ShooterGame\Binaries\Win64\news.ini",
             @"ShooterGame\Binaries\Win64\officialserverstatus.ini"
@@ -142,7 +141,7 @@ namespace TEKLauncher.SteamInterop.Network.Manifest
             if (HashCode == AppIDRelPathHash && File.Name == AppIDRelPath && FileExists($@"{Game.Path}\{AppIDRelPath}"))
                 return true;
             bool IsExclusion = false;
-            for (int Iterator = 0; Iterator < 6; Iterator++)
+            for (int Iterator = 0; Iterator < 5; Iterator++)
                 if (HashCode == ExclusionHashes[Iterator])
                     if (File.Name == Exclusions[Iterator])
                     {

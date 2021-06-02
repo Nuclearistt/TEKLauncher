@@ -142,7 +142,7 @@ namespace TEKLauncher.Controls
             string Name = Mod.OriginDetails.Status == 1 ? Mod.OriginDetails.Name : Mod.OriginID == 0UL && Mod.Details.Status == 1 ? Mod.Details.Name : Mod.Name;
             Notification Notification = Dispatcher.Invoke(() => AddLoading(string.Format(LocString(LocCode.InstallingMod), Name)));
             try { Mod.Install(null, null); }
-            catch (ValidatorException Exception)
+            catch (Exception Exception)
             {
                 Failed = true;
                 DeletePath(Mod.ModsPath);

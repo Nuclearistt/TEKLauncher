@@ -25,7 +25,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <IntermediateOutputPath>Intermediate\</IntermediateOutputPath>
     <OutputPath>Output\</OutputPath>
-    <PostBuildEvent>call "C:\Windows Kits\10\App Certification Kit\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a TEKLauncher.exe</PostBuildEvent>
+    <PostBuildEvent>call "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a TEKLauncher.exe</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <DebugType>PDBOnly</DebugType>

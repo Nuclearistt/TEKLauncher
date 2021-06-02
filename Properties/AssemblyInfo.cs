@@ -10,7 +10,7 @@ using static TEKLauncher.App;
 [assembly: AssemblyCompany("Nuclearist")]
 [assembly: AssemblyProduct("TEK Launcher")]
 [assembly: AssemblyDescription("Launcher for ARK: Survival Evolved")]
-[assembly: AssemblyCopyright("Copyright © 2020 Nuclearist")]
+[assembly: AssemblyCopyright("Copyright © 2020-2021 Nuclearist")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

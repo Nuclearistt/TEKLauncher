@@ -69,6 +69,7 @@ namespace TEKLauncher.Data
             InitializeSetting("UseGlobalFonts", bool.FalseString);
             InitializeSetting("ValThreadsCount", "4");
         }
+        internal static void RemoveKey(string Key) => Data.Remove(Key);
         internal static void Save()
         {
             if (!DeleteSettings)

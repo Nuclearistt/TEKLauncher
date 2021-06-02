@@ -71,16 +71,17 @@ namespace TEKLauncher.ARK
                     if (OriginDetails[Iterator].Status == 1)
                         Mods.Find(Mod => Mod.OriginID == OriginIDs[Iterator]).OriginDetails = OriginDetails[Iterator];
             foreach (Mod Mod in Mods)
-            {
-                long LocalUpdateTime = File.GetLastWriteTimeUtc(Mod.ModFilePath).Ticks;
-                if (Mod.OriginID == 0UL)
+                if (Mod.IsInstalled)
                 {
-                    if (Mod.Details.LastUpdated > LocalUpdateTime)
+                    long LocalUpdateTime = File.GetLastWriteTimeUtc(Mod.ModFilePath).Ticks;
+                    if (Mod.OriginID == 0UL)
+                    {
+                        if (Mod.Details.LastUpdated > LocalUpdateTime)
+                            Mod.UpdateAvailable = true;
+                    }
+                    else if (Mod.OriginDetails.LastUpdated > LocalUpdateTime)
                         Mod.UpdateAvailable = true;
                 }
-                else if (Mod.OriginDetails.LastUpdated > LocalUpdateTime)
-                    Mod.UpdateAvailable = true;
-            }
             Current.Dispatcher.Invoke(() =>
             {
                 if (!(Details is null && OriginDetails is null) && Instance.CurrentPage is ModsPage Page)

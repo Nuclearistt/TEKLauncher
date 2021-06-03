@@ -11,6 +11,7 @@
         Valguero,
         Genesis,
         CrystalIsles,
+        Genesis2,
         Mod
     }
 }

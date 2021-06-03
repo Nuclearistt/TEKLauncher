@@ -7,6 +7,7 @@ using static System.IO.Directory;
 using static System.Security.Cryptography.SHA1;
 using static System.Windows.Application;
 using static TEKLauncher.App;
+using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.ARK
@@ -19,8 +20,9 @@ namespace TEKLauncher.ARK
             SpacelessName = Name.Replace(" ", string.Empty);
             this.DepotID = DepotID;
             Path = $@"{Game.Path}\ShooterGame\Content\{ContentDirectory}\{SpacelessName}";
+            string UMapFileName = SpacelessName == "Genesis2" ? "Gen2" : SpacelessName;
             SFCPath = $@"{Game.Path}\ShooterGame\SeekFreeContent\{ContentDirectory}\{SpacelessName}";
-            UMapPath = IsSuffixed ? $@"{Path}\{SpacelessName}_P.umap" : $@"{Path}\{SpacelessName}.umap";
+            UMapPath = IsSuffixed ? $@"{Path}\{SpacelessName}_P.umap" : $@"{Path}\{UMapFileName}.umap";
             Status = IsInstalled ? Status.CheckingForUpdates : Status.NotInstalled;
             this.Name = Name;
             Code = (MapCode)Parse(typeof(MapCode), SpacelessName);
@@ -46,10 +48,16 @@ namespace TEKLauncher.ARK
                 Current?.Dispatcher?.Invoke(SetItemStatus);
             }
         }
-        internal void SetStatus(Status Status)
+        internal void SetStatus(Status Status, bool Recursed = false)
         {
             this.Status = Status;
             Current.Dispatcher.Invoke(SetItemStatus);
+            if (Recursed)
+                return;
+            if (Code == MapCode.Genesis)
+                GetDLC(MapCode.Genesis2).SetStatus(Status, true);
+            else if (Code == MapCode.Genesis2)
+                GetDLC(MapCode.Genesis).SetStatus(Status, true);
         }
         internal void Uninstall()
         {

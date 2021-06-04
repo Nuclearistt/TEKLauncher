@@ -705,17 +705,7 @@ namespace TEKLauncher.SteamInterop.Network
                     }
                     if (!Directory.Exists(DownloadsDirectory))
                         throw new ValidatorException(LocString(LocCode.NoDownloadsDir));
-                    bool DLCInstalled = true;
-                    DLC DLCItem = DLCs.Where(DLC => DLC.DepotID == DepotID).FirstOrDefault();
-                    if (!(DLCItem is null))
-                    {
-                        DLCInstalled = DLCItem.IsInstalled;
-                        if (DLCItem.Code == MapCode.Genesis)
-                            DLCInstalled |= GetDLC(MapCode.Genesis2).IsInstalled;
-                        else if (DLCItem.Code == MapCode.Genesis2)
-                            DLCInstalled |= GetDLC(MapCode.Genesis).IsInstalled;
-                    }
-                    if (!(DepotID == 346111U ? Directory.Exists($@"{Game.Path}\ShooterGame") : DLCInstalled))
+                    if (!(DepotID == 346111U ? Directory.Exists($@"{Game.Path}\ShooterGame") : DLCs.Where(DLC => DLC.DepotID == DepotID).FirstOrDefault()?.IsInstalled ?? true))
                     {
                         Changes = CDNClient.GetManifests(LatestManifestID, out _).Files;
                         FilesMissing = Changes.Count;

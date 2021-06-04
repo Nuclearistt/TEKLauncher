@@ -60,7 +60,7 @@ namespace TEKLauncher.Data
             InitializeSetting("CloseOnGameRun", bool.FalseString);
             InitializeSetting("CommunismMode", bool.FalseString);
             InitializeSetting("CustomLaunchParameters", string.Empty);
-            InitializeSetting("DwThreadsCount", "6");
+            InitializeSetting("DwThreadsCount", "20");
             InitializeSetting("GameLang", "4");
             InitializeSetting("Lang", string.Empty);
             InitializeSetting("LaunchParameters", string.Empty);

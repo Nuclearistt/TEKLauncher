@@ -38,7 +38,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "8.2.68.0";
+        internal const string Version = "8.2.69.0";
         private App()
         {
             CurrentDomain.UnhandledException += CriticalExceptionHandler;
@@ -146,6 +146,8 @@ namespace TEKLauncher
             if ((string)LastLaunchedVersion != Version)
             {
                 LocalMachine.CreateSubKey(@"SOFTWARE\TEKLauncher").SetValue("LastLaunchedVersion", Version);
+                if (Settings.DwThreadsCount == 6)
+                    Settings.DwThreadsCount = 20;
                 if (!(LastLaunchedVersion is null))
                     new ChangelogWindow().Show();
             }

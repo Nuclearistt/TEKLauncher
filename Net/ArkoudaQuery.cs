@@ -137,11 +137,7 @@ namespace TEKLauncher.Net
                 {
                     byte[] Buffer = new byte[8];
                     Reader.Read(Buffer, 0, 8);
-                    long LastUpdatedTimestamp = UtcNow.Ticks - ToInt64(Buffer, 0);
-                    if (LastUpdatedTimestamp < 0L)
-                        LastUpdatedTimestamp += 1300000000L;
-                    LastUpdatedTimestamp /= 10000000L;
-                    LastUpdated = string.Format(LocString(LocCode.LastUpdated), ConvertTime(LastUpdatedTimestamp));
+                    LastUpdated = string.Format(LocString(LocCode.LastUpdated), ConvertTime((UtcNow.Ticks - ToInt64(Buffer, 0)) / 10000000L));
                     int SectionIndex;
                     while ((SectionIndex = Reader.ReadByte()) != -1)
                     {

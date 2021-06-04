@@ -7,7 +7,6 @@ using static System.IO.Directory;
 using static System.Security.Cryptography.SHA1;
 using static System.Windows.Application;
 using static TEKLauncher.App;
-using static TEKLauncher.ARK.DLCManager;
 using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.ARK
@@ -17,12 +16,11 @@ namespace TEKLauncher.ARK
         internal DLC(string Name, uint DepotID, bool IsMod, bool IsSuffixed)
         {
             ContentDirectory = IsMod ? "Mods" : "Maps";
-            SpacelessName = Name.Replace(" ", string.Empty);
+            SpacelessName = DepotID == 473857U ? "Genesis" : Name.Replace(" ", string.Empty);
             this.DepotID = DepotID;
             Path = $@"{Game.Path}\ShooterGame\Content\{ContentDirectory}\{SpacelessName}";
-            string UMapFileName = SpacelessName == "Genesis2" ? "Gen2" : SpacelessName;
             SFCPath = $@"{Game.Path}\ShooterGame\SeekFreeContent\{ContentDirectory}\{SpacelessName}";
-            UMapPath = IsSuffixed ? $@"{Path}\{SpacelessName}_P.umap" : $@"{Path}\{UMapFileName}.umap";
+            UMapPath = IsSuffixed ? $@"{Path}\{SpacelessName}_P.umap" : $@"{Path}\{SpacelessName}.umap";
             Status = IsInstalled ? Status.CheckingForUpdates : Status.NotInstalled;
             this.Name = Name;
             Code = (MapCode)Parse(typeof(MapCode), SpacelessName);
@@ -32,7 +30,7 @@ namespace TEKLauncher.ARK
         internal readonly uint DepotID;
         internal readonly string ContentDirectory, Name, SpacelessName;
         internal readonly MapCode Code;
-        internal bool IsInstalled => FileExists(UMapPath);
+        internal bool IsInstalled => Code == MapCode.Genesis ? FileExists(UMapPath) || FileExists($@"{Game.Path}\ShooterGame\Content\Maps\Genesis2\Gen2.umap") : FileExists(UMapPath);
         private void SetItemStatus()
         {
             if (Instance?.CurrentPage is DLCsPage Page)
@@ -48,16 +46,31 @@ namespace TEKLauncher.ARK
                 Current?.Dispatcher?.Invoke(SetItemStatus);
             }
         }
-        internal void SetStatus(Status Status, bool Recursed = false)
+        internal void CheckGenesisForUpdates(byte[] Gen1Checksum, byte[] Gen2Checksum)
+        {
+            int StatusValue = 0;
+            if (FileExists(UMapPath))
+            {
+                using (SHA1 SHA = Create())
+                using (FileStream ChecksumStream = File.OpenRead(UMapPath))
+                    StatusValue += SHA.ComputeHash(ChecksumStream).SequenceEqual(Gen1Checksum) ? 2 : 1;
+            }
+            if (FileExists($@"{Game.Path}\ShooterGame\Content\Maps\Genesis2\Gen2.umap"))
+            {
+                if (Gen2Checksum is null)
+                    StatusValue += 2;
+                else
+                    using (SHA1 SHA = Create())
+                    using (FileStream ChecksumStream = File.OpenRead($@"{Game.Path}\ShooterGame\Content\Maps\Genesis2\Gen2.umap"))
+                        StatusValue += SHA.ComputeHash(ChecksumStream).SequenceEqual(Gen2Checksum) ? 2 : 1;
+            }
+            Status = StatusValue == 0 ? Status.NotInstalled : StatusValue == 4 ? Status.Installed : Status.UpdateAvailable;
+            Current?.Dispatcher?.Invoke(SetItemStatus);
+        }
+        internal void SetStatus(Status Status)
         {
             this.Status = Status;
             Current.Dispatcher.Invoke(SetItemStatus);
-            if (Recursed)
-                return;
-            if (Code == MapCode.Genesis)
-                GetDLC(MapCode.Genesis2).SetStatus(Status, true);
-            else if (Code == MapCode.Genesis2)
-                GetDLC(MapCode.Genesis).SetStatus(Status, true);
         }
         internal void Uninstall()
         {
@@ -65,6 +78,13 @@ namespace TEKLauncher.ARK
                 DeleteDirectory(Path);
             if (Exists(SFCPath))
                 DeleteDirectory(SFCPath);
+            if (Code == MapCode.Genesis)
+            {
+                if (Exists($@"{Game.Path}\ShooterGame\Content\Maps\Genesis2"))
+                    DeleteDirectory($@"{Game.Path}\ShooterGame\Content\Maps\Genesis2");
+                if (Exists($@"{Game.Path}\ShooterGame\SeekFreeContent\Maps\Genesis2"))
+                    DeleteDirectory($@"{Game.Path}\ShooterGame\SeekFreeContent\Maps\Genesis2");
+            }
             string DownloadCache = $@"{DownloadsDirectory}\{DepotID}";
             if (Exists(DownloadCache))
                 DeleteDirectory(DownloadCache);

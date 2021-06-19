@@ -1,11 +1,13 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using TEKLauncher.ARK;
 using TEKLauncher.Data;
 using TEKLauncher.Windows;
 using static System.IO.Directory;
+using static System.Net.ServicePointManager;
 using static System.Windows.Application;
 using static TEKLauncher.App;
 using static TEKLauncher.CommunismMode;
@@ -24,7 +26,9 @@ namespace TEKLauncher.Pages
             if (LocCulture == "ar")
                 VTCGrid.FlowDirection = DTCGrid.FlowDirection = PSGrid.FlowDirection = FlowDirection.RightToLeft;
             GamePath.SetPath(Game.Path);
+            DisableUpdChecks.IsChecked = Settings.DisableUpdChecks;
             CloseOnGameRun.IsChecked = Settings.CloseOnGameRun;
+            SSLFix.IsChecked = Settings.SSLFix;
             DowngradeMode.IsChecked = Settings.DowngradeMode;
             Communism.IsChecked = Settings.CommunismMode;
         }
@@ -77,6 +81,11 @@ namespace TEKLauncher.Pages
             if (IsLoaded)
                 Set(Settings.CommunismMode = (bool)Communism.IsChecked);
         }
+        private void SetDisableUpdChecks(object Sender, RoutedEventArgs Args)
+        {
+            if (IsLoaded)
+                Settings.DisableUpdChecks = (bool)DisableUpdChecks.IsChecked;
+        }
         private void SetDowngradeMode(object Sender, RoutedEventArgs Args)
         {
             if (IsLoaded)
@@ -86,6 +95,11 @@ namespace TEKLauncher.Pages
                 if (!(SPage is null) && (string)SPage.UpdateButton.Content != LocString(LocCode.Pause))
                     SPage.UpdateButton.Content = LocString(Settings.DowngradeMode ? LocCode.Downgrade : LocCode.Update);
             }
+        }
+        private void SetSSLFix(object Sender, RoutedEventArgs Args)
+        {
+            if (IsLoaded)
+                SecurityProtocol = (Settings.SSLFix = (bool)SSLFix.IsChecked) ? SecurityProtocolType.Tls12 : SecurityProtocolType.SystemDefault;
         }
     }
 }

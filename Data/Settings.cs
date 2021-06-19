@@ -13,11 +13,13 @@ namespace TEKLauncher.Data
     {
         internal static bool DeleteSettings, DowngradeMode;
         private static readonly string SettingsPath = $@"{AppDataFolder}\Settings.bin";
-        private static readonly string[] Keys = new[] { "ARKPath", "CloseOnGameRun", "CommunismMode", "CustomLaunchParameters", "DwThreadsCount", "GameLang", "Lang", "LaunchParameters", "RunAsAdmin", "UseBattlEye", "UseGlobalFonts", "ValThreadsCount" };
+        private static readonly string[] Keys = new[] { "ARKPath", "CloseOnGameRun", "CommunismMode", "CustomLaunchParameters", "DisableUpdChecks", "DwThreadsCount", "GameLang", "Lang", "LaunchParameters", "RunAsAdmin", "SSLFix", "UseBattlEye", "UseGlobalFonts", "ValThreadsCount" };
         private static readonly Dictionary<string, string> Data = new Dictionary<string, string>();
         internal static bool CloseOnGameRun { get => bool.Parse(Data["CloseOnGameRun"]); set => Data["CloseOnGameRun"] = value.ToString(); }
         internal static bool CommunismMode { get => bool.Parse(Data["CommunismMode"]); set => Data["CommunismMode"] = value.ToString(); }
+        internal static bool DisableUpdChecks { get => bool.Parse(Data["DisableUpdChecks"]); set => Data["DisableUpdChecks"] = value.ToString(); }
         internal static bool RunAsAdmin { get => bool.Parse(Data["RunAsAdmin"]); set => Data["RunAsAdmin"] = value.ToString(); }
+        internal static bool SSLFix { get => bool.Parse(Data["SSLFix"]); set => Data["SSLFix"] = value.ToString(); }
         internal static bool UseBattlEye { get => bool.Parse(Data["UseBattlEye"]); set => Data["UseBattlEye"] = value.ToString(); }
         internal static bool UseGlobalFonts { get => bool.Parse(Data["UseGlobalFonts"]); set => Data["UseGlobalFonts"] = value.ToString(); }
         internal static int DwThreadsCount { get => int.Parse(Data["DwThreadsCount"]);set => Data["DwThreadsCount"] = value.ToString(); }
@@ -60,11 +62,13 @@ namespace TEKLauncher.Data
             InitializeSetting("CloseOnGameRun", bool.FalseString);
             InitializeSetting("CommunismMode", bool.FalseString);
             InitializeSetting("CustomLaunchParameters", string.Empty);
+            InitializeSetting("DisableUpdChecks", bool.FalseString);
             InitializeSetting("DwThreadsCount", "20");
             InitializeSetting("GameLang", "4");
             InitializeSetting("Lang", string.Empty);
             InitializeSetting("LaunchParameters", string.Empty);
             InitializeSetting("RunAsAdmin", bool.TrueString);
+            InitializeSetting("SSLFix", bool.FalseString);
             InitializeSetting("UseBattlEye", bool.TrueString);
             InitializeSetting("UseGlobalFonts", bool.FalseString);
             InitializeSetting("ValThreadsCount", "4");

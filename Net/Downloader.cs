@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using TEKLauncher.Data;
+using static System.Net.ServicePointManager;
 using static System.Net.WebRequest;
 using static System.Text.Encoding;
 using static System.Threading.Tasks.Task;
@@ -21,24 +22,33 @@ namespace TEKLauncher.Net
         {
             HttpWebRequest Request = CreateHttp(URL);
             Request.ReadWriteTimeout = Request.Timeout = 14000;
-            using (HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
-            using (Stream ResponseStream = Response.GetResponseStream())
-            using (FileStream Writer = File.Create(FilePath))
+            try
             {
-                long ContentLength = Response.ContentLength;
-                if (!(Progress is null))
-                    Progress.Total = ContentLength;
-                int BytesRead = ResponseStream.Read(Buffer, 0, 8192);
-                if (!(DownloadBegan is null))
-                    Current.Dispatcher.Invoke(DownloadBegan);
-                while (BytesRead != 0)
+                using (HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
+                using (Stream ResponseStream = Response.GetResponseStream())
+                using (FileStream Writer = File.Create(FilePath))
                 {
-                    Writer.Write(Buffer, 0, BytesRead);
-                    Progress?.Increase(BytesRead);
-                    BytesRead = ResponseStream.Read(Buffer, 0, 8192);
+                    long ContentLength = Response.ContentLength;
+                    if (!(Progress is null))
+                        Progress.Total = ContentLength;
+                    int BytesRead = ResponseStream.Read(Buffer, 0, 8192);
+                    if (!(DownloadBegan is null))
+                        Current.Dispatcher.Invoke(DownloadBegan);
+                    while (BytesRead != 0)
+                    {
+                        Writer.Write(Buffer, 0, BytesRead);
+                        Progress?.Increase(BytesRead);
+                        BytesRead = ResponseStream.Read(Buffer, 0, 8192);
+                    }
+                    if (ContentLength > 0L && Writer.Length != ContentLength)
+                        throw new WebException("Incomplete download");
                 }
-                if (ContentLength > 0L && Writer.Length != ContentLength)
-                    throw new WebException("Incomplete download");
+            }
+            catch (WebException Exception) when (Exception.Message.Contains("SSL/TLS"))
+            {
+                Settings.SSLFix = true;
+                SecurityProtocol = SecurityProtocolType.Tls12;
+                throw Exception;
             }
         }
         private bool TryDownloadFile(object Args)
@@ -61,35 +71,44 @@ namespace TEKLauncher.Net
         {
             HttpWebRequest Request = CreateHttp(URL);
             Request.ReadWriteTimeout = Request.Timeout = 14000;
-            using (HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
-            using (Stream ResponseStream = Response.GetResponseStream())
+            try
             {
-                int ContentLength = (int)Response.ContentLength;
-                if (ContentLength == -1)
-                    using (MemoryStream Writer = new MemoryStream())
-                    {
-                        byte[] Buffer = new byte[8192];
-                        int BytesRead;
-                        while ((BytesRead = ResponseStream.Read(Buffer, 0, 8192)) != 0)
-                            Writer.Write(Buffer, 0, BytesRead);
-                        return Writer.ToArray();
-                    }
-                else
+                using (HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
+                using (Stream ResponseStream = Response.GetResponseStream())
                 {
-                    byte[] Data = new byte[ContentLength];
-                    int Offset = 0;
-                    while (Offset < ContentLength)
+                    int ContentLength = (int)Response.ContentLength;
+                    if (ContentLength == -1)
+                        using (MemoryStream Writer = new MemoryStream())
+                        {
+                            byte[] Buffer = new byte[8192];
+                            int BytesRead;
+                            while ((BytesRead = ResponseStream.Read(Buffer, 0, 8192)) != 0)
+                                Writer.Write(Buffer, 0, BytesRead);
+                            return Writer.ToArray();
+                        }
+                    else
                     {
-                        int BytesToRead = ContentLength - Offset;
-                        if (BytesToRead > 8192)
-                            BytesToRead = 8192;
-                        int BytesRead = ResponseStream.Read(Data, Offset, BytesToRead);
-                        if (BytesRead == 0)
-                            throw new WebException("Incomplete download");
-                        Offset += BytesRead;
+                        byte[] Data = new byte[ContentLength];
+                        int Offset = 0;
+                        while (Offset < ContentLength)
+                        {
+                            int BytesToRead = ContentLength - Offset;
+                            if (BytesToRead > 8192)
+                                BytesToRead = 8192;
+                            int BytesRead = ResponseStream.Read(Data, Offset, BytesToRead);
+                            if (BytesRead == 0)
+                                throw new WebException("Incomplete download");
+                            Offset += BytesRead;
+                        }
+                        return Data;
                     }
-                    return Data;
                 }
+            }
+            catch (WebException Exception) when (Exception.Message.Contains("SSL/TLS"))
+            {
+                Settings.SSLFix = true;
+                SecurityProtocol = SecurityProtocolType.Tls12;
+                throw Exception;
             }
         }
         private static string TryDownloadString(object URLs)

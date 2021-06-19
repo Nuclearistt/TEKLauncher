@@ -81,6 +81,8 @@ namespace TEKLauncher.ARK
                 Show("Warning", LocString(LocCode.CantJoinNoInternet));
             else if (IsSpacewar && !IsSpacewarInstalled)
                 Show("Warning", LocString(LocCode.CantLaunchNoSpacewar));
+            else if (!(Server is null || IsSpacewar))
+                Show("Warning", LocString(LocCode.CantJoinNotSpacewar));
             else
             {
                 string ParametersLine = $"{Settings.LaunchParameters} {Server?.ConnectionLine} {CustomLaunchParameters} {CultureParameter}".Trim().Replace("   ", " ").Replace("  ", " ");

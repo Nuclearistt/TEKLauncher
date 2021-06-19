@@ -25,7 +25,22 @@ namespace TEKLauncher.Servers
         private readonly string CustomName;
         internal readonly MapCode Code;
         internal string ConnectionLine => $"+connect {Endpoint.Address}:{Endpoint.Port}";
-        internal string Name => CustomName ?? (Code == MapCode.TheIsland ? "The Island" : GetDLC(Code).Name);
+        internal string Name
+        {
+            get
+            {
+                if (CustomName is null)
+                    switch (Code)
+                    {
+                        case MapCode.TheIsland: return "The Island";
+                        case MapCode.Genesis: return "Genesis";
+                        case MapCode.Genesis2: return "Genesis 2";
+                        default: return GetDLC(Code).Name;
+                    }
+                else
+                    return CustomName;
+            }
+        }
         private int GetPlayersCount()
         {
             using (UdpClient Client = new UdpClient())

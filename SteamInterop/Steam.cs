@@ -16,10 +16,11 @@ namespace TEKLauncher.SteamInterop
     internal static class Steam
     {
         private static int ARKEntryEndLine = 0, ParametersStringLine = 0;
-        private static string LocalConfigFile, SpacewarPath;
+        private static string LocalConfigFile;
         internal static bool IsARKPurchased = false;
         internal static int ActiveUserID;
         internal static string Path;
+        private static readonly object Lock = new object();
         internal static bool IsRunning
         {
             get
@@ -59,6 +60,35 @@ namespace TEKLauncher.SteamInterop
                 WriteAllLines(LocalConfigFile, Lines.ToArray());
             }
         }
+        internal static string SpacewarPath
+        {
+            get
+            {
+                string DefaultSpacewarPath = $@"{Path}\steamapps\common\Spacewar", LibrariesFile = $@"{Path}\steamapps\libraryfolders.vdf", RegistrySpacewarPath = (string)LocalMachine?.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 480")?.GetValue("InstallLocation");
+                List<string> SpacewarPaths = new List<string>();
+                lock (Lock)
+                {
+                    if (Directory.Exists(DefaultSpacewarPath))
+                        SpacewarPaths.Add(DefaultSpacewarPath);
+                    if (FileExists(LibrariesFile))
+                        try
+                        {
+                            VDFStruct Struct;
+                            using (StreamReader Reader = new StreamReader(LibrariesFile))
+                                Struct = new VDFStruct(Reader);
+                            foreach (VDFStruct Child in Struct.Children)
+                                if (int.TryParse(Child.Key, out _) && !(Child.Value is null))
+                                {
+                                    string Path = $@"{Child.Value.Replace(@"\\", @"\")}\steamapps\common\Spacewar";
+                                    if (Directory.Exists(Path))
+                                        SpacewarPaths.Add(Path);
+                                }
+                        }
+                        catch { }
+                }
+                return SpacewarPaths.Count != 0 && SpacewarPaths.Find(Path => Path == RegistrySpacewarPath) is null ? SpacewarPaths[0] : RegistrySpacewarPath;
+            }
+        }
         internal static string WorkshopPath => SpacewarPath is null ? null : $@"{SpacewarPath.Substring(0, SpacewarPath.Length - 15)}workshop\content\480";
         internal static void Initialize()
         {
@@ -88,26 +118,6 @@ namespace TEKLauncher.SteamInterop
                         }
                     }
                 }
-            string DefaultSpacewarPath = $@"{Path}\steamapps\common\Spacewar", LibrariesFile = $@"{Path}\steamapps\libraryfolders.vdf", RegistrySpacewarPath = (string)LocalMachine?.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 480")?.GetValue("InstallLocation");
-            List<string> SpacewarPaths = new List<string>();
-            if (Directory.Exists(DefaultSpacewarPath))
-                SpacewarPaths.Add(DefaultSpacewarPath);
-            if (FileExists(LibrariesFile))
-                try
-                {
-                    VDFStruct Struct;
-                    using (StreamReader Reader = new StreamReader(LibrariesFile))
-                        Struct = new VDFStruct(Reader);
-                    foreach (VDFStruct Child in Struct.Children)
-                        if (int.TryParse(Child.Key, out _) && !(Child.Value is null))
-                        {
-                            string Path = $@"{Child.Value.Replace(@"\\", @"\")}\steamapps\common\Spacewar";
-                            if (Directory.Exists(Path))
-                                SpacewarPaths.Add(Path);
-                        }
-                }
-                catch { }
-            SpacewarPath = SpacewarPaths.Count != 0 && SpacewarPaths.Find(Path => Path == RegistrySpacewarPath) is null ? SpacewarPaths[0] : RegistrySpacewarPath;
         }
     }
 }

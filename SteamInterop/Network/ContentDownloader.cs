@@ -139,6 +139,8 @@ namespace TEKLauncher.SteamInterop.Network
                 if (!(Relocations is null))
                 {
                     Log("Applying relocations...");
+                    Progress.Total = RelocSizes.Values.Sum() << 1;
+                    Current.Dispatcher.Invoke(ProgressBar.SetPercentageMode);
                     SetStatus(LocString(LocCode.ApplyingRelocs), YellowBrush);
                     string CachePath = $@"{BaseDownloadPath}\Relocs.trf";
                     using (FileStream Cache = Open(CachePath, FileMode.Create, FileAccess.ReadWrite))
@@ -156,6 +158,7 @@ namespace TEKLauncher.SteamInterop.Network
                                     byte[] Buffer = new byte[Reloc.Size];
                                     File.Read(Buffer, 0, Reloc.Size);
                                     Cache.Write(Buffer, 0, Reloc.Size);
+                                    Progress.IncreaseNoETA(Reloc.Size);
                                 }
                                 Cache.Position = 0L;
                                 File.SetLength(RelocSizes[Name]);
@@ -165,6 +168,7 @@ namespace TEKLauncher.SteamInterop.Network
                                     Cache.Read(Buffer, 0, Reloc.Size);
                                     File.Position = Reloc.NewOffset;
                                     File.Write(Buffer, 0, Reloc.Size);
+                                    Progress.IncreaseNoETA(Reloc.Size);
                                 }
                                 Cache.Position = 0L;
                                 Cache.SetLength(0L);
@@ -690,7 +694,9 @@ namespace TEKLauncher.SteamInterop.Network
                     DepotManifest OldManifest = null;
                     bool Finish = false;
                     List<FileEntry> Changes = null;
-                    if (DowngradeMode)
+                    if (!Directory.Exists(DownloadsDirectory))
+                        throw new ValidatorException(LocString(LocCode.NoDownloadsDir));
+                    else if (DowngradeMode)
                     {
                         Log("Downgrade mode is enabled");
                         DepotManifest LatestManifest = CDNClient.GetManifests(LatestManifestID, out OldManifest);
@@ -703,9 +709,7 @@ namespace TEKLauncher.SteamInterop.Network
                         else
                             Changes = ComputeChanges(LatestManifest, OldManifest);
                     }
-                    if (!Directory.Exists(DownloadsDirectory))
-                        throw new ValidatorException(LocString(LocCode.NoDownloadsDir));
-                    if (!(DepotID == 346111U ? Directory.Exists($@"{Game.Path}\ShooterGame") : DLCs.Where(DLC => DLC.DepotID == DepotID).FirstOrDefault()?.IsInstalled ?? true))
+                    else if (!(DepotID == 346111U ? Directory.Exists($@"{Game.Path}\ShooterGame") : DLCs.Where(DLC => DLC.DepotID == DepotID).FirstOrDefault()?.IsInstalled ?? true))
                     {
                         Changes = CDNClient.GetManifests(LatestManifestID, out _).Files;
                         FilesMissing = Changes.Count;

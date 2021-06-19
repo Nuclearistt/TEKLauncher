@@ -38,15 +38,13 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "8.2.69.0";
+        internal const string Version = "8.2.70.0";
         private App()
         {
             CurrentDomain.UnhandledException += CriticalExceptionHandler;
             string CultureCode = (OSCulture = CurrentUICulture).Name;
             CurrentCulture = CurrentUICulture = new CultureInfo("en-US");
             DefaultConnectionLimit = 20;
-            if (OSVersion.Version.Minor == 1)
-                SecurityProtocol = SecurityProtocolType.Tls12;
             using (NamedPipeClientStream PipeClient = new NamedPipeClientStream(".", "TEKLauncher", PipeDirection.Out))
                 try { PipeClient.Connect(250); PipeClient.Close(); Current.Shutdown(); }
                 catch (TimeoutException) { }
@@ -65,6 +63,8 @@ namespace TEKLauncher
             }
             InitializeComponent();
             Settings.Initialize();
+            if (Settings.SSLFix)
+                SecurityProtocol = SecurityProtocolType.Tls12;
             LoadLocalization(CultureCode);
             YellowBrush = (SolidColorBrush)FindResource("YellowBrush");
             StyleProperty.OverrideMetadata(typeof(Page), new FrameworkPropertyMetadata { DefaultValue = FindResource(typeof(Page)) });

@@ -41,11 +41,12 @@ namespace TEKLauncher.Controls
             Accept();
         }
         private void DismissHandler(object Sender, RoutedEventArgs Args) => Hide();
-        internal void FinishLoading(string NewMessage)
+        internal void FinishLoading(string NewMessage, bool ShowButtons)
         {
             ContentGrid.Children.RemoveAt(1);
             MessagePresenter.Text = NewMessage;
-            ButtonsGrid.Visibility = Visibility.Visible;
+            if (ShowButtons)
+                ButtonsGrid.Visibility = Visibility.Visible;
         }
         internal async void Hide()
         {

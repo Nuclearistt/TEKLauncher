@@ -68,6 +68,13 @@ namespace TEKLauncher.Windows
         }
         private async void CheckForGameAndDLCsUpdates()
         {
+            string Executable = ExecutablePath;
+            if (Settings.DisableUpdChecks)
+            {
+                foreach (DLC DLC in DLCs)
+                    DLC.SetStatus(DLC.IsInstalled ? Status.Installed : Status.NotInstalled);
+                SetCurrentVersion(FileExists(Executable) ? Game.Version ?? LocString(LocCode.NA) : LocString(LocCode.None), (SolidColorBrush)FindResource("BrightestBrightBrush"));
+            }
             bool QuerySucceeded = false;
             ArkoudaQuery InitialQuery = new ArkoudaQuery();
             if (IsConnectionAvailable())
@@ -78,7 +85,8 @@ namespace TEKLauncher.Windows
                 }
             else
                 Message.Show("Warning", LocString(LocCode.NoInternet));
-            string Executable = ExecutablePath;
+            if (Settings.DisableUpdChecks)
+                return;
             if (QuerySucceeded && InitialQuery.Checksums.ContainsKey(MapCode.TheIsland))
             {
                 if (FileExists(Executable))
@@ -98,17 +106,21 @@ namespace TEKLauncher.Windows
                 }
                 else
                     SetCurrentVersion(LocString(LocCode.None), DarkRed);
-                Notification DLCNotification = AddLoading($"{LocString(LocCode.CheckingForDLCUpds)} ", LocString(LocCode.Update), RunDLCUpdater);
-                await CheckForUpdatesAsync(InitialQuery.Checksums);
-                bool DLCUpdatesAvailable = false;
-                foreach (DLC DLC in DLCs)
-                    DLCUpdatesAvailable |= DLC.Status == Status.UpdateAvailable;
-                if (DLCUpdatesAvailable)
-                    DLCNotification.FinishLoading(LocString(LocCode.DLCUpdsAvailable));
-                else
+                if (DLCs.Any(DLC => DLC.IsInstalled))
                 {
-                    await Delay(1000);
-                    DLCNotification.Hide();
+                    Notification DLCNotification = AddLoading($"{LocString(LocCode.CheckingForDLCUpds)} ", LocString(LocCode.Update), RunDLCUpdater);
+                    await CheckForUpdatesAsync(InitialQuery.Checksums);
+                    bool DLCUpdatesAvailable = false;
+                    foreach (DLC DLC in DLCs)
+                        DLCUpdatesAvailable |= DLC.Status == Status.UpdateAvailable;
+                    if (DLCUpdatesAvailable)
+                        DLCNotification.FinishLoading(LocString(LocCode.DLCUpdsAvailable), true);
+                    else
+                    {
+                        DLCNotification.FinishLoading(LocString(LocCode.DLCUpToDate), false);
+                        await Delay(1500);
+                        DLCNotification.Hide();
+                    }
                 }
             }
             else

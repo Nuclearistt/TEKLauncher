@@ -109,7 +109,8 @@ namespace TEKLauncher.Servers
                     new Server(KillBillsIP, Extinction, 27040),
                     new Server(KillBillsIP, Valguero, 27145),
                     new Server(KillBillsIP, Genesis, 27146),
-                    new Server(KillBillsIP, CrystalIsles, 27147)
+                    new Server(KillBillsIP, CrystalIsles, 27147),
+                    new Server(KillBillsIP, Genesis2, 27148)
                 }
             },
             new Cluster
@@ -139,7 +140,8 @@ namespace TEKLauncher.Servers
                     new Server(KillBillsIP, Extinction, 27082),
                     new Server(KillBillsIP, Valguero, 27086),
                     new Server(KillBillsIP, Genesis, 27087),
-                    new Server(KillBillsIP, CrystalIsles, 27088)
+                    new Server(KillBillsIP, CrystalIsles, 27088),
+                    new Server(KillBillsIP, Genesis2, 27089)
                 }
             },
             new Cluster

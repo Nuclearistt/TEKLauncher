@@ -11,9 +11,9 @@ namespace TEKLauncher.Servers
     {
         static ClustersManager()
         {
-            for (int Iterator = 3; Iterator < Clusters.Length; Iterator++)
-                if (Iterator != 5)
-                    Clusters[Iterator].Refresh();
+            Clusters[0].Refresh();
+            Clusters[2].Refresh();
+            Clusters[3].Refresh();
         }
         private static readonly string KillBillsIPS = "3282446663";
         private static readonly IPAddress KillBillsIP = new IPAddress(long.Parse(KillBillsIPS));
@@ -22,10 +22,10 @@ namespace TEKLauncher.Servers
             new Cluster
             {
                 IsPvE = true,
-                PlayersLimit = 50,
+                PlayersLimit = 70,
                 Discord = DiscordArkouda,
-                Hoster = "Perseus",
-                Name = "Arkouda",
+                Hoster = "Perseus & XOCO",
+                Name = "Arkouda (Project-X)",
                 Info = new Dictionary<string, string>
                 {
                     [string.Empty] = string.Join("\n",
@@ -36,32 +36,25 @@ namespace TEKLauncher.Servers
                         string.Format(LocString(LocCode.Breeding), 8),
                         string.Format(LocString(LocCode.Stacks), 12))
                 },
-                Mods = new Dictionary<string, ModRecord[]>(),
-                Servers = new Server[0]
-            },
-            new Cluster
-            {
-                IsPvE = false,
-                PlayersLimit = 50,
-                Discord = DiscordArkouda,
-                Hoster = "Perseus",
-                Name = "Arkouda",
-                Info = new Dictionary<string, string>
+                Mods = new Dictionary<string, ModRecord[]>()
                 {
-                    ["All servers"] = string.Join("\n",
-                        string.Format(LocString(LocCode.MaxDinoLvl), 300),
-                        string.Format(LocString(LocCode.Experience), 10),
-                        string.Format(LocString(LocCode.Breeding), 37),
-                        string.Format(LocString(LocCode.Stacks), 50)),
-                    ["Beginner PvP"] = string.Join("\n",
-                        string.Format(LocString(LocCode.Taming), 20),
-                        string.Format(LocString(LocCode.Harvesting), 20)),
-                    ["Advanced PvP"] = string.Join("\n",
-                        string.Format(LocString(LocCode.Taming), 10),
-                        string.Format(LocString(LocCode.Harvesting), 10))
+                    [string.Empty] = new ModRecord[]
+                    {
+                        new ModRecord(2618264931UL, "Caballus", "9.55GB"),
+                        new ModRecord(2613201271UL, "ARK Omega", "481.00MB"),
+                        new ModRecord(2051206652UL, "Super Structures", "130.91MB"),
+                        new ModRecord(2224171622UL, "Dino Storage v2", "40.93MB"),
+                        new ModRecord(2317699592UL, "Upgrade Station", "234.39MB"),
+                        new ModRecord(2030645484UL, "Awesome SpyGlass!", "3.33MB"),
+                        new ModRecord(2464778317UL, "Awesome Teleporters!", "23.49MB"),
+                        new ModRecord(2137263324UL, "Dino Tracker", "3.96MB"),
+                        new ModRecord(2331916402UL, "Chat Evolved", "203.93KB")
+                    }
                 },
-                Mods = new Dictionary<string, ModRecord[]>(),
-                Servers = new Server[0]
+                Servers = new Server[]
+                {
+                    new Server(IPAddress.Parse("95.217.84.23"), MapCode.Mod, 27090, "Project-X S03")
+                }
             },
             new Cluster
             {

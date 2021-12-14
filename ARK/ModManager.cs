@@ -28,7 +28,7 @@ namespace TEKLauncher.ARK
         private static ModDetails[] GetModsDetails(object IDs) => GetModsDetails((ulong[])IDs);
         internal static void FetchSpacewarIDs(object State)
         {
-            string List = TryDownloadString($"{Arkouda2}Extra/SpacewarIDs.txt", $"{FilesStorage}SpacewarIDs.txt");
+            string List = TryDownloadString($"{ArkoudaFiles}Extra/SpacewarIDs.txt");
             if (List is null)
             {
                 using (Stream ResourceStream = GetResourceStream(new Uri("pack://application:,,,/Resources/SpacewarIDs.ta")).Stream)

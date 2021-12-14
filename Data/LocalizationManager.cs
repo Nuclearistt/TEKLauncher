@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using static System.Windows.Application;
 using static TEKLauncher.Data.Settings;
-using static TEKLauncher.Utils.TEKArchive;
 using static TEKLauncher.Utils.UtilFunctions;
 
 namespace TEKLauncher.Data
@@ -13,7 +12,7 @@ namespace TEKLauncher.Data
     {
         internal static string LocCulture;
         private static readonly Dictionary<LocCode, string> List = new Dictionary<LocCode, string>();
-        internal static readonly string[] SupportedCultures = new[] { "en", "es", "pt", "el", "ru", "ar" };
+        internal static readonly string[] SupportedCultures = new[] { "en", "es", "fr", "pt", "el", "ru", "ar" };
         internal static void LoadLocalization(string CultureCode)
         {
             if (Lang.Length == 0)
@@ -32,24 +31,19 @@ namespace TEKLauncher.Data
             }
             else
                 LocCulture = Lang;
-            using (Stream ResourceStream = GetResourceStream(new Uri($"pack://application:,,,/Resources/Localizations/{LocCulture}.ta")).Stream)
-            using (MemoryStream Stream = new MemoryStream())
+            using (Stream ResourceStream = GetResourceStream(new Uri($"pack://application:,,,/Resources/Localizations/{LocCulture}.txt")).Stream)
+            using (StreamReader Reader = new StreamReader(ResourceStream))
             {
-                DecompressSingleFile(ResourceStream, Stream);
-                Stream.Position = 0L;
-                using (StreamReader Reader = new StreamReader(Stream))
+                for (LocCode Code = LocCode.CantLaunchExeMissing; Code <= LocCode.PrepCommunismMode; Code++)
+                    List.Add(Code, Reader.ReadLine().Replace(@"\n", "\n"));
+                string AboutFeatures = string.Empty;
+                while (!Reader.EndOfStream)
                 {
-                    for (LocCode Code = LocCode.CantLaunchExeMissing; Code <= LocCode.PrepCommunismMode; Code++)
-                        List.Add(Code, Reader.ReadLine().Replace(@"\n", "\n"));
-                    string AboutFeatures = string.Empty;
-                    while (!Reader.EndOfStream)
-                    {
-                        AboutFeatures += $"• {Reader.ReadLine()}";
-                        if (!Reader.EndOfStream)
-                            AboutFeatures += "\n";
-                    }
-                    List.Add(LocCode.AboutFeatures, AboutFeatures);
+                    AboutFeatures += $"• {Reader.ReadLine()}";
+                    if (!Reader.EndOfStream)
+                        AboutFeatures += "\n";
                 }
+                List.Add(LocCode.AboutFeatures, AboutFeatures);
             }
             HoursString = List[LocCode.Hours];
             MinutesString = List[LocCode.Minutes];

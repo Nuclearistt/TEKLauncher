@@ -20,7 +20,6 @@ namespace TEKLauncher.Servers
             foreach (Server Server in Servers)
                 Server.Refresh();
         }
-        private void RequestArkoudaQuery(object State) => new ArkoudaQuery().Request();
         internal void Refresh()
         {
             foreach (Server Server in Servers)
@@ -31,7 +30,6 @@ namespace TEKLauncher.Servers
             WaitCallback RefreshMethod;
             switch (Name)
             {
-                case "Arkouda": RefreshMethod = RequestArkoudaQuery; break;
                 case "ARKdicted": RefreshMethod = LoadServers; break;
                 case "RUSSIA#": RefreshMethod = RUSSIAData.LoadServers; break;
                 default: RefreshMethod = RefreshServers; break;

@@ -160,7 +160,7 @@ namespace TEKLauncher.Windows
                         await SteamAPI.SubscribeModAsync(ID);
                     if (!ACFExists)
                         continue;
-                    VDFStruct ItemsInstalled = ACF["WorkshopItemsInstalled"], ItemDetails = ACF["WorkshopItemDetails"], IIEntry = ItemsInstalled[ID.ToString()], IDEntry = ItemDetails[ID.ToString()];
+                    VDFStruct ItemsInstalled = ACF["WorkshopItemsInstalled"], ItemDetails = ACF["WorkshopItemDetails"], IIEntry = ItemsInstalled?[ID.ToString()], IDEntry = ItemDetails?[ID.ToString()];
                     ItemDetails Details = null;
                     void GetItemDetails()
                     {
@@ -189,7 +189,8 @@ namespace TEKLauncher.Windows
                                 new VDFStruct { Key = "manifest", Value = ManifestID.ToString() }
                             }
                         };
-                        ItemsInstalled.Children.Add(IIEntry);
+                        if (ItemsInstalled != null)
+                            ItemsInstalled.Children.Add(IIEntry);
                     }
                     else if (!ulong.TryParse(IIEntry["manifest"].Value, out ulong MID) || MID != ManifestID)
                     {
@@ -214,7 +215,8 @@ namespace TEKLauncher.Windows
                                 new VDFStruct { Key = "subscribedby", Value = Steam.ActiveUserID.ToString() },
                             }
                         };
-                        ItemDetails.Children.Add(IDEntry);
+                        if (ItemDetails != null)
+                            ItemDetails.Children.Add(IDEntry);
                     }
                     else if (!ulong.TryParse(IDEntry["manifest"].Value, out ulong MID) || MID != ManifestID)
                     {

@@ -13,7 +13,6 @@ using TEKLauncher.Net;
 using TEKLauncher.SteamInterop;
 using TEKLauncher.SteamInterop.Network;
 using TEKLauncher.Windows;
-using static System.Enum;
 using static System.Environment;
 using static System.Diagnostics.Process;
 using static System.IO.Directory;
@@ -34,14 +33,14 @@ namespace TEKLauncher.Pages
         public SettingsPage()
         {
             InitializeComponent();
-            if (LocCulture == "es" || LocCulture == "pt")
+            if (LocCulture == "es" || LocCulture == "fr" || LocCulture == "pt")
                 foreach (Panel Stack in LPGrid.Children)
                     foreach (CheckBox Checkbox in Stack.Children)
                         Checkbox.FontSize = 18D;
-            else if (LocCulture == "el")
+            if (LocCulture == "fr" || LocCulture == "el")
                 foreach (Button Button in OptionsGrid.Children)
                     Button.FontSize = 16D;
-            else if (LocCulture == "ar")
+            if (LocCulture == "ar")
             {
                 StatusStack.FlowDirection = FlowDirection.RightToLeft;
                 foreach (Panel Stack in ValidationBlock.Children)
@@ -90,7 +89,7 @@ namespace TEKLauncher.Pages
                 string ArchivePath = $@"{AppDataFolder}\BattlEye.ta";
                 ProgressBar.SetDownloadMode();
                 IsDownloading = true;
-                bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{Arkouda2}Extra/BattlEye.ta", $"{FilesStorage}BattlEye.ta", GDriveBattlEyeFile);
+                bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{ArkoudaFiles}Extra/BattlEye.ta", GDriveBattlEyeFile);
                 IsDownloading = false;
                 if (Success)
                 {
@@ -139,7 +138,7 @@ namespace TEKLauncher.Pages
             string ArchivePath = $@"{AppDataFolder}\CommonRedist.ta";
             ProgressBar.SetDownloadMode();
             IsDownloading = true;
-            bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{Arkouda2}Extra/CommonRedist.ta", $"{FilesStorage}CommonRedist.ta", GDriveCommonRedistFile);
+            bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{ArkoudaFiles}Extra/CommonRedist.ta", GDriveCommonRedistFile);
             IsDownloading = false;
             if (Success)
             {
@@ -247,7 +246,7 @@ namespace TEKLauncher.Pages
                     string ArchivePath = $@"{AppDataFolder}\GlobalFonts.ta";
                     ProgressBar.SetDownloadMode();
                     IsDownloading = true;
-                    bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{Arkouda2}Extra/GlobalFonts.ta", $"{FilesStorage}GlobalFonts.ta", GDriveGlobalFontsFile);
+                    bool Success = await Downloader.TryDownloadFileAsync(ArchivePath, $"{ArkoudaFiles}Extra/GlobalFonts.ta", GDriveGlobalFontsFile);
                     IsDownloading = false;
                     if (Success)
                     {
@@ -323,7 +322,7 @@ namespace TEKLauncher.Pages
                 PreparingToDownload();
                 ProgressBar.SetDownloadMode();
                 IsDownloading = true;
-                bool Success = await Downloader.TryDownloadFileAsync($@"{LocalProfiles}\PlayerLocalData.arkprofile", $"{Arkouda2}Extra/PlayerLocalData.arkprofile", $"{FilesStorage}PlayerLocalData.arkprofile", GDriveLocalProfileFile);
+                bool Success = await Downloader.TryDownloadFileAsync($@"{LocalProfiles}\PlayerLocalData.arkprofile", GDriveLocalProfileFile);
                 IsDownloading = false;
                 if (Success)
                 {

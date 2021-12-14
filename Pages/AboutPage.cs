@@ -15,7 +15,7 @@ namespace TEKLauncher.Pages
             Version.Text = $"ver. {DisplayVersion}";
             MainInfo.Text = LocString(LocCode.MainInfo);
             Features.Text = LocString(LocCode.AboutFeatures);
-            DownloadLink.Tag = GDriveLauncherFile;
+            DownloadLink.Tag = "https://github.com/Nuclearistt/TEKLauncher/releases/latest/download/TEKLauncher.exe";
             LocLink.Tag = LocalizationFile;
             PatreonLink.Tag = Patreon;
             PaypalLink.Tag = Paypal;

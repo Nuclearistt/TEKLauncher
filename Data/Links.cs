@@ -17,17 +17,19 @@ namespace TEKLauncher.Data
                 using (StreamReader Reader = new StreamReader(Stream))
                 {
                     ARKdicted = Reader.ReadLine();
-                    ArkoudaQuery = Reader.ReadLine();
-                    Arkouda2 = Reader.ReadLine();
+                    Reader.ReadLine();
+                    Reader.ReadLine();
+                    ArkoudaFiles = "http://95.217.84.23/files/Ark/";
                     CA = Reader.ReadLine();
                     CI = Reader.ReadLine();
                     CrashReporterWebhook = Reader.ReadLine();
                     DiscordArkouda = Reader.ReadLine();
                     DiscordARKdicted = Reader.ReadLine();
                     DiscordKillBills = Reader.ReadLine();
-                    DiscordRUSSIA = Reader.ReadLine();
+                    Reader.ReadLine();
+                    DiscordRUSSIA = "https://discord.gg/VpbrQNz";
                     DotNETFramework = Reader.ReadLine();
-                    FilesStorage = Reader.ReadLine();
+                    Reader.ReadLine();
                     GDriveBattlEyeFile = Reader.ReadLine();
                     GDriveCommonRedistFile = Reader.ReadLine();
                     GDriveGlobalFontsFile = Reader.ReadLine();
@@ -46,8 +48,7 @@ namespace TEKLauncher.Data
         }
         internal static readonly string
             ARKdicted,
-            ArkoudaQuery,
-            Arkouda2,
+            ArkoudaFiles,
             CA,
             CI,
             CrashReporterWebhook,
@@ -56,7 +57,6 @@ namespace TEKLauncher.Data
             DiscordKillBills,
             DiscordRUSSIA,
             DotNETFramework,
-            FilesStorage,
             GDriveBattlEyeFile,
             GDriveCommonRedistFile,
             GDriveGlobalFontsFile,

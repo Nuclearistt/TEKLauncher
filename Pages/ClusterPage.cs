@@ -44,8 +44,6 @@ namespace TEKLauncher.Pages
                 string Mode = Cluster.IsPvE ? "PvE" : "PvP";
                 ClusterName.Text = string.Format(LocString(LocCode.ClusterName), Cluster.Name, Mode);
                 Hoster.Text = string.Format(LocString(LocCode.HostedBy), Cluster.Hoster);
-                if (IndexOf(Clusters, Cluster) < 2)
-                    LastUpdated.Text = ArkoudaQuery.LastUpdated;
                 LoadInfo();
                 if (Cluster.Mods is null)
                     ModsRadioButton.Visibility = Visibility.Collapsed;

@@ -63,7 +63,7 @@ namespace TEKLauncher.Utils
         }
         internal static void Execute(string URI) => WinAPI.Execute(Zero, "open", URI, null, null, 1);
         internal static bool FileExists(string FilePath) => GetFileSize(FilePath) != -1L;
-        internal static bool IsConnectionAvailable() => GetConnectionState(out int Flags) && ((Flags & 1) | (Flags & 2)) != 0;
+        internal static bool IsConnectionAvailable() => true;
         internal static byte[] AESDecrypt(byte[] Input, byte[] Key, Aes AES)
         {
             byte[] Cipher = new byte[Input.Length - 16], EncryptedIV = new byte[16], IV, Output;

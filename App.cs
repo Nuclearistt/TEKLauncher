@@ -38,7 +38,7 @@ namespace TEKLauncher
 {
     public partial class App : Application
     {
-        internal const string Version = "8.2.70.0";
+        internal const string Version = "8.3.71.0";
         private App()
         {
             CurrentDomain.UnhandledException += CriticalExceptionHandler;

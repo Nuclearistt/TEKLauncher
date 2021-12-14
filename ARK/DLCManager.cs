@@ -31,7 +31,15 @@ namespace TEKLauncher.ARK
                 else
                     DLC.SetStatus(DLC.IsInstalled ? Status.Installed : Status.NotInstalled);
         }
-        internal static DLC GetDLC(MapCode Code) => Code == MapCode.Genesis2 ? DLCs[6] : DLCs[(int)--Code];
+        internal static DLC GetDLC(MapCode Code)
+        {
+            if (Code == MapCode.Genesis2)
+                return DLCs[6];
+            int Index = (int)Code - 1;
+            if (Code > MapCode.Genesis2)
+                Index--;
+            return DLCs[Index];
+        }
         internal static Task CheckForUpdatesAsync(Dictionary<MapCode, byte[]> Checksums) => Factory.StartNew(CheckForUpdates, Checksums);
     }
 }

@@ -57,11 +57,13 @@ namespace TEKLauncher.Windows
         internal bool ModInstallerMode = false;
         internal ModInstallerPage ModInstallerPage;
         internal SettingsPage SettingsPage;
+        bool NextVersion = false;
         private async void CheckForLauncherUpdates()
         {
-            string OnlineVersion = await TryDownloadStringAsync($"{Arkouda2}TEKLauncher/Version.txt", $"{FilesStorage}TEKLauncher/Version.txt", GDriveVersionFile);
+            string OnlineVersion = await TryDownloadStringAsync($"{ArkoudaFiles}TEKLauncher/Version.txt", GDriveVersionFile);
             if (!(OnlineVersion is null || OnlineVersion == App.Version))
             {
+                NextVersion = int.TryParse(OnlineVersion.Split('.')[0], out int v) && v > 8;
                 string DisplayVersion = OnlineVersion.EndsWith(".0") ? OnlineVersion.Substring(0, OnlineVersion.Length - 2) : OnlineVersion;
                 Add(string.Format(LocString(LocCode.LUpdateAvailable), DisplayVersion), LocString(LocCode.Update), RunLauncherUpdater);
             }
@@ -76,7 +78,7 @@ namespace TEKLauncher.Windows
                 SetCurrentVersion(FileExists(Executable) ? Game.Version ?? LocString(LocCode.NA) : LocString(LocCode.None), (SolidColorBrush)FindResource("BrightestBrightBrush"));
             }
             bool QuerySucceeded = false;
-            ArkoudaQuery InitialQuery = new ArkoudaQuery();
+            Hashes InitialQuery = new Hashes();
             if (IsConnectionAvailable())
                 for (int AttemptsCounter = 0; !QuerySucceeded && AttemptsCounter < 5; AttemptsCounter++)
                 {
@@ -190,7 +192,7 @@ namespace TEKLauncher.Windows
         }
         private void RunLauncherUpdater()
         {
-            new UpdaterWindow().Show();
+            new UpdaterWindow(NextVersion).Show();
             Update = true;
             Close();
         }

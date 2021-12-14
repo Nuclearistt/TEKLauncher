@@ -79,6 +79,7 @@
                 <ComboBox.Items>
                     <ComboBoxItem Content="English"/>
                     <ComboBoxItem Content="Español"/>
+                    <ComboBoxItem Content="Français"/>
                     <ComboBoxItem Content="Português"/>
                     <ComboBoxItem Content="Ελληνικά"/>
                     <ComboBoxItem Content="Русский"/>

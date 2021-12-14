@@ -19,15 +19,22 @@ namespace TEKLauncher.Windows
 {
     public partial class UpdaterWindow : Window
     {
-        internal UpdaterWindow()
+        bool NextVersion = false;
+        internal UpdaterWindow(bool NextVersion)
         {
             InitializeComponent();
             ProgressBar.ProgressUpdated += ProgressUpdatedHandler;
+            this.NextVersion = NextVersion;
         }
         private void DownloadBeganHandler()
         {
             TaskbarItemInfo.ProgressState = ProgressBar.Progress.Total < 1L ? TaskbarItemProgressState.Indeterminate : TaskbarItemProgressState.Normal;
             Status.Text = LocString(LocCode.UpdaterDownloading);
+        }
+        private void DownloadBeganHandler1()
+        {
+            TaskbarItemInfo.ProgressState = ProgressBar.Progress.Total < 1L ? TaskbarItemProgressState.Indeterminate : TaskbarItemProgressState.Normal;
+            Status.Text = "Downloading .NET Desktop 6 Runtime";
         }
         private void DownloadManually(object Sender, RoutedEventArgs Args)
         {
@@ -51,7 +58,15 @@ namespace TEKLauncher.Windows
             using (Process CurrentProcess = GetCurrentProcess())
                 Executable = CurrentProcess.MainModule.FileName;
             ProgressBar.SetDownloadMode();
-            if (await new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler }.TryDownloadFileAsync($"{Executable}.new", $"{Arkouda2}TEKLauncher/TEKLauncher.exe", $"{FilesStorage}TEKLauncher/TEKLauncher.exe", GDriveLauncherFile))
+            if (NextVersion && await new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler1 }.TryDownloadFileAsync($@"{AppDataFolder}\windowsdesktop-runtime-6.0.0-win-x64.exe", "https://download.visualstudio.microsoft.com/download/pr/a865ccae-2219-4184-bcd6-0178dc580589/ba452d37e8396b7a49a9adc0e1a07e87/windowsdesktop-runtime-6.0.0-win-x64.exe"))
+            {
+                try
+                {
+                    Start($@"{AppDataFolder}\windowsdesktop-runtime-6.0.0-win-x64.exe", "/install /quiet /norestart").WaitForExit();
+                }
+                catch { }
+            }
+            if (await new Downloader(ProgressBar.Progress) { DownloadBegan = DownloadBeganHandler }.TryDownloadFileAsync($"{Executable}.new", "https://github.com/Nuclearistt/TEKLauncher/releases/latest/download/TEKLauncher.exe", $"{ArkoudaFiles}TEKLauncher/TEKLauncher.exe", GDriveLauncherFile))
                 Install(Executable);
             else
             {

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using TEKLauncher.Data;
@@ -13,6 +14,7 @@ namespace TEKLauncher.Net
 {
     internal class Downloader
     {
+        static HttpClient client = new HttpClient();
         internal Downloader(Progress Progress = null) => this.Progress = Progress;
         internal DownloadBeganEventHandler DownloadBegan;
         private readonly byte[] Buffer = new byte[8192];
@@ -20,15 +22,14 @@ namespace TEKLauncher.Net
         internal delegate void DownloadBeganEventHandler();
         private void DownloadFile(string FilePath, string URL)
         {
-            HttpWebRequest Request = CreateHttp(URL);
-            Request.ReadWriteTimeout = Request.Timeout = 14000;
             try
             {
-                using (HttpWebResponse Response = (HttpWebResponse)Request.GetResponse())
-                using (Stream ResponseStream = Response.GetResponseStream())
+                using (Stream ResponseStream = client.GetStreamAsync(URL).Result)
                 using (FileStream Writer = File.Create(FilePath))
                 {
-                    long ContentLength = Response.ContentLength;
+                    long ContentLength;
+                    try {
+                    ContentLength = ResponseStream.Length; } catch { ContentLength = -1;}
                     if (!(Progress is null))
                         Progress.Total = ContentLength;
                     int BytesRead = ResponseStream.Read(Buffer, 0, 8192);

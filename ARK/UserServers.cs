@@ -141,10 +141,10 @@ namespace TEKLauncher.ARK
         private static Server[] GetServersForIP(object IP) => GetServersForIP((IPAddress)IP);
         internal static void CommitList()
         {
-            Clusters[6].Servers = new Server[UServers.Count];
+            Clusters[5].Servers = new Server[UServers.Count];
             int Iterator = 0;
             foreach (KeyValuePair<Server, string> UServer in UServers)
-                Clusters[6].Servers[Iterator++] = UServer.Key;
+                Clusters[5].Servers[Iterator++] = UServer.Key;
         }
         internal static void LoadList(object State)
         {

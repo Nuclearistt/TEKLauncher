@@ -20,7 +20,7 @@ namespace TEKLauncher.Net
     {
         private static void RefreshClusterPage()
         {
-            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 3)
+            if (Instance.CurrentPage is ClusterPage Page && IndexOf(Clusters, Page.Cluster) == 4)
             {
                 Page.InfoStack.Children.Clear();
                 Page.LoadInfo();
@@ -35,7 +35,7 @@ namespace TEKLauncher.Net
             {
                 byte[] Data = TryDownloadData($"{RUSSIA}maps");
                 if (Data is null)
-                    foreach (Server Server in Clusters[5].Servers)
+                    foreach (Server Server in Clusters[4].Servers)
                         Server.Refresh(-1);
                 else
                 {
@@ -63,12 +63,12 @@ namespace TEKLauncher.Net
                                 InfoLine = string.Format(LocString(LocCode.MaxDinoLvl + int.Parse(Fields[0][1].ToString())), float.Parse(Fields[1]));
                             Info.Add(InfoLine);
                         }
-                        Clusters[5].Info[string.Empty] = string.Join("\n", Info);
+                        Clusters[4].Info[string.Empty] = string.Join("\n", Info);
                     }
                     Sort(Servers, (A, B) => A.Code.CompareTo(B.Code));
-                    Clusters[5].Servers = Servers;
+                    Clusters[4].Servers = Servers;
                     Current.Dispatcher.Invoke(RefreshClusterPage);
-                    foreach (Server Server in Clusters[5].Servers)
+                    foreach (Server Server in Clusters[4].Servers)
                         Server.Refresh();
                 }
             }

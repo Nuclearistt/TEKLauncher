@@ -12,6 +12,7 @@
         Genesis,
         CrystalIsles,
         Genesis2,
+        LostIsland,
         Mod
     }
 }

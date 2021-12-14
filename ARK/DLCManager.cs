@@ -15,7 +15,8 @@ namespace TEKLauncher.ARK
             new DLC("Extinction", 473851U, false, false),
             new DLC("Valguero", 473854U, true, true),
             new DLC("Genesis Part 1 & 2", 473857U, false, false),
-            new DLC("Crystal Isles", 1318685U, true, false)
+            new DLC("Crystal Isles", 1318685U, true, false),
+            new DLC("Lost Island", 1691801U, true, false)
         };
         private static void CheckForUpdates(object Parameter)
         {

@@ -1,0 +1,12 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages.bodies;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages.Bodies";
+
+message LogOn
+{
+    uint32 protocol_version = 1;
+    uint32 cell_id = 3;
+    string client_language = 6;
+    int32 client_os_type = 7;
+}

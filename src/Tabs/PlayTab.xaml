@@ -1,0 +1,66 @@
+﻿<ContentControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:tla="clr-namespace:TEKLauncher.ARK"
+                xmlns:tld="clr-namespace:TEKLauncher.Data" xmlns:ui="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Tabs.PlayTab">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="18*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Image Grid.ColumnSpan="5" x:Name="Image" Stretch="Fill"/>
+        <CheckBox Grid.Row="1" Grid.Column="1" Content="{ui:LocString RunGameAsAdmin}" IsChecked="{x:Static tla:Game.RunAsAdmin}" Tag="0" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
+        <CheckBox Grid.Row="2" Grid.Column="1" Content="{ui:LocString UseTEKInjector}" IsChecked="{x:Static tla:Game.UseTEKInjector}" Tag="1" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
+        <Button Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Template="{StaticResource PlayButton}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{ui:LocString Play}" Click="Launch"/>
+        <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Text="{ui:LocString GameLanguage}"/>
+            <ComboBox x:Name="GameLanguages" MinWidth="280" Margin="5, 0, 0, 0" VerticalAlignment="Center" SelectedIndex="{x:Static tla:Game.Language}" SelectionChanged="SelectionChangedHandler">
+                <ComboBox.Items>
+                    <ComboBoxItem Content="Català"/>
+                    <ComboBoxItem Content="Český"/>
+                    <ComboBoxItem Content="Dansk"/>
+                    <ComboBoxItem Content="Deutsch"/>
+                    <ComboBoxItem Content="English"/>
+                    <ComboBoxItem Content="Español"/>
+                    <ComboBoxItem Content="Euskara"/>
+                    <ComboBoxItem Content="Suomi"/>
+                    <ComboBoxItem Content="Français"/>
+                    <ComboBoxItem Content="Magyar"/>
+                    <ComboBoxItem Content="Italiano"/>
+                    <ComboBoxItem Content="日本語"/>
+                    <ComboBoxItem Content="ქართული"/>
+                    <ComboBoxItem Content="한국어"/>
+                    <ComboBoxItem Content="Nederlands"/>
+                    <ComboBoxItem Content="Polski"/>
+                    <ComboBoxItem Content="Português/Brasil"/>
+                    <ComboBoxItem Content="Русский"/>
+                    <ComboBoxItem Content="Svenska"/>
+                    <ComboBoxItem Content="ภาษาไทย"/>
+                    <ComboBoxItem Content="Türkçe"/>
+                    <ComboBoxItem Content="Українська"/>
+                    <ComboBoxItem Content="中文"/>
+                    <ComboBoxItem Content="中文 (简体)"/>
+                    <ComboBoxItem Content="中文 (台湾)"/>
+                </ComboBox.Items>
+            </ComboBox>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="3" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Text="{ui:LocString LauncherLanguage}"/>
+            <ComboBox x:Name="LauncherLanguages" MinWidth="280" Margin="5, 0, 0, 0" VerticalAlignment="Center" SelectedIndex="{x:Static tld:LocManager.CurrentLanguageIndex}" SelectionChanged="SelectionChangedHandler">
+                <ComboBox.Items>
+                    <ComboBoxItem Content="English"/>
+                    <ComboBoxItem Content="Español"/>
+                    <ComboBoxItem Content="Français"/>
+                    <ComboBoxItem Content="Português"/>
+                    <ComboBoxItem Content="Ελληνικά"/>
+                    <ComboBoxItem Content="Русский"/>
+                </ComboBox.Items>
+            </ComboBox>
+        </StackPanel>
+    </Grid>
+</ContentControl>

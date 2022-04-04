@@ -1,0 +1,50 @@
+﻿<ContentControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:TEKLauncher.UI"
+                x:Class="TEKLauncher.Tabs.ModInstallerTab" Loaded="LoadedHandler">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <StackPanel Margin="20, 20, 0, 0" HorizontalAlignment="Left" Orientation="Horizontal">
+                <Button Template="{StaticResource IconButton}" Content="{StaticResource Back}" Click="Back"/>
+                <Button Template="{StaticResource IconButton}" x:Name="InstallButton" Margin="20, 0, 0, 0" Content="{StaticResource Install}" IsEnabled="False" Click="Install"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                <TextBox x:Name="ModIdBox" VerticalAlignment="Center" MaxLength="10" Tag="{ui:LocString ModIdBoxPlaceholder}" PreviewTextInput="TextInputHandler" TextChanged="TextChangedHandler"/>
+                <TextBlock Margin="5, 0, 0, 0" VerticalAlignment="Center" Text="{ui:LocString ModInstallerSelectNote}"/>
+                <Border Width="450" Height="136" Margin="5, 0, 0, 0" Padding="4" Background="#801B3A4A" BorderBrush="#8CA8AB" BorderThickness="1.5" CornerRadius="15">
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="Preview" Width="128" Height="128" VerticalAlignment="Center">
+                            <Image.OpacityMask>
+                                <DrawingBrush>
+                                    <DrawingBrush.Drawing>
+                                        <GeometryDrawing Brush="Black">
+                                            <GeometryDrawing.Geometry>
+                                                <PathGeometry Figures="M0,15a15,15,0,0115-15h98a15,15,0,0115,15v98a15,15,0,01-15,15H15a15,15,0,01-15-15Z"/>
+                                            </GeometryDrawing.Geometry>
+                                        </GeometryDrawing>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </Image.OpacityMask>
+                        </Image>
+                        <TextBlock x:Name="PreviewText" Margin="10, 0, 0, 0" VerticalAlignment="Center" Text="{ui:LocString NoModSelectedForPreview}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            <StackPanel Margin="0, 10, 0, 0" HorizontalAlignment="Center" Orientation="Horizontal">
+                <TextBox x:Name="SearchBar" Width="400" VerticalAlignment="Center" Tag="{ui:LocString Search}" TextChanged="TextChangedHandler"/>
+                <TextBlock x:Name="SearchError" Margin="10, 0, 0, 0" Foreground="#9E2313" VerticalAlignment="Center" Visibility="Collapsed"/>
+                <Button Template="{StaticResource IconButton}" x:Name="ReloadButton" Margin="5, 0, 0, 0" VerticalAlignment="Center" Visibility="Collapsed" Content="{StaticResource Refresh}" Click="ReloadWorkshopPage"/>
+            </StackPanel>
+            <StackPanel Margin="0, 10, 0, 0" HorizontalAlignment="Center" Orientation="Horizontal">
+                <Button Template="{StaticResource IconButton}" x:Name="PrevPage" Visibility="Collapsed" Content="{StaticResource ArrowLeft}" Click="LoadPrevPage"/>
+                <TextBlock x:Name="PageBlock"/>
+                <Button Template="{StaticResource IconButton}" x:Name="NextPage" Visibility="Collapsed" Content="{StaticResource ArrowRight}" Click="LoadNextPage"/>
+            </StackPanel>
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Padding="0, 0, 5, 0" HorizontalAlignment="Center" VerticalScrollBarVisibility="Auto">
+            <VirtualizingStackPanel VirtualizingPanel.VirtualizationMode="Recycling" x:Name="Items" CanVerticallyScroll="True"/>
+        </ScrollViewer>
+    </Grid>
+</ContentControl>

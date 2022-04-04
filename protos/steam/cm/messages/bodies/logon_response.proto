@@ -1,0 +1,11 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages.bodies;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages.Bodies";
+
+message LogOnResponse
+{
+    optional int32 result = 1;
+    optional int32 heartbeat_interval = 2;
+    optional uint32 cell_id = 7;
+}

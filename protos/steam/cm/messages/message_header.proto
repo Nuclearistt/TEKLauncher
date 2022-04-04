@@ -1,0 +1,13 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages";
+
+message MessageHeader
+{
+    optional fixed64 steam_id = 1;
+    optional int32 session_id = 2;
+    optional fixed64 source_job_id = 10;
+    optional fixed64 target_job_id = 11;
+    optional string target_job_name = 12;
+}

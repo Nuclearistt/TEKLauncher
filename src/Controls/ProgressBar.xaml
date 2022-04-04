@@ -1,0 +1,35 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:TEKLauncher.UI"
+             x:Class="TEKLauncher.Controls.ProgressBar" Width="300" Height="300">
+    <Grid>
+        <Ellipse Fill="#801B3A4A" Stroke="#1E3336" StrokeThickness="3"/>
+        <Ellipse x:Name="Bar" StrokeThickness="3" StrokeDashArray="311" StrokeDashOffset="311">
+            <Ellipse.RenderTransform>
+                <RotateTransform CenterX="150" CenterY="150" Angle="-90"/>
+            </Ellipse.RenderTransform>
+            <Ellipse.Stroke>
+                <LinearGradientBrush StartPoint="1, 0" EndPoint="0, 1">
+                    <GradientStop Offset="0" Color="Yellow"/>
+                    <GradientStop Offset="1" Color="Cyan"/>
+                </LinearGradientBrush>
+            </Ellipse.Stroke>
+        </Ellipse>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock x:Name="Progress" HorizontalAlignment="Center">
+                <Run x:Name="ProgressValue" Text="0"/>
+                <Run x:Name="ProgressUnit"/>
+                <Run Text="/"/>
+                <Run x:Name="TotalValue" Text="0"/>
+                <Run x:Name="TotalUnit"/>
+            </TextBlock>
+            <TextBlock x:Name="Percentage" FontSize="38" HorizontalAlignment="Center" Visibility="Collapsed"/>
+            <TextBlock x:Name="Speed" HorizontalAlignment="Center" Visibility="Collapsed">
+                <Run x:Name="SpeedValue"/>
+                <Run x:Name="SpeedUnit"/><Run Text="/"/><Run Text="{ui:LocString Second}"/>
+            </TextBlock>
+            <TextBlock x:Name="ETA" HorizontalAlignment="Center" Visibility="Collapsed">
+                <Run Text="ETA:"/>
+                <Run x:Name="ETAValue"/>
+            </TextBlock>
+        </StackPanel>
+    </Grid>
+</UserControl>

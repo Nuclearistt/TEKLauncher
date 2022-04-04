@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Platform>x64</Platform>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>True</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
+    <Version>9.0.72.0</Version>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>res\Icon.ico</ApplicationIcon>
+    <Authors>Nuclearist</Authors>
+    <Product>TEK Launcher</Product>
+    <Copyright>Copyright © 2020-2022 Nuclearist</Copyright>
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+    <Nullable>Enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Optimize>True</Optimize>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>SigningKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <PublishSingleFile>True</PublishSingleFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.19.4"/>
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.19.4"/>
+    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2"/>
+    <PackageReference Include="SharpZipLib" Version="1.3.3"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="res\**"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Protos Include="protos\**"/>
+  </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.19.4\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))"/>
+  </Target>
+</Project>

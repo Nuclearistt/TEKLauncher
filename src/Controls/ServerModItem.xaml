@@ -1,0 +1,17 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:TEKLauncher.UI"
+             x:Class="TEKLauncher.Controls.ServerModItem" Margin="0, 10, 0, 0">
+    <Border Padding="5" Background="#D0212C33" CornerRadius="10">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock x:Name="ModName" FontSize="22"/>
+                <Button Template="{StaticResource IconButton}" Margin="5, 0, 0, 0" Content="{StaticResource FollowLink}" Click="Follow"/>
+            </StackPanel>
+            <TextBlock Grid.Column="1" x:Name="InstalledText" Margin="10, 0, 0, 0" Foreground="#0AA63E" VerticalAlignment="Center" Text="{ui:LocString Installed}" Visibility="Collapsed"/>
+            <Button Grid.Column="1" x:Name="InstallButton" Margin="10, 0, 0, 0" VerticalAlignment="Center" Content="{ui:LocString Install}" Visibility="Collapsed" Click="Install"/>
+        </Grid>
+    </Border>
+</UserControl>

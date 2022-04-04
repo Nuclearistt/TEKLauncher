@@ -1,0 +1,25 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="TEKLauncher.Controls.Notification"
+             Loaded="LoadedHandler" Margin="0, 0, -250, 0" Opacity="0">
+    <Border MinWidth="250" Height="100" Background="#2E3E47" BorderBrush="#C29613" BorderThickness="2, 2, 0, 2" CornerRadius="15, 0, 0, 15">
+        <StackPanel Orientation="Horizontal">
+            <Button Template="{StaticResource NotificationCloseButton}" Click="Hide"/>
+            <StackPanel x:Name="Root" VerticalAlignment="Center">
+                <TextBlock x:Name="Message" Margin="10, 0, 10, 0" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.4"/>
+                    <ThicknessAnimation Storyboard.TargetProperty="Margin" To="0" Duration="0:0:0.4">
+                        <ThicknessAnimation.EasingFunction>
+                            <QuadraticEase/>
+                        </ThicknessAnimation.EasingFunction>
+                    </ThicknessAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+</UserControl>

@@ -1,0 +1,10 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages.bodies;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages.Bodies";
+
+message ModDetails
+{
+    repeated fixed64 ids = 1;
+    bool include_metadata = 11;
+}

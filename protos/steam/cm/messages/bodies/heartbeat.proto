@@ -1,0 +1,9 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages.bodies;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages.Bodies";
+
+message Heartbeat
+{
+    bool send_reply = 1;
+}

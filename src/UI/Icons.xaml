@@ -1,0 +1,131 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ControlTemplate x:Key="AboutTab">
+        <Path Stroke="Orange" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+            <Path.Data>
+                <GeometryGroup>
+                    <EllipseGeometry Center="35, 23" RadiusX="1.5" RadiusY="1.5"/>
+                    <EllipseGeometry Center="35, 35" RadiusX="24" RadiusY="24"/>
+                    <PathGeometry Figures="M35,30v20M31,50h8"/>
+                </GeometryGroup>
+            </Path.Data>
+        </Path>
+    </ControlTemplate>
+    <ControlTemplate x:Key="DLCTab">
+        <Canvas>
+            <Path Stroke="Orange" StrokeThickness="2">
+                <Path.Data>
+                    <GeometryGroup>
+                        <EllipseGeometry Center="35, 50" RadiusX="19" RadiusY="19"/>
+                        <PathGeometry Figures="M5,5l20,10,20-10,20,10v35l-13-6.5M5,5v35l12,6M25,15v20m20,0V5"/>
+                    </GeometryGroup>
+                </Path.Data>
+            </Path>
+            <Path Stroke="#BEC7D4" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M20,43v12a6,6,0,000-12m10,0v12h7m13-10a6,6,0,100,8"/>
+        </Canvas>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Error">
+        <Canvas>
+            <Ellipse Width="150" Height="150" Fill="Red" Stroke="LightGray" StrokeThickness="3"/>
+            <Path Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M35,35l80,80M35,115l80-80"/>
+        </Canvas>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Fix">
+        <Path Stroke="Orange" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M25,27l2-2-12-12v-6l-5-5h-4l5,5v2l-2,2h-2l-5-5v4l5,5h6Z"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="GameOptionsTab">
+        <Path Stroke="Orange" StrokeThickness="2" Data="M10,25a5,5,90,005,5h14a5,5,90,005-5v-14a5,5,90,00-5-5h-14a5,5,90,00-5,5ZM40,25a5,5,90,005,5h14a5,5,90,005-5v-14a5,5,90,00-5-5h-14a5,5,90,00-5,5ZM10,55a5,5,90,005,5h14a5,5,90,005-5v-14a5,5,90,00-5-5h-14a5,5,90,00-5,5ZM40,55a5,5,90,005,5h14a5,5,90,005-5v-14a5,5,90,00-5-5h-14a5,5,90,00-5,5Z"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Info">
+        <Canvas>
+            <Ellipse Width="150" Height="150" Fill="#0F4B99" Stroke="LightGray" StrokeThickness="3"/>
+            <Path Stroke="LightGray" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+                <Path.Data>
+                    <GeometryGroup>
+                        <EllipseGeometry Center="75, 35" RadiusX="2" RadiusY="2"/>
+                        <PathGeometry Figures="M75,50v60m-8,0h16"/>
+                    </GeometryGroup>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </ControlTemplate>
+    <ControlTemplate x:Key="InstallIcon">
+        <Path Stroke="Orange" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M14,3v18m-5-5,5,5m5-5-5,5M2,21v3a2,2,0,002,2h20a2,2,0,002-2v-3"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Join">
+        <Polyline Stroke="Orange" StrokeThickness="1.5" Points="3,3,25,14,3,25,3,3"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="LauncherSettingsTab">
+        <Path Stroke="Orange" StrokeThickness="2">
+            <Path.Data>
+                <GeometryGroup>
+                    <EllipseGeometry Center="35, 35" RadiusX="14" RadiusY="14"/>
+                    <PathGeometry Figures="M31,5h8l1,8,6,3,6-4,6,6-4,6,3,6,8,1v8l-8,1-3,6,4,6-6,6-6-4-6,3-1,8h-8l-1-8-6-3-6,4-6-6,4-6-3-6-8-1v-8l8-1,3-6-4-6,6-6,6,4,6-3Z"/>
+                </GeometryGroup>
+            </Path.Data>
+        </Path>
+    </ControlTemplate>
+    <ControlTemplate x:Key="ModsTab">
+        <Path Stroke="Orange" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M53,57l4-4-30-30,8-8-13-2-13,13,7,7,6-6ZM18,58l-6-6,13-13,6,6ZM29,41l15-15-1-4,11-6m0,0-6,11-4-1"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="ModsTabCM">
+        <Path Stroke="Red" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M53,57l4-4-30-30,8-8-13-2-13,13,7,7,6-6ZM17,57l-4-4,7-7a2,2,0,014,4Zm7-11a15,15,0,1020-37"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="NError">
+        <Canvas>
+            <Ellipse Width="30" Height="30" Fill="Red" Stroke="LightGray" StrokeThickness="1" StrokeLineJoin="Round"/>
+            <Path Stroke="LightGray" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M8,8l14,14M8,22l14-14"/>
+        </Canvas>
+    </ControlTemplate>
+    <ControlTemplate x:Key="NSuccess">
+        <Canvas>
+            <Ellipse Width="30" Height="30" Fill="Green" Stroke="LightGray" StrokeThickness="1" StrokeLineJoin="Round"/>
+            <Polyline Stroke="LightGray" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Points="7,15,13,21,20,9"/>
+        </Canvas>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Pause">
+        <Path Stroke="Orange" StrokeThickness="2" Data="M7,2v24h4V2ZM16,2v24h4V2Z"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="PlayTab">
+        <Polyline Stroke="Orange" StrokeThickness="2" Points="15,15,55,35,15,55,15,15"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Retry">
+        <Path Stroke="Orange" StrokeThickness="2" Data="M15,2.5a12,12-10,015,22h7m-9,0v-7M13,25.5a12,12,10,01-5-22h-7m9,0v7"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="ServersTab">
+        <Path Stroke="Orange" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M20,15h30a5,5,0,010,10H20a5,5,0,010-10m0,15h30a5,5,0,010,10H20a5,5,0,010-10m0,15h30a5,5,0,010,10H20a5,5,0,010-10m0-25h0m5,0h0m10,0h10m0,15H35m-10,0h0m-5,0h0m0,15h0m5,0h0m10,0h10"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Uninstall">
+        <Path Stroke="Orange" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M5,7h18M8,7v18a2,2,0,002,2h8a2,2,0,002-2V7M12,9v18m4,0V9M10,7V5a2,2,0,012-2h5a2,2,0,012,2v2"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Unlock">
+        <Path Stroke="Orange" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M2,12a2,2,0,012-2h20a2,2,0,012,2v12a2,2,0,01-2,2H4a2,2,90,01-2-2Zm5-2c0-12,14-12,14,0m-7,7v3"/>
+    </ControlTemplate>
+    <ControlTemplate x:Key="ValidateIcon">
+        <Path Stroke="Orange" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round">
+            <Path.Data>
+                <GeometryGroup>
+                    <PathGeometry Figures="M2,4a2,2,0,012-2h10l7,7v15a2,2,0,01-2,2H4a2,2,0,01-2-2Zm12-2v7h7M18,20.5l6,5"/>
+                    <EllipseGeometry Center="14,17" RadiusX="4" RadiusY="4"/>
+                </GeometryGroup>
+            </Path.Data>
+        </Path>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Warning">
+        <Canvas>
+            <Polygon Fill="Yellow" Stroke="LightGray" StrokeThickness="3" StrokeLineJoin="Round" Points="10,131.25,140,131.25,75,18.75"/>
+            <Path Stroke="Black" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Data="M75,55v40m0,15v0"/>
+        </Canvas>
+    </ControlTemplate>
+    <PathGeometry x:Key="ArrowLeft" Figures="M17,5,5,15,17,25"/>
+    <PathGeometry x:Key="ArrowRight" Figures="M13,5,25,15,13,25"/>
+    <PathGeometry x:Key="Back" Figures="M1.5,15H45M15,1.5L1.5,15,15,28.5"/>
+    <PathGeometry x:Key="Copy" Figures="M3,0h7l5,5v12H3ZM0,3v17h10"/>
+    <PathGeometry x:Key="Delete" Figures="M5,7h22M8,7v20a2,2,0,002,2h12a2,2,0,002-2V7M12,9v20m4,0V9m4,0v20M12,7v-2a2,2,0,012-2h5a2,2,0,012,2v2"/>
+    <PathGeometry x:Key="FollowLink" Figures="M10,5H2a2,2,0,00-2,2v11a2,2,0,002,2h11a2,2,0,002-2V10M6,14l13-13m-7,0h7v7"/>
+    <PathGeometry x:Key="Install" Figures="M16,5v20m-5-5,5,5m0,0,5-5M2,20v5a5,5,0,005,5h18a5,5,0,005-5v-5"/>
+    <PathGeometry x:Key="Refresh" Figures="M17,2.5a14.5,14.5-10,017,26h8m-8,0l-2-6M14,30.5a14.5,14.5,10,01-7-26h-8m8,0l2,6"/>
+    <GeometryGroup x:Key="Validate">
+        <PathGeometry Figures="M2,4a2,2,0,012-2h10l7,7v20a2,2,0,01-2,2H4a2,2,0,01-2-2Zm12-2v7h7M18,22.5l8,7"/>
+        <EllipseGeometry Center="14,20" RadiusX="5" RadiusY="5"/>
+    </GeometryGroup>
+</ResourceDictionary>

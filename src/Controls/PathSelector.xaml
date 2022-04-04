@@ -1,0 +1,13 @@
+﻿<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:TEKLauncher.UI"
+             x:Class="TEKLauncher.Controls.PathSelector">
+    <Border Padding="5" Background="#BAE7E8" CornerRadius="20">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="Path" Foreground="#141A1C" FontSize="24" VerticalAlignment="Center" Text="{ui:LocString NoPathSelected}"/>
+            <Button Grid.Column="1" Template="{StaticResource PathSelectorButton}" VerticalAlignment="Center" Click="Select"/>
+        </Grid>
+    </Border>
+</UserControl>

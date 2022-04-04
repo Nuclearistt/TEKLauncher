@@ -1,0 +1,64 @@
+﻿<tlw:TEKWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:tlc="clr-namespace:TEKLauncher.Controls"
+               xmlns:tlw="clr-namespace:TEKLauncher.Windows" xmlns:ui="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Windows.FirstLaunchWindow" WindowStartupLocation="CenterScreen"
+               Title="TEK Launcher" Width="800" Height="450">
+    <tlw:TEKWindow.Resources>
+        <ControlTemplate TargetType="ContentControl" x:Key="GameInstallationTab">
+            <Grid Loaded="GameInstallationTabLoadedHandler">
+                <Button Template="{StaticResource IconButton}" Margin="20, 20, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="{StaticResource Back}" Click="Back"/>
+                <StackPanel Width="650" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ui:LocString SelectInstallationFolder}"/>
+                    <tlc:PathSelector Margin="0, 20, 0, 0" PathChanged="GIPathChangedHandler"/>
+                    <StackPanel Margin="10, 10, 0, 30" Orientation="Horizontal">
+                        <Border Padding="3" Background="#293635" CornerRadius="10">
+                            <TextBlock>
+                                <Run Text="{ui:LocString FreeDiskSpace}"/>
+                                <Run x:Name="FreeSpace"/>
+                            </TextBlock>
+                        </Border>
+                        <Border Margin="10, 0, 0, 0" Padding="3" Background="#293635" CornerRadius="10">
+                            <TextBlock>
+                                <Run Text="{ui:LocString RequiredDiskSpace}"/>
+                                <Run Text="130"/>
+                                <Run Text="{ui:LocString GB}"/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                    <Button x:Name="BeginInstallationButton" MinWidth="200" MinHeight="50" FontSize="22" HorizontalAlignment="Center" IsEnabled="False" Content="{ui:LocString BeginInstallation}" Click="Continue"/>
+                </StackPanel>
+            </Grid>
+        </ControlTemplate>
+        <ControlTemplate TargetType="ContentControl" x:Key="PathSelectionTab">
+            <Grid Loaded="PathSelectionTabLoadedHandler">
+                <Button Template="{StaticResource IconButton}" Margin="20, 20, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="{StaticResource Back}" Click="Back"/>
+                <StackPanel Width="650" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="{ui:LocString SelectGameFolder}"/>
+                    <tlc:PathSelector x:Name="Selector" Margin="0, 20, 0, 0" PathChanged="PSPathChangedHandler"/>
+                    <StackPanel Margin="10, 10, 0, 30" Orientation="Horizontal">
+                        <Image x:Name="SteamIcon" Width="32" Height="32" Source="../../res/icons/Steam.ico" Visibility="Collapsed"/>
+                        <Border Margin="10, 0, 0, 0" Padding="3" Background="#293635" VerticalAlignment="Center" CornerRadius="10">
+                            <TextBlock x:Name="Status" Foreground="#9E2313" Text="{ui:LocString GameFilesNotFound}"/>
+                        </Border>
+                    </StackPanel>
+                    <Button x:Name="ContinueButton" MinWidth="200" MinHeight="50" FontSize="22" HorizontalAlignment="Center" IsEnabled="False" Content="{ui:LocString Continue}" Click="Continue"/>
+                </StackPanel>
+            </Grid>
+        </ControlTemplate>
+        <ControlTemplate x:Key="StartTab" TargetType="ContentControl">
+            <StackPanel MinWidth="300" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Template="{StaticResource FirstChoiceButton}" Content="{ui:LocString FirstLaunchOption1}" Click="Option1"/>
+                <Button Template="{StaticResource FirstChoiceButton}" Margin="0, 20, 0, 0" Content="{ui:LocString FirstLaunchOption2}" Tag="1" Click="Option2"/>
+            </StackPanel>
+        </ControlTemplate>
+    </tlw:TEKWindow.Resources>
+    <Border BorderBrush="#1B3A4A" BorderThickness="2, 0, 2, 2" CornerRadius="0, 0, 8, 8">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                <GradientStop Color="#151A21" Offset="0"/>
+                <GradientStop Color="#21262E" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border Background="{StaticResource HexBackground}">
+            <ContentControl Template="{StaticResource StartTab}" x:Name="Root"/>
+        </Border>
+    </Border>
+</tlw:TEKWindow>

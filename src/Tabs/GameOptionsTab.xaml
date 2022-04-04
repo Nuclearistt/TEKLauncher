@@ -1,0 +1,107 @@
+﻿<ContentControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:tla="clr-namespace:TEKLauncher.ARK"
+                xmlns:tlc="clr-namespace:TEKLauncher.Controls" xmlns:ui="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Tabs.GameOptionsTab">
+    <ScrollViewer Margin="0, 0, 10, 0" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="30, 20, 15, 20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Template="{StaticResource IconTextButton}" x:Name="UpdatePauseButton" Content="{ui:LocString Update}" Tag="{StaticResource Retry}" Click="UpdatePause"/>
+                <Button Grid.Column="4" Template="{StaticResource IconTextButton}" x:Name="UnlockSkinsButton" Content="{ui:LocString UnlockSkins}" Tag="{StaticResource Unlock}" Click="UnlockSkins"/>
+                <Button Grid.Row="2" Template="{StaticResource IconTextButton}" x:Name="ValidateButton" Content="{ui:LocString Validate}" Tag="{StaticResource ValidateIcon}" Click="Validate"/>
+                <Button Grid.Row="2" Grid.Column="2" Template="{StaticResource IconTextButton}" x:Name="InstallRequirementsButton" Content="{ui:LocString InstallRequirements}" Tag="{StaticResource InstallIcon}" Click="InstallRequirements"/>
+                <Button Grid.Row="2" Grid.Column="4" Template="{StaticResource IconTextButton}" Content="{ui:LocString FixBloom}" Tag="{StaticResource Fix}" Click="FixBloom"/>
+            </Grid>
+            <Expander x:Name="ExpandableBlock" Margin="0, 10, 0, 0" IsEnabled="False">
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel x:Name="Stages"/>
+                    <StackPanel Grid.Column="1" Margin="15, 0, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock x:Name="Status"/>
+                        <tlc:ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                    <Border Grid.Column="1" x:Name="Counters" Width="270" Padding="5" Background="#212C33" HorizontalAlignment="Right" VerticalAlignment="Bottom" CornerRadius="4" Visibility="Collapsed">
+                        <TextBlock>
+                            <Run Text="{ui:LocString FilesMissing}"/>
+                            <Run x:Name="FilesMissing" Foreground="#9E2313"/>
+                            <LineBreak/>
+                            <Run Text="{ui:LocString FilesOutdated}"/>
+                            <Run x:Name="FilesOutdated" Foreground="Yellow"/>
+                            <LineBreak/>
+                            <Run Text="{ui:LocString FilesUpToDate}"/>
+                            <Run x:Name="FilesUpToDate" Foreground="#0AA63E"/>
+                        </TextBlock>
+                    </Border>
+                </Grid>
+            </Expander>
+            <Border Margin="0, 10, 0, 0" Padding="5, 0, 5, 0" Background="#D021252B" BorderBrush="Gray" BorderThickness="2, 2, 2, 0" HorizontalAlignment="Center" CornerRadius="10, 10, 0, 0">
+                <TextBlock FontSize="26" Text="{ui:LocString LaunchParameters}"/>
+            </Border>
+            <Border Padding="5, 0, 5, 0" Background="#D021252B" BorderBrush="Gray" BorderThickness="2" CornerRadius="10">
+                <Grid x:Name="LaunchParametersGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <CheckBox ToolTip="{ui:LocString UseCacheDesc}" Content="{ui:LocString UseCache}" Tag="-usecache"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-usecache"/>
+                        <CheckBox ToolTip="{ui:LocString UseAllAvailableCoresDesc}" Content="{ui:LocString UseAllAvailableCores}" Tag="-useallavailablecores"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-useallavailablecores"/>
+                        <CheckBox ToolTip="{ui:LocString HighProcessPriorityDesc}" Content="{ui:LocString HighProcessPriority}" Tag="-high"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-high"/>
+                        <CheckBox ToolTip="{ui:LocString DisableFontsFXAADesc}" Content="{ui:LocString DisableFontsFXAA}" Tag="-noaafonts"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-noaafonts"/>
+                        <CheckBox ToolTip="{ui:LocString UseShaderModel4Desc}" Content="{ui:LocString UseShaderModel4}" Tag="-sm4"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-sm4"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <CheckBox ToolTip="{ui:LocString UseDirectX10Desc}" Content="{ui:LocString UseDirectX10}" Tag="-d3d10"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-d3d10"/>
+                        <CheckBox ToolTip="{ui:LocString NoSplashScreenDesc}" Content="{ui:LocString NoSplashScreen}" Tag="-nosplash"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-nosplash"/>
+                        <CheckBox ToolTip="{ui:LocString DisableSkyDetailDesc}" Content="{ui:LocString DisableSkyDetail}" Tag="-nomansky"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-nomansky"/>
+                        <CheckBox ToolTip="{ui:LocString NoMemoryBiasDesc}" Content="{ui:LocString NoMemoryBias}" Tag="-nomemorybias"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-nomemorybias"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <CheckBox ToolTip="{ui:LocString LowMemoryModeDesc}" Content="{ui:LocString LowMemoryMode}" Tag="-lowmemory"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-lowmemory"/>
+                        <CheckBox ToolTip="{ui:LocString NoRHIThreadDesc}" Content="{ui:LocString NoRHIThread}" Tag="-norhithread"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-norhithread"/>
+                        <CheckBox ToolTip="{ui:LocString DisableVSyncDesc}" Content="{ui:LocString DisableVSync}" Tag="-novsync"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-novsync"/>
+                        <CheckBox ToolTip="{ui:LocString DisableSPHibernationDesc}" Content="{ui:LocString DisableSPHibernation}" Tag="-preventhibernation"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-preventhibernation"/>
+                        <CheckBox ToolTip="{ui:LocString EnableAnselSupportDesc}" Content="{ui:LocString EnableAnselSupport}" Tag="-allowansel"/>
+                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-allowansel"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Grid Margin="50, 20, 50, 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="CustomLaunchParameters" Tag="{ui:LocString CustomLaunchParameters}" LostFocus="LostFocusHandler"/>
+                <CheckBox Grid.Column="1" Margin="20, 0, 0, 0" HorizontalAlignment="Right" Content="{ui:LocString UseGlobalFonts}" IsChecked="{x:Static tla:Game.UseGlobalFonts}" Checked="UpdateUseGlobalFonts" Unchecked="UpdateUseGlobalFonts"/>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</ContentControl>

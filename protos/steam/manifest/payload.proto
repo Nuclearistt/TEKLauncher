@@ -1,0 +1,25 @@
+syntax="proto3";
+
+package teklauncher.steam.manifest;
+option csharp_namespace = "TEKLauncher.Steam.Manifest";
+
+message Payload
+{
+    message File
+    {
+        message Chunk
+        {
+            bytes gid = 1;
+            fixed32 hash = 2;
+            int64 offset = 3;
+            int32 uncompressed_size = 4;
+            int32 compressed_size = 5;
+        }
+        string name = 1;
+        int64 size = 2;
+        uint32 flags = 3;
+        bytes hash = 5;
+        repeated Chunk chunks = 6;
+    }
+    repeated File files = 1;
+}

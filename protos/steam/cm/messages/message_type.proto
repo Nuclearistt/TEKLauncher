@@ -1,0 +1,19 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages";
+
+enum MessageType
+{
+    INVALID = 0;
+    MULTI = 1;
+    SERVICE_METHOD_RESPONSE = 147;
+    SERVICE_METHOD = 151;
+    HEARTBEAT = 703;
+    LOG_OFF = 706;
+    LOG_ON_RESPONSE = 751;
+    SERVER_UNAVAILABLE = 5500;
+    LOG_ON = 5514;
+    PRODUCT_INFO = 8903;
+    PRODUCT_INFO_RESPONSE = 8904;
+}

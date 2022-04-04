@@ -1,0 +1,10 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages.bodies;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages.Bodies";
+
+message Multi
+{
+    optional int32 uncompressed_size = 1;
+    optional bytes messages_data = 2;
+}

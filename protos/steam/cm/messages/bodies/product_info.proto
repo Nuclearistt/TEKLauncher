@@ -1,0 +1,15 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages.bodies;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages.Bodies";
+
+message ProductInfo
+{
+    message AppInfo
+    {
+        uint32 app_id = 1;
+        uint64 access_token = 2;
+    }
+    repeated AppInfo apps = 2;
+    bool metadata_only = 3;
+}

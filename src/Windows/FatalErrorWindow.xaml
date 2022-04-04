@@ -1,0 +1,37 @@
+﻿<tlw:TEKWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:tlw="clr-namespace:TEKLauncher.Windows"
+               xmlns:ui="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Windows.FatalErrorWindow" WindowStartupLocation="CenterScreen" Title="{ui:LocString FatalError}"
+               Width="650" Height="720">
+    <Border BorderBrush="#1B3A4A" BorderThickness="2, 0, 2, 2" CornerRadius="0, 0, 8, 8">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 1">
+                <GradientStop Color="#151A21" Offset="0"/>
+                <GradientStop Color="#21262E" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+        <Border Background="{StaticResource HexBackground}">
+            <Grid Margin="25, 25, 25, 10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <ContentControl Template="{StaticResource Error}" Width="150" Height="150"/>
+                <TextBlock Grid.Column="2" VerticalAlignment="Center" TextWrapping="Wrap">
+                    <Run Text="{ui:LocString FatalErrorMessage}"/>
+                    <Hyperlink NavigateUri="https://discord.gg/47SFqqMBFN" Click="FollowLink">
+                        <Run Text="{ui:LocString FatalErrorMessageLink}"/>
+                    </Hyperlink>
+                </TextBlock>
+                <Border Grid.Row="1" Grid.ColumnSpan="3" Margin="0, 10, 0, 0" Padding="5" Background="#D021252B" CornerRadius="8">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBlock x:Name="ExceptionData" FontSize="16" TextWrapping="Wrap"/>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Border>
+    </Border>
+</tlw:TEKWindow>

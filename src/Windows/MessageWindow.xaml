@@ -1,0 +1,15 @@
+﻿<tlw:TEKWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:tlw="clr-namespace:TEKLauncher.Windows"
+               x:Class="TEKLauncher.Windows.MessageWindow" WindowStartupLocation="CenterScreen" Height="250" MinWidth="400" SizeToContent="Width">
+    <Border Background="#15191F" BorderBrush="#1B3A4A" BorderThickness="2, 0, 2, 2" CornerRadius="0, 0, 8, 8">
+        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+            <ContentControl x:Name="MessageIcon" Width="150" Height="150" Margin="25, 0, 0, 0"/>
+            <Grid x:Name="ContentGrid" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="Message" Margin="0, 0, 0, 15" FontSize="24" VerticalAlignment="Center" TextWrapping="Wrap"/>
+            </Grid>
+        </StackPanel>
+    </Border>
+</tlw:TEKWindow>

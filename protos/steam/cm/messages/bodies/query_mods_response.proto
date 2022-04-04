@@ -1,0 +1,19 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages.bodies;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages.Bodies";
+
+message QueryModsResponse
+{
+    message Item
+    {
+        optional int32 result = 1;
+        optional uint64 id = 2;
+        optional uint64 size = 8;
+        optional string preview_url = 11;
+        optional string name = 16;
+        optional int64 last_updated = 20;
+    }
+    uint32 total = 1;
+    repeated Item items = 2;
+}

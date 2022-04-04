@@ -1,0 +1,6 @@
+.vs/
+bin/
+obj/
+res/
+*.snk
+*.g.cs

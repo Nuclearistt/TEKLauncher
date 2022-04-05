@@ -175,7 +175,7 @@ static class Client
                     //Download the encrypted chunk data
                     try
                     {
-                        using var downloadStream = httpClient.GetStreamAsync(i > 5 ?  string.Concat(CDNClient.Servers[i - 5].ToString(), "/", url) : url).Result;
+                        using var downloadStream = httpClient.GetStreamAsync(i > 5 ?  string.Concat(CDNClient.Servers[i - 5].ToString(), url) : url).Result;
                         offset = 0;
                         int bytesRead;
                         do
@@ -572,7 +572,6 @@ static class Client
     /// <param name="modDetails">When <paramref name="depotId"/> specified a workshop depot, details of the mod to run tasks for.</param>
     public static void RunTasks(uint depotId, Tasks tasks, EventHandlers eventHandlers, CancellationToken cancellationToken, in Mod.ModDetails modDetails = default)
     {
-        throw new IndexOutOfRangeException();
         var context = new TaskContext() { Item = depotId == 346110 ? new(modDetails.Id) : new(depotId) };
         if ((tasks & Tasks.GetUpdateData) != 0)
         {

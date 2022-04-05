@@ -34,7 +34,6 @@ static class CDNClient
         Servers = new Uri[Client.NumberOfDownloadThreads];
         for (int i = 0; i < Client.NumberOfDownloadThreads; i++)
             Servers[i] = new(string.Concat("https://", servers[i].Host));
-        s_client.BaseAddress = Servers[0];
     }
     /// <summary>Reads manifest file or downloads it if it's missing.</summary>
     /// <param name="item">Identifier of the item to get manifest for.</param>
@@ -57,7 +56,7 @@ static class CDNClient
                 for (int i = 0; !success && i < Servers.Length; i++)
                     try
                     {
-                        using var response = s_client.GetAsync($"{Servers[i]}/depot/{item.DepotId}/manifest/{manifestId}/5", HttpCompletionOption.ResponseHeadersRead, cancellationToken).Result.EnsureSuccessStatusCode();
+                        using var response = s_client.GetAsync($"{Servers[i]}depot/{item.DepotId}/manifest/{manifestId}/5", HttpCompletionOption.ResponseHeadersRead, cancellationToken).Result.EnsureSuccessStatusCode();
                         using var content = response.Content;
                         eventHandlers.PrepareProgress?.Invoke(true, content.Headers.ContentLength ?? -1);
                         using var stream = content.ReadAsStream(cancellationToken);
@@ -127,7 +126,7 @@ static class CDNClient
                 for (int i = 0; !success && i < Servers.Length; i++)
                     try
                     {
-                        using var response = s_client.GetAsync($"{Servers[i]}/depot/{item.DepotId}/patch/{sourceManifestId}/{targetManifestId}", HttpCompletionOption.ResponseHeadersRead, cancellationToken).Result.EnsureSuccessStatusCode();
+                        using var response = s_client.GetAsync($"{Servers[i]}depot/{item.DepotId}/patch/{sourceManifestId}/{targetManifestId}", HttpCompletionOption.ResponseHeadersRead, cancellationToken).Result.EnsureSuccessStatusCode();
                         using var content = response.Content;
                         eventHandlers.PrepareProgress?.Invoke(true, content.Headers.ContentLength ?? -1);
                         using var stream = content.ReadAsStream(cancellationToken);

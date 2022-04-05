@@ -290,12 +290,25 @@ static class Client
             if (context.CancellationToken.IsCancellationRequested)
                 break;
             var file = files[context.Index];
+            string localFile = string.Concat(basePath, file.Name);
             if (file.Size == 0)
             {
-                context.FilesUpToDate++;
+                if (File.Exists(localFile))
+                    context.FilesUpToDate++;
+                else
+                {
+                    context.FilesOutdated++;
+                    deltas.Add(new()
+                    {
+                        Name = file.Name,
+                        Incomplete = false,
+                        FileSize = 0,
+                        ChunksSize = 0,
+                        Chunks = Array.Empty<ChunkEntry>()
+                    });
+                }
                 continue;
             }
-            string localFile = string.Concat(basePath, file.Name);
             if (!File.Exists(localFile))
             {
                 deltas.Add(new()

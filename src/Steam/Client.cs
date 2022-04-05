@@ -297,7 +297,7 @@ static class Client
                     context.FilesUpToDate++;
                 else
                 {
-                    context.FilesOutdated++;
+                    context.FilesMissing++;
                     deltas.Add(new()
                     {
                         Name = file.Name,

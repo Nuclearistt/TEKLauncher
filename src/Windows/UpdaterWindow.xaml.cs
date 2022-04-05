@@ -275,7 +275,15 @@ partial class UpdaterWindow : TEKWindow
                 PauseRetryButton.Tag = FindResource("Retry");
             });
         }
-        catch (Exception e) { Dispatcher.Invoke(() => throw new AggregateException(e)); }
+        catch (Exception e)
+        {
+            File.WriteAllText($@"{App.AppDataFolder}\SteamClientException.txt", e.ToString());
+            Dispatcher.Invoke(delegate
+            {
+                new FatalErrorWindow(e).ShowDialog();
+                Application.Current.Shutdown();
+            });
+        }
     }
     /// <summary>Force cancels Steam client task if it's running.</summary>
     public void AbortTask()

@@ -287,7 +287,15 @@ partial class GameOptionsTab : ContentControl
                 SwitchButtons(true, true);
             });
         }
-        catch (Exception e) { Dispatcher.Invoke(() => throw new AggregateException(e)); }
+        catch (Exception e)
+        {
+            File.WriteAllText($@"{App.AppDataFolder}\SteamClientException.txt", e.ToString());
+            Dispatcher.Invoke(delegate
+            {
+                new FatalErrorWindow(e).ShowDialog();
+                Application.Current.Shutdown();
+            });
+        }
     }
     /// <summary>Disables launch parameter that belongs to sender checkbox.</summary>
     void UncheckParameter(object sender, RoutedEventArgs e) => Game.LaunchParameters.Remove((string)((CheckBox)sender).Tag);

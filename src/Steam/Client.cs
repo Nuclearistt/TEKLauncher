@@ -631,7 +631,7 @@ static class Client
             bool itemInstalled = depotId switch
             {
                 346110 => Directory.Exists($@"{Mod.CompressedModsDirectory}\{context.Item.ModId}"),
-                346111 => Directory.Exists(Game.Path) && Directory.EnumerateFileSystemEntries(Game.Path).GetEnumerator().MoveNext(),
+                346111 => Directory.Exists($@"{Game.Path}\ShooterGame") && Directory.EnumerateFileSystemEntries($@"{Game.Path}\ShooterGame").GetEnumerator().MoveNext(),
                 _ => Array.Find(DLC.List, d => d.DepotId == depotId)?.IsInstalled ?? false
             };
             if (itemInstalled)

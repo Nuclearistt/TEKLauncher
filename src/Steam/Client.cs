@@ -114,8 +114,8 @@ static class Client
         using var aes = Aes.Create();
         aes.Key = DepotKeys[context.Item.DepotId];
         Utils.LZMA.Decoder lzmaDecoder = new();
-        int deltaIndex = 0;
-        int chunkIndex = 0;
+        int deltaIndex = -1;
+        int chunkIndex = -1;
         string baseRequestUrl = $"depot/{context.Item.DepotId}/chunk/";
         Span<char> requestUrl = stackalloc char[baseRequestUrl.Length + 40];
         baseRequestUrl.CopyTo(requestUrl);
@@ -147,14 +147,14 @@ static class Client
                 ChunkEntry chunk;
                 lock (context)
                 {
-                    if (context.DeltaIndex >= context.Deltas.Length)
-                        break;
                     if (context.DeltaIndex != deltaIndex)
                     {
                         createNewStream = true;
-                        for (; context.Deltas[context.DeltaIndex].Chunks.Length == 0; context.DeltaIndex++);
+                        for (; context.DeltaIndex < context.Deltas.Length && context.Deltas[context.DeltaIndex].Chunks.Length == 0; context.DeltaIndex++);
                         deltaIndex = context.DeltaIndex;
                     }
+                    if (deltaIndex >= context.Deltas.Length)
+                        break;
                     delta = context.Deltas[deltaIndex];
                     chunkIndex = context.ChunkIndex++;
                     chunk = delta.Chunks[chunkIndex];

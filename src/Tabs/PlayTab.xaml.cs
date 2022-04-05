@@ -28,9 +28,9 @@ partial class PlayTab : ContentControl
         else
         {
             Game.Language = GameLanguages.SelectedIndex;
-            if (Game.UseGlobalFonts)
+            string mixedFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\mixed";
+            if (Game.UseGlobalFonts && Directory.Exists(mixedFolder))
             {
-                string mixedFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\mixed";
                 string currentLocFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\{Game.CultureCodes[Game.Language]}";
                 string currentArchive = $@"{currentLocFolder}\ShooterGame.archive";
                 string currentLocRes = $@"{currentLocFolder}\ShooterGame.locres";

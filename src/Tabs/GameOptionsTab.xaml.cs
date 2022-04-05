@@ -350,6 +350,8 @@ partial class GameOptionsTab : ContentControl
         string archiveBak = string.Concat(mixedArchive, ".bak");
         string locResBak = string.Concat(mixedLocRes, ".bak");
         Game.UseGlobalFonts = !Game.UseGlobalFonts;
+        if (!Directory.Exists(mixedFolder))
+            return;
         if (Game.UseGlobalFonts)
         {
             if (File.Exists(currentArchive))

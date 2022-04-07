@@ -54,6 +54,9 @@ static class Settings
         if (File.Exists(settingsFile))
         {
             using var stream = File.OpenRead(settingsFile);
+            if (stream.ReadByte() == 0) //The file is corrupted
+                return;
+            stream.Position = 0;
             var json = JsonSerializer.Deserialize<Json>(stream)!;
             CheckForUpdates = json.CheckForUpdates;
             CloseOnGameLaunch = json.CloseOnGameLaunch;

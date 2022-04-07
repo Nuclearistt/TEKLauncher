@@ -124,6 +124,7 @@ static class Client
         Span<byte> uncompressedChunkBuffer = stackalloc byte[1048576];
         byte[] iv = new byte[16];
         int numRetryAttempts = 5 + NumberOfDownloadThreads;
+        var cts = new CancellationTokenSource();
         try
         {
             for(;;)
@@ -175,7 +176,15 @@ static class Client
                     //Download the encrypted chunk data
                     try
                     {
-                        using var downloadStream = httpClient.GetStreamAsync(i > 5 ?  string.Concat(CDNClient.Servers[i - 5].ToString(), url) : url).Result;
+                        var getTask = httpClient.GetStreamAsync(i > 5 ? string.Concat(CDNClient.Servers[i - 5].ToString(), url) : url, cts.Token);
+                        if (!getTask.Wait(5000))
+                        {
+                            cts.Cancel();
+                            cts.Dispose();
+                            cts = new();
+                            throw new TaskCanceledException();
+                        }
+                        using var downloadStream = getTask.Result;
                         offset = 0;
                         int bytesRead;
                         do
@@ -271,6 +280,7 @@ static class Client
                     context.ChunkIndex = chunkIndex;
             }
         }
+        cts.Dispose();
         stream?.Dispose();
     }
     /// <summary>Verifies installed files of specified item.</summary>

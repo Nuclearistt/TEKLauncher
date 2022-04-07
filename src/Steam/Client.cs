@@ -1098,7 +1098,7 @@ static class Client
             {
                 string infoFilePath = string.Concat(baseLocalPath, "mod.info");
                 if (File.Exists(infoFilePath))
-                    File.SetLastWriteTimeUtc(infoFilePath, new(modDetails.LastUpdated));
+                    File.SetLastWriteTimeUtc(infoFilePath, DateTime.UtcNow);
             }
             else
             {

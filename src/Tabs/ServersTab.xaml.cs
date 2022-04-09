@@ -25,7 +25,7 @@ partial class ServersTab : ContentControl
             AddItem(new ClusterItem(cluster));
     }
     /// <summary>Initiates reload of the cluster list.</summary>
-    void Refresh(object sender, RoutedEventArgs e) => new Task(Cluster.ReloadLists).Start();
+    void Refresh(object sender, RoutedEventArgs e) => Task.Run(Cluster.ReloadLists);
     /// <summary>Gets UI item for specified cluster and creates one if it doesn't exist.</summary>
     /// <param name="cluster">Cluster to get the item for.</param>
     internal ClusterItem GetItemForCluster(Cluster cluster)

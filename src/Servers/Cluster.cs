@@ -109,7 +109,8 @@ class Cluster
             return;
         }
         //Query servers and sort them into clusters
-        foreach (var server in lanServers)
+        Parallel.ForEach(lanServers, server =>
+        {
             if (server.Query())
             {
                 Lan.Servers.Add(server);
@@ -121,14 +122,15 @@ class Cluster
                         clusterTab.AddServer(server);
                 });
             }
-        foreach (var server in favoritesServers)
+        });
+        Parallel.ForEach(favoritesServers, server =>
         {
             var currentServer = server;
             var lanServer = Lan.Servers.Find(s => s.Equals(currentServer));
             if (lanServer is null)
             {
                 if (!currentServer.Query())
-                    continue;
+                    return;
             }
             else
                 currentServer = lanServer;
@@ -140,17 +142,17 @@ class Cluster
                 else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Favorites)
                     clusterTab.AddServer(currentServer);
             });
-        }
+        });
         var clusterCandidateCache = new Dictionary<string, Server>(); //Stores servers that have a cluster ID but yet there are no other servers clustered with it
         int unknownClusterIndex = 0;
-        foreach (var server in onlineServers)
+        Parallel.ForEach(onlineServers, server =>
         {
             var currentServer = server;
             var favoriteServer = Favorites.Servers.Find(s => s.Equals(currentServer));
             if (favoriteServer is null)
             {
                 if (!currentServer.Query())
-                    continue;
+                    return;
             }
             else
                 currentServer = favoriteServer;
@@ -164,7 +166,7 @@ class Cluster
                     else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Unclustered)
                         clusterTab.AddServer(currentServer);
                 });
-                continue;
+                return;
             }
             var cluster = OnlineClusters.Find(c => c._id == currentServer.ClusterId);
             if (cluster is null)
@@ -185,7 +187,7 @@ class Cluster
                             clusterTab.RemoveServer(candidate);
                     });
                     Unclustered.Servers.Remove(candidate);
-                    continue;
+                    return;
                 }
                 else
                 {
@@ -211,7 +213,7 @@ class Cluster
                         clusterTab.AddServer(currentServer);
                 });
             }
-        }
+        });
         clusterCandidateCache.Clear();
         CurrentStatus = 3;
     }

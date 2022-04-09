@@ -122,7 +122,7 @@ static class WinAPI
                             var thread = CreateRemoteThread(processInformation.hProcess, IntPtr.Zero, 0, loadLibraryAdrress, memory, 0, out _);
                             if (thread != IntPtr.Zero)
                             {
-                                _ = WaitForSingleObject(thread, 100);
+                                _ = WaitForSingleObject(thread, 5000);
                                 CloseHandle(thread);
                             }
                         }

@@ -24,8 +24,6 @@ static class App
             return steamProcess is not null;
         }
     }
-    /// <summary>Gets path to Steam installation folder.</summary>
-    public static string Path { get; private set; } = null!;
     /// <summary>Retrieves primary data from Steam config files.</summary>
     public static void Initialize()
     {
@@ -36,8 +34,7 @@ static class App
             Application.Current.Shutdown();
             return;
         }
-        Path = path; 
-        string configFile = $@"{Path}\config\config.vdf";
+        string configFile = $@"{path}\config\config.vdf";
         if (File.Exists(configFile))
         {
             using var reader = new StreamReader(configFile);

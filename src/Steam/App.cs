@@ -56,14 +56,6 @@ static class App
                 }
             }
         }
-        int? activeUser = (int?)Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam\ActiveProcess")?.GetValue("ActiveUser");
-        if (!activeUser.HasValue)
-            return;
-        string localConfigFile = $@"{Path}\userdata\{activeUser.Value}\config\localconfig.vdf";
-        if (File.Exists(localConfigFile))
-        {
-            using var reader = new StreamReader(localConfigFile);
-            IsARKPurchased = new VDFNode(reader)["Software"]?["Valve"]?["Steam"]?["apps"]?["346110"] is not null;
-        }
+        IsARKPurchased = (int?)Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam\Apps\346110")?.GetValue("Installed") == 1;
     }
 }

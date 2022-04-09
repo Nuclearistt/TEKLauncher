@@ -46,12 +46,6 @@ static class ServerBrowser
     static GetServerCount s_getServerCount = null!;
     /// <summary>ISteamUtils::RunFrame function pointer.</summary>
     static RunFrame s_runFrame = null!;
-    /// <summary>TEK Launcher's matchmaking filters.</summary>
-    static readonly MatchMakingKeyValuePair_t[] s_filters = new MatchMakingKeyValuePair_t[]
-    {
-        new() { m_szKey = "gamedir", m_szValue = "ark_survival_evolved" },
-        new() { m_szKey = "gamedataand", m_szValue = "TEKWrapper:1" }
-    };
     //Steam API function delegate definitions
     delegate int CreateSteamPipe(IntPtr pThis);
     delegate bool BReleaseSteamPipe(IntPtr pThis, int hSteamPipe);
@@ -133,8 +127,9 @@ static class ServerBrowser
     }
     /// <summary>Gets specified server list via Steam client API.</summary>
     /// <param name="type">Type of the server list to get.</param>
+    /// <param name="clusterId">ID of the cluster to get servers for.</param>
     /// <returns>An array of server objects, or <see langword="null"/> if the request fails.</returns>
-    public static Server[]? GetServers(ServerListType type)
+    public static Server[]? GetServers(ServerListType type, string? clusterId = null)
     {
         if (s_steamClient == IntPtr.Zero)
         {
@@ -142,11 +137,16 @@ static class ServerBrowser
             if (s_steamClient == IntPtr.Zero)
                 return null;
         }
+        var filters = type == ServerListType.LAN ? null : new MatchMakingKeyValuePair_t[]
+        {
+            new() { m_szKey = "gamedir", m_szValue = "ark_survival_evolved" },
+            new() { m_szKey = "gamedataand", m_szValue = clusterId is null ? "TEKWrapper:1" : $"TEKWrapper:1,CLUSTERID_s:{clusterId}" }
+        };
         var request = type switch
         {
             ServerListType.LAN => s_requestLANServerList(s_steamMatchmakingServers, 346110, IntPtr.Zero),
-            ServerListType.Favorites => s_requestFavoritesServerList(s_steamMatchmakingServers, 346110, in s_filters, 2, IntPtr.Zero),
-            _ => s_requestInternetServerList(s_steamMatchmakingServers, 346110, in s_filters, 2, IntPtr.Zero)
+            ServerListType.Favorites => s_requestFavoritesServerList(s_steamMatchmakingServers, 346110, in filters!, 2, IntPtr.Zero),
+            _ => s_requestInternetServerList(s_steamMatchmakingServers, 346110, in filters!, 2, IntPtr.Zero)
         };
         for (int i = type == ServerListType.Online ? 250 : 20; i > 0 && s_getServerCount(s_steamMatchmakingServers, request) == 0; i--)
         {

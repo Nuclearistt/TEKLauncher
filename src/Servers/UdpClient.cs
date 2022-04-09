@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Collections.Concurrent;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace TEKLauncher.Servers;
@@ -8,7 +9,7 @@ namespace TEKLauncher.Servers;
 static class UdpClient
 {
     /// <summary>Ongoing datagram transactions.</summary>
-    static readonly Dictionary<IPEndPoint, TaskCompletionSource<byte[]>> s_transactions = new(32);
+    static readonly ConcurrentDictionary<IPEndPoint, TaskCompletionSource<byte[]>> s_transactions = new(5, 32);
     /// <summary>Underlying UDP socket.</summary>
     static readonly Socket s_socket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) { SendTimeout = 2000 };
     /// <summary>Starts receive loop thread.</summary>
@@ -29,15 +30,8 @@ static class UdpClient
                 int bytesRead = s_socket.ReceiveFrom(buffer, ref remoteEndpoint);
                 if (bytesRead <= 0 || remoteEndpoint is not IPEndPoint ipEndpoint)
                     return;
-                TaskCompletionSource<byte[]>? completionSource;
-                lock (s_transactions)
-                {
-                    if (s_transactions.TryGetValue(ipEndpoint, out completionSource))
-                        s_transactions.Remove(ipEndpoint);
-                    else
-                        return;
-                }
-                completionSource.SetResult(buffer[..bytesRead].ToArray());
+                if (s_transactions.Remove(ipEndpoint, out var completionSource))
+                    completionSource.SetResult(buffer[..bytesRead].ToArray());
             }
         }
         catch { }
@@ -51,15 +45,13 @@ static class UdpClient
     public static byte[]? Transact(IPEndPoint endpoint, ReadOnlySpan<byte> request)
     {
         var completionSource = new TaskCompletionSource<byte[]>();
-        lock (s_transactions)
-            s_transactions.Add(endpoint, completionSource);
+        s_transactions[endpoint] = completionSource;
         lock (s_socket)
             try { s_socket.SendTo(request, endpoint); }
             catch { return null; }
         if (!completionSource.Task.Wait(2000))
         {
-            lock (s_transactions)
-                s_transactions.Remove(endpoint);
+            s_transactions.Remove(endpoint, out _);
             return null;
         }
         return completionSource.Task.Result;

@@ -14,6 +14,10 @@ partial class ClusterTab : ContentControl
     internal ClusterTab(Cluster cluster)
     {
         InitializeComponent();
+        if (cluster.IsSpecialCluster)
+            RefreshButton.Visibility = Visibility.Collapsed;
+        else
+            RefreshButton.IsEnabled = Cluster.CurrentStatus == 3;
         DataContext = cluster;
         NameBlock.Text = cluster.Name;
         if (cluster.Discord is not null)
@@ -52,6 +56,34 @@ partial class ClusterTab : ContentControl
     void Back(object sender, RoutedEventArgs e) => ((MainWindow)Application.Current.MainWindow).Navigate(new ServersTab());
     /// <summary>Follows the cluster's Discord server join link.</summary>
     void JoinDiscord(object sender, RoutedEventArgs e) => Process.Start(new ProcessStartInfo(((Cluster)DataContext).Discord!) { UseShellExecute = true });
+    void Refresh(object sender, RoutedEventArgs e)
+    {
+        RefreshButton.IsEnabled = false;
+        var cluster = (Cluster)DataContext;
+        cluster.Servers.Clear();
+        Servers.Children.Clear();
+        Task.Run(delegate
+        {
+            var servers = Steam.ServerBrowser.GetServers(Steam.ServerBrowser.ServerListType.Online, cluster.Id);
+            if (servers is not null)
+                Parallel.ForEach(servers, server =>
+                {
+                    if (!server.Query())
+                        return;
+                    cluster.Servers.Add(server);
+                    Dispatcher.Invoke(delegate
+                    {
+                        var tabFrame = ((MainWindow)Application.Current.MainWindow).TabFrame;
+                        if (tabFrame.Child is ServersTab serversTab)
+                            serversTab.GetItemForCluster(cluster).RefreshCounts();
+                        else if (tabFrame.Child == this)
+                            AddServer(server);
+                    });
+                    
+                });
+            Dispatcher.Invoke(() => RefreshButton.IsEnabled = true);
+        });
+    }
     /// <summary>Adds a new server item to displayed server list of the tab.</summary>
     /// <param name="server">Server to add an item for.</param>
     internal void AddServer(Server server) => Servers.Children.Add(new ServerItem(server, (Cluster)DataContext));

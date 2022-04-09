@@ -29,8 +29,11 @@ partial class ClusterItem : UserControl
     {
         var cluster = (Cluster)DataContext;
         int totalPlayers = 0;
-        foreach (var server in cluster.Servers)
-            totalPlayers += server.OnlinePlayers;
-        Counts.Text = string.Format(LocManager.GetString(LocCode.ClusterCounts), totalPlayers, cluster.Servers.Count);
+        lock (cluster.Servers)
+        {
+            foreach (var server in cluster.Servers)
+                totalPlayers += server.OnlinePlayers;
+            Counts.Text = string.Format(LocManager.GetString(LocCode.ClusterCounts), totalPlayers, cluster.Servers.Count);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using TEKLauncher.Tabs;
+﻿using System.Collections.Concurrent;
+using TEKLauncher.Tabs;
 using TEKLauncher.Windows;
 
 namespace TEKLauncher.Servers;
@@ -11,7 +12,7 @@ class Server
     /// <summary>List of official map names that may be returned by server queries.</summary>
     static readonly string[] s_mapNames = { "TheIsland", "TheCenter", "ScorchedEarth", "Ragnarok", "Aberration", "Extinction", "Valguero_P", "Genesis", "CrystalIsles", "Gen2", "LostIsland" };
     /// <summary>Stores cached server/cluster information objects by their URLs.</summary>
-    static readonly Dictionary<string, Info> s_infoCache = new();
+    static readonly ConcurrentDictionary<string, Info> s_infoCache = new();
     /// <summary>Gets a value that indicates whether server's mode is PvE.</summary>
     public bool IsPvE { get; private set; }
     /// <summary>Gets max number of players that can play on the server simultaneously.</summary>
@@ -133,6 +134,7 @@ class Server
             return false;
         int numRules = BitConverter.ToInt16(buffer, 5);
         startIndex = 7;
+        bool tekWrapperInstalled = false;
         for (int i = 0; i < numRules; i++)
         {
             nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);
@@ -150,6 +152,7 @@ class Server
                     string[] values = Encoding.ASCII.GetString(buffer, startIndex, nullIndex - startIndex).Split();
                     if (values.Length < 3 || values[0] != "TEKWrapper")
                         return false;
+                    tekWrapperInstalled = true;
                     if (values[1] != "0")
                     {
                         string[] ids = values[1].Split(',');
@@ -173,6 +176,8 @@ class Server
                     break;
             }
         }
+        if (!tekWrapperInstalled)
+            return false;
         //A2S_PLAYER
         request[4] = 0x55;
         buffer = UdpClient.Transact(_endpoint, request);

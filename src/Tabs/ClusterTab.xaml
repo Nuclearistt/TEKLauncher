@@ -9,7 +9,10 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Button Template="{StaticResource IconButton}" Margin="20, 20, 0, 0" HorizontalAlignment="Left" Content="{StaticResource Back}" Click="Back"/>
+        <StackPanel Margin="20, 20, 0, 0" HorizontalAlignment="Left" Orientation="Horizontal">
+            <Button Template="{StaticResource IconButton}" Content="{StaticResource Back}" Click="Back"/>
+            <Button Template="{StaticResource IconButton}" x:Name="RefreshButton" Margin="20, 0, 0, 0" Content="{StaticResource Refresh}" Click="Refresh"/>
+        </StackPanel>
         <Border Grid.ColumnSpan="2" HorizontalAlignment="Center" CornerRadius="0, 0, 20, 20">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">

@@ -95,9 +95,11 @@ class Server
                 return false;
         }
         int nullIndex = Array.IndexOf(buffer, (byte)0, 6);
+        if (nullIndex < 7)
+            return false;
         Name = Encoding.ASCII.GetString(buffer, 6, nullIndex - 6);
         int startIndex = Name.LastIndexOf(" - (v");
-        if (startIndex != -1)
+        if (startIndex >= 0)
         {
             Version = Name[(startIndex + 5)..^1];
             Name = Name[..startIndex];
@@ -116,12 +118,14 @@ class Server
             MapCode.Mod => map,
             _ => DLC.Get(Map).Name
         };
-        nullIndex = Array.IndexOf(buffer, (byte)0, ++nullIndex);
+        startIndex = nullIndex + 1;
+        nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);
+        if (Encoding.ASCII.GetString(buffer, startIndex, nullIndex - startIndex) != "ark_survival_evolved")
+            return false;
         nullIndex = Array.IndexOf(buffer, (byte)0, ++nullIndex);
         startIndex = nullIndex + 3;
         MaxPlayers = buffer[++startIndex];
         //A2S_RULES
-        string? infoFileUrl = null;
         request = request[..9];
         request[4] = 0x56;
         BitConverter.TryWriteBytes(request[5..], 0xFFFFFFFF);
@@ -135,6 +139,7 @@ class Server
         int numRules = BitConverter.ToInt16(buffer, 5);
         startIndex = 7;
         bool tekWrapperInstalled = false;
+        string? infoFileUrl = null;
         for (int i = 0; i < numRules; i++)
         {
             nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);
@@ -159,7 +164,6 @@ class Server
                         ModIds = new ulong[ids.Length];
                         for (int j = 0; j < ids.Length; j++)
                             ModIds[j] = ulong.Parse(ids[j]);
-
                     }
                     if (values[2] != "0")
                         infoFileUrl = values[2];

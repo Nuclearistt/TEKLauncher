@@ -66,7 +66,7 @@ partial class ClusterTab : ContentControl
         {
             var servers = Steam.ServerBrowser.GetServers(Steam.ServerBrowser.ServerListType.Online, cluster.Id);
             if (servers is not null)
-                Parallel.ForEach(servers, server =>
+                Parallel.ForEach(servers, new ParallelOptions { MaxDegreeOfParallelism = 10 }, server =>
                 {
                     if (!server.Query())
                         return;

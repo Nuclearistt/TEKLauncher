@@ -110,34 +110,31 @@ class Cluster
             return;
         }
         //Query servers and sort them into clusters
+        var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 10 };
         Parallel.ForEach(lanServers, server =>
         {
-            if (server.Query())
+            if (!server.Query())
+                return;
+            lock (Lan.Servers)
+                Lan.Servers.Add(server);
+            dispatcher.Invoke(delegate
             {
-                lock (Lan.Servers)
-                    Lan.Servers.Add(server);
-                dispatcher.Invoke(delegate
-                {
-                    if (tabFrame.Child is ServersTab serversTab)
-                        serversTab.GetItemForCluster(Lan).RefreshCounts();
-                    else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Lan)
-                        clusterTab.AddServer(server);
-                });
-            }
+                if (tabFrame.Child is ServersTab serversTab)
+                    serversTab.GetItemForCluster(Lan).RefreshCounts();
+                else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Lan)
+                    clusterTab.AddServer(server);
+            });
         });
-        Parallel.ForEach(favoritesServers, server =>
+        Parallel.ForEach(favoritesServers, parallelOptions, server =>
         {
             var currentServer = server;
             Server? lanServer;
             lock (Lan.Servers)
                 lanServer = Lan.Servers.Find(s => s.Equals(currentServer));
-            if (lanServer is null)
-            {
-                if (!currentServer.Query())
-                    return;
-            }
-            else
+            if (lanServer is not null)
                 currentServer = lanServer;
+            else if (!currentServer.Query())
+                return;
             lock (Favorites.Servers)
                 Favorites.Servers.Add(currentServer);
             dispatcher.Invoke(delegate
@@ -150,19 +147,16 @@ class Cluster
         });
         var clusterCandidateCache = new ConcurrentDictionary<string, Server>(); //Stores servers that have a cluster ID but yet there are no other servers clustered with it
         int unknownClusterIndex = 0;
-        Parallel.ForEach(onlineServers, server =>
+        Parallel.ForEach(onlineServers, parallelOptions, server =>
         {
             var currentServer = server;
             Server? favoriteServer;
             lock (Favorites.Servers)
                 favoriteServer = Favorites.Servers.Find(s => s.Equals(currentServer));
-            if (favoriteServer is null)
-            {
-                if (!currentServer.Query())
-                    return;
-            }
-            else
+            if (favoriteServer is not null)
                 currentServer = favoriteServer;
+            else if (!currentServer.Query())
+                return;
             if (currentServer.ClusterId is null)
             {
                 lock (Unclustered.Servers)
@@ -184,6 +178,8 @@ class Cluster
                 if (clusterCandidateCache.Remove(currentServer.ClusterId, out var candidate))
                 {
                     cluster = new(currentServer.ClusterId, currentServer.Info?.ClusterName ?? string.Format(LocManager.GetString(LocCode.UnknownCluster), ++unknownClusterIndex), currentServer.Info?.HosterName, currentServer.Info?.IconUrl, currentServer.Info?.Discord, currentServer.Info?.ClusterDescription, new() { candidate, currentServer });
+                    lock (Unclustered.Servers)
+                        Unclustered.Servers.Remove(candidate);
                     lock (OnlineClusters)
                         OnlineClusters.Add(cluster);
                     dispatcher.Invoke(delegate
@@ -196,9 +192,6 @@ class Cluster
                         else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Unclustered)
                             clusterTab.RemoveServer(candidate);
                     });
-                    lock (Unclustered.Servers)
-                        Unclustered.Servers.Remove(candidate);
-                    return;
                 }
                 else
                 {

@@ -27,7 +27,14 @@ static class UdpClient
         {
             for (;;)
             {
-                int bytesRead = s_socket.ReceiveFrom(buffer, ref remoteEndpoint);
+                int bytesRead = -1;
+                for (int i = 0; i < 5; i++)
+                    try
+                    {
+                        bytesRead = s_socket.ReceiveFrom(buffer, ref remoteEndpoint);
+                        break;
+                    }
+                    catch (SocketException e) when (e.SocketErrorCode == SocketError.ConnectionReset) { }
                 if (bytesRead <= 0 || remoteEndpoint is not IPEndPoint ipEndpoint)
                     return;
                 if (s_transactions.Remove(ipEndpoint, out var completionSource))

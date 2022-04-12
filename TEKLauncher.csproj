@@ -21,6 +21,7 @@
     <AssemblyOriginatorKeyFile>SigningKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <PublishSingleFile>True</PublishSingleFile>
+	<PostBuildEvent>call "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a TEKLauncher.exe</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.20.0"/>
@@ -35,6 +36,6 @@
     <Protos Include="protos\**"/>
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.19.4\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))"/>
+    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.20.0\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))"/>
   </Target>
 </Project>

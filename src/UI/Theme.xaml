@@ -1421,12 +1421,11 @@
                         <Border x:Name="Caption" Background="#1B232E" BorderBrush="#1B3A4A" BorderThickness="2, 2, 2, 0" CornerRadius="8, 8, 0, 0">
                             <Grid Margin="20, 0, 0, 0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="Title" Foreground="#C5D4E3" FontSize="30" FontWeight="Bold" VerticalAlignment="Center" Text="{TemplateBinding Title}"/>
-                                <StackPanel Grid.Column="2" x:Name="ControlButtons" WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock x:Name="Title" Foreground="#C5D4E3" FontSize="30" FontWeight="Bold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{TemplateBinding Title}"/>
+                                <StackPanel Grid.Column="1" x:Name="ControlButtons" WindowChrome.IsHitTestVisibleInChrome="True" VerticalAlignment="Center" Orientation="Horizontal">
                                     <Button Template="{StaticResource ControlButton}" Width="25" Height="25" Margin="0, 0, 5, 0" Tag="1"/>
                                     <Button Template="{StaticResource ControlButton}" Width="25" Height="25" Margin="5, 0, 5, 0" Tag="2"/>
                                     <Button Template="{StaticResource ControlButton}" Width="25" Height="25" Margin="5, 0, 10, 0" Tag="4"/>

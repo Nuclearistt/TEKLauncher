@@ -134,7 +134,10 @@ static class Client
                     lock (context)
                     {
                         if (deltaIndex < context.DeltaIndex && deltaIndex >= 0)
+                        {
                             context.DeltaIndex = deltaIndex;
+                            context.ChunkIndex = chunkIndex;
+                        }
                         else if (deltaIndex == context.DeltaIndex && chunkIndex < context.ChunkIndex)
                             context.ChunkIndex = chunkIndex;
                     }
@@ -278,7 +281,10 @@ static class Client
             {
                 context.Exception = e;
                 if (deltaIndex < context.DeltaIndex && deltaIndex >= 0)
+                {
                     context.DeltaIndex = deltaIndex;
+                    context.ChunkIndex = chunkIndex;
+                }
                 else if (deltaIndex == context.DeltaIndex && chunkIndex < context.ChunkIndex)
                     context.ChunkIndex = chunkIndex;
             }

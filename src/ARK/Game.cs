@@ -76,7 +76,7 @@ static class Game
             if (UseTEKInjector)
             {
                 string tekInjectorPath = $@"{Path}\ShooterGame\Binaries\Win64\TEKInjector.dll";
-                if (!File.Exists(tekInjectorPath) || System.Version.TryParse(FileVersionInfo.GetVersionInfo(tekInjectorPath).FileVersion, out var version) && version < new Version(1,0,0,1))
+                if (!File.Exists(tekInjectorPath) || System.Version.TryParse(FileVersionInfo.GetVersionInfo(tekInjectorPath).FileVersion, out var version) && version < new Version(1,0,1,0))
                 {
                     using var resourceStream = Application.GetResourceStream(new("pack://application:,,,/res/TEKInjector.br")).Stream;
                     using var decoderStream = new BrotliStream(resourceStream, CompressionMode.Decompress);

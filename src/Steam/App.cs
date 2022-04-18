@@ -15,7 +15,7 @@ static class App
         get
         {
             int? pid = (int?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("SteamPID");
-            if (!pid.HasValue)
+            if (!pid.HasValue || pid.Value == 0)
                 return false;
             Process? steamProcess;
             try { steamProcess = Process.GetProcessById(pid.Value); }

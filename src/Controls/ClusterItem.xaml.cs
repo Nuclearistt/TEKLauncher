@@ -20,20 +20,15 @@ partial class ClusterItem : UserControl
             Icon.Height = 32;
         else
             Icon.Source = new BitmapImage(new(cluster.IconUrl));
-        RefreshCounts();
+        RefreshNumServers();
     }
     /// <summary>Creates a <see cref="ClusterTab"/> for represented clutser and navigates main window to it.</summary>
     void OpenTab(object sender, RoutedEventArgs e) => ((MainWindow)Application.Current.MainWindow).Navigate(new ClusterTab((Cluster)DataContext));
-    /// <summary>Updates player and server counts displayed on the item.</summary>
-    public void RefreshCounts()
+    /// <summary>Updates the number of servers displayed on the item.</summary>
+    public void RefreshNumServers()
     {
         var cluster = (Cluster)DataContext;
-        int totalPlayers = 0;
         lock (cluster.Servers)
-        {
-            foreach (var server in cluster.Servers)
-                totalPlayers += server.OnlinePlayers;
-            Counts.Text = string.Format(LocManager.GetString(LocCode.ClusterCounts), totalPlayers, cluster.Servers.Count);
-        }
+            NumServers.Text = string.Format(LocManager.GetString(LocCode.ClusterNumServers), cluster.Servers.Count);
     }
 }

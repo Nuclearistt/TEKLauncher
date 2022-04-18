@@ -12,18 +12,15 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock>
+                <TextBlock FontSize="16">
                     <Run x:Name="ServerName" FontSize="22"/>
                     <LineBreak/>
-                    <Run Foreground="#52556B" FontSize="16" Text="{Binding DisplayMapName, Mode=OneTime}"/>
-                    <Run FontSize="16" Text="|"/>
-                    <Run x:Name="Mode" FontSize="16"/>
-                    <Run FontSize="16" Text="|"/>
-                    <Run FontSize="16" Text="{ui:LocString Version}"/>
-                    <Run x:Name="Version" FontSize="16"/>
-                    <LineBreak/>
-                    <Run FontSize="18" Text="{ui:LocString Players}"/>
-                    <Run x:Name="PlayerCount" FontSize="18"/>
+                    <Run Foreground="#52556B" Text="{Binding DisplayMapName, Mode=OneTime}"/>
+                    <Run Text="|"/>
+                    <Run x:Name="Mode"/>
+                    <Run Text="|"/>
+                    <Run Text="{ui:LocString Version}"/>
+                    <Run x:Name="Version"/>
                 </TextBlock>
             </StackPanel>
             <StackPanel Grid.Column="2" Margin="10, 0, 0, 0" Orientation="Horizontal">

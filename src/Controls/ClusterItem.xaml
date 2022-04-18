@@ -16,7 +16,7 @@
                     </DrawingBrush>
                 </Image.OpacityMask>
             </Image>
-            <TextBlock x:Name="Counts" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="NumServers" HorizontalAlignment="Center"/>
         </StackPanel>
     </Button>
 </UserControl>

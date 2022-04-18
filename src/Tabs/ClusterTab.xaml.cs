@@ -75,7 +75,7 @@ partial class ClusterTab : ContentControl
                     {
                         var tabFrame = ((MainWindow)Application.Current.MainWindow).TabFrame;
                         if (tabFrame.Child is ServersTab serversTab)
-                            serversTab.GetItemForCluster(cluster).RefreshCounts();
+                            serversTab.GetItemForCluster(cluster).RefreshNumServers();
                         else if (tabFrame.Child == this)
                             AddServer(server);
                     });

@@ -30,7 +30,6 @@ partial class ServerItem : UserControl
             Mode.Text = "PvP";
         }
         Version.Text = server.Version ?? LocManager.GetString(LocCode.NA);
-        PlayerCount.Text = $"{server.OnlinePlayers}/{server.MaxPlayers}";
         FavoriteButton.IsChecked = Cluster.Favorites.Servers.Contains(server);
         FavoriteButton.Checked += AddFavorite;
         FavoriteButton.Unchecked += RemoveFavorite;

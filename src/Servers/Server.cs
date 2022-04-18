@@ -15,10 +15,6 @@ class Server
     static readonly ConcurrentDictionary<string, Info> s_infoCache = new();
     /// <summary>Gets a value that indicates whether server's mode is PvE.</summary>
     public bool IsPvE { get; private set; }
-    /// <summary>Gets max number of players that can play on the server simultaneously.</summary>
-    public int MaxPlayers { get; private set; }
-    /// <summary>Gets number of players that are currently online on the server.</summary>
-    public int OnlinePlayers { get; private set; }
     /// <summary>Gets IDs of the mods that the server is running.</summary>
     public ulong[] ModIds { get; private set; } = Array.Empty<ulong>();
     /// <summary>Gets cluster ID of the server.</summary>
@@ -55,7 +51,7 @@ class Server
         {
             var tabFrame = ((MainWindow)Application.Current.MainWindow).TabFrame;
             if (tabFrame.Child is ServersTab serversTab)
-                serversTab.GetItemForCluster(Cluster.Favorites).RefreshCounts();
+                serversTab.GetItemForCluster(Cluster.Favorites).RefreshNumServers();
             else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Cluster.Favorites)
                 clusterTab.AddServer(this);
         });
@@ -69,7 +65,7 @@ class Server
         {
             var tabFrame = ((MainWindow)Application.Current.MainWindow).TabFrame;
             if (tabFrame.Child is ServersTab serversTab)
-                serversTab.GetItemForCluster(Cluster.Favorites).RefreshCounts();
+                serversTab.GetItemForCluster(Cluster.Favorites).RefreshNumServers();
             else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Cluster.Favorites)
                 clusterTab.RemoveServer(this);
         });
@@ -122,9 +118,6 @@ class Server
         nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);
         if (Encoding.ASCII.GetString(buffer, startIndex, nullIndex - startIndex) != "ark_survival_evolved")
             return false;
-        nullIndex = Array.IndexOf(buffer, (byte)0, ++nullIndex);
-        startIndex = nullIndex + 3;
-        MaxPlayers = buffer[++startIndex];
         //A2S_RULES
         request = request[..9];
         request[4] = 0x56;
@@ -182,26 +175,6 @@ class Server
         }
         if (!tekWrapperInstalled)
             return false;
-        //A2S_PLAYER
-        request[4] = 0x55;
-        buffer = UdpClient.Transact(_endpoint, request);
-        if (buffer is null)
-            return false;
-        buffer[4] = 0x55;
-        buffer = UdpClient.Transact(_endpoint, buffer);
-        if (buffer is null)
-            return false;
-        int numPlayers = 0;
-        for (startIndex = 7; startIndex < buffer.Length;)
-        {
-            nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);
-            if (nullIndex == -1)
-                break;
-            if (nullIndex - 2 > startIndex)
-                numPlayers++;
-            startIndex = nullIndex + 14;
-        }
-        OnlinePlayers = numPlayers;
         //Attempt to load info file
         if (infoFileUrl is null)
             return true;

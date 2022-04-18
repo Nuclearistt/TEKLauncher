@@ -120,7 +120,7 @@ class Cluster
             dispatcher.Invoke(delegate
             {
                 if (tabFrame.Child is ServersTab serversTab)
-                    serversTab.GetItemForCluster(Lan).RefreshCounts();
+                    serversTab.GetItemForCluster(Lan).RefreshNumServers();
                 else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Lan)
                     clusterTab.AddServer(server);
             });
@@ -140,7 +140,7 @@ class Cluster
             dispatcher.Invoke(delegate
             {
                 if (tabFrame.Child is ServersTab serversTab)
-                    serversTab.GetItemForCluster(Favorites).RefreshCounts();
+                    serversTab.GetItemForCluster(Favorites).RefreshNumServers();
                 else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Favorites)
                     clusterTab.AddServer(currentServer);
             });
@@ -164,7 +164,7 @@ class Cluster
                 dispatcher.Invoke(delegate
                 {
                     if (tabFrame.Child is ServersTab serversTab)
-                        serversTab.GetItemForCluster(Unclustered).RefreshCounts();
+                        serversTab.GetItemForCluster(Unclustered).RefreshNumServers();
                     else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Unclustered)
                         clusterTab.AddServer(currentServer);
                 });
@@ -186,7 +186,7 @@ class Cluster
                     {
                         if (tabFrame.Child is ServersTab serversTab)
                         {
-                            serversTab.GetItemForCluster(Unclustered).RefreshCounts();
+                            serversTab.GetItemForCluster(Unclustered).RefreshNumServers();
                             serversTab.AddItem(new ClusterItem(cluster));
                         }
                         else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Unclustered)
@@ -201,7 +201,7 @@ class Cluster
                     dispatcher.Invoke(delegate
                     {
                         if (tabFrame.Child is ServersTab serversTab)
-                            serversTab.GetItemForCluster(Unclustered).RefreshCounts();
+                            serversTab.GetItemForCluster(Unclustered).RefreshNumServers();
                         else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == Unclustered)
                             clusterTab.AddServer(currentServer);
                     });
@@ -214,7 +214,7 @@ class Cluster
                 dispatcher.Invoke(delegate
                 {
                     if (tabFrame.Child is ServersTab serversTab)
-                        serversTab.GetItemForCluster(cluster).RefreshCounts();
+                        serversTab.GetItemForCluster(cluster).RefreshNumServers();
                     else if (tabFrame.Child is ClusterTab clusterTab && clusterTab.DataContext == cluster)
                         clusterTab.AddServer(currentServer);
                 });

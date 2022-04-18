@@ -124,7 +124,6 @@ static class Client
         Span<byte> uncompressedChunkBuffer = stackalloc byte[1048576];
         byte[] iv = new byte[16];
         int numRetryAttempts = 5 + NumberOfDownloadThreads;
-        var cts = new CancellationTokenSource();
         try
         {
             for(;;)
@@ -174,29 +173,26 @@ static class Client
                 //Attempt to do the download cycle multiple times if needed
                 for (int i = 0; i < numRetryAttempts; i++)
                 {
-                    int offset;
+                    int offset = 0;
                     //Download the encrypted chunk data
                     try
                     {
-                        var getTask = httpClient.GetStreamAsync(i > 5 ? string.Concat(CDNClient.Servers[i - 5].ToString(), url) : url, cts.Token);
-                        if (!getTask.Wait(5000))
-                        {
-                            cts.Cancel();
-                            cts.Dispose();
-                            cts = new();
-                            throw new TaskCanceledException();
-                        }
-                        using var downloadStream = getTask.Result;
-                        offset = 0;
+                        using var downloadStream = httpClient.GetStreamAsync(i > 5 ? string.Concat(CDNClient.Servers[i - 5].ToString(), url) : url).Result;
                         int bytesRead;
                         do
                         {
-                            bytesRead = downloadStream.Read(encryptedChunkBuffer, offset, chunk.CompressedSize - offset);
+                            var readTask = downloadStream.ReadAsync(encryptedChunkBuffer, offset, chunk.CompressedSize - offset);
+                            if (Task.WaitAny(readTask, Task.Delay(5000)) == 1)
+                            {
+                                offset = int.MaxValue;
+                                break;
+                            }
+                            bytesRead = readTask.Result;
                             offset += bytesRead;
                         }
                         while (bytesRead > 0);
                     }
-                    catch (TaskCanceledException)
+                    catch (Exception e) when (e is TaskCanceledException || e is AggregateException && e.InnerException is TaskCanceledException)
                     {
                         messageCode = LocCode.DownloadTimeout;
                         continue;
@@ -204,6 +200,11 @@ static class Client
                     catch
                     {
                         messageCode = LocCode.DownloadFailed;
+                        continue;
+                    }
+                    if (offset == int.MaxValue)
+                    {
+                        messageCode = LocCode.DownloadTimeout;
                         continue;
                     }
                     if (offset != chunk.CompressedSize)
@@ -282,7 +283,6 @@ static class Client
                     context.ChunkIndex = chunkIndex;
             }
         }
-        cts.Dispose();
         stream?.Dispose();
     }
     /// <summary>Verifies installed files of specified item.</summary>

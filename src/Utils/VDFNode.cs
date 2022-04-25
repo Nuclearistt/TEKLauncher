@@ -33,7 +33,10 @@ class VDFNode
         while ((line = reader.ReadLine()) is not null && !line.EndsWith('}'))
         {
             line = line.Replace(@"\""", "\0");
-            int qmc = line.Count('"');
+            int qmc = 0;
+            for (int i = 0; i < line.Length; i++)
+                if (line[i] == '"')
+                    qmc++;
             if (qmc == 0) //Most likely empty line => nothing to read
                 continue;
             string[] substrings = line.Split('"');

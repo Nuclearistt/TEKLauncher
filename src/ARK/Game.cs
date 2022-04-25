@@ -84,7 +84,7 @@ static class Game
                     decoderStream.CopyTo(writer);
                 }
             }
-            WinAPI.RunGameProcess($"{string.Join(' ', LaunchParameters)} -culture={(UseGlobalFonts ? "mixed" : CultureCodes[Language])}{server?.ConnectionLine}");
+            WinAPI.RunGameProcess($"\"{ExePath}\" {string.Join(' ', LaunchParameters)} -culture={(UseGlobalFonts ? "mixed" : CultureCodes[Language])}{server?.ConnectionLine}");
         }
     }
 }

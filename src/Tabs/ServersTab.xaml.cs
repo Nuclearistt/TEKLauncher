@@ -15,14 +15,18 @@ partial class ServersTab : ContentControl
     {
         InitializeComponent();
         UpdateStatus();
-        if (Cluster.Lan.Servers.Count > 0)
-            AddItem(new ClusterItem(Cluster.Lan));
-        if (Cluster.Favorites.Servers.Count > 0)
-            AddItem(new ClusterItem(Cluster.Favorites));
-        if (Cluster.Unclustered.Servers.Count > 0)
-            AddItem(new ClusterItem(Cluster.Unclustered));
-        foreach (var cluster in Cluster.OnlineClusters)
-            AddItem(new ClusterItem(cluster));
+        lock (Cluster.Lan.Servers)
+            if (Cluster.Lan.Servers.Count > 0)
+                AddItem(new ClusterItem(Cluster.Lan));
+        lock (Cluster.Favorites.Servers)
+            if (Cluster.Favorites.Servers.Count > 0)
+                AddItem(new ClusterItem(Cluster.Favorites));
+        lock (Cluster.Unclustered.Servers)
+            if (Cluster.Unclustered.Servers.Count > 0)
+                AddItem(new ClusterItem(Cluster.Unclustered));
+        lock (Cluster.OnlineClusters)
+            foreach (var cluster in Cluster.OnlineClusters)
+                AddItem(new ClusterItem(cluster));
     }
     /// <summary>Initiates reload of the cluster list.</summary>
     void Refresh(object sender, RoutedEventArgs e) => Task.Run(Cluster.ReloadLists);

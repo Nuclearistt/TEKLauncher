@@ -594,7 +594,13 @@ static class Client
         if ((tasks & Tasks.GetUpdateData) != 0)
         {
             eventHandlers.SetStage?.Invoke(LocCode.CheckingForUpdates, false);
-            if (CurrentManifestIds.TryGetValue(context.Item, out context.SourceManifestId))
+            bool itemInstalled = depotId switch
+            {
+                346110 => Directory.Exists($@"{Mod.CompressedModsDirectory}\{context.Item.ModId}"),
+                346111 => Directory.Exists($@"{Game.Path}\ShooterGame") && Directory.EnumerateFileSystemEntries($@"{Game.Path}\ShooterGame").GetEnumerator().MoveNext(),
+                _ => Array.Find(DLC.List, d => d.DepotId == depotId)?.IsInstalled ?? false
+            };
+            if (itemInstalled && CurrentManifestIds.TryGetValue(context.Item, out context.SourceManifestId))
             {
                 if (depotId == 346110 || Environment.TickCount64 - ManifestIdsLastUpdated > 600000)
                 {

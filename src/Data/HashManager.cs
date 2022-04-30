@@ -16,10 +16,10 @@ static class HashManager
         if (_loaded)
             return true;
         byte[]? data = Downloader.DownloadBytesAsync("http://95.217.84.23/files/Ark/Hashes.sha").Result;
-        if (data is null || data.Length < 220)
+        if (data is null || data.Length < (DLC.List.Length + 2) * 20)
             return false;
         GameHash = new(new(data, 0, 20));
-        for (int i = 0; i < data.Length / 20 - 1; i++)
+        for (int i = 0; i < DLCHashes.Length; i++)
             DLCHashes[i] = new(new Span<byte>(data, (i + 1) * 20, 20).ToArray());
         _loaded = true;
         return true;

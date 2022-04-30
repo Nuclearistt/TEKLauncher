@@ -1007,7 +1007,10 @@ static class Client
                         throw new SteamException(LocManager.GetString(LocCode.InstallationCorrupted));
                     fileStream.Position = pair.Value.SourceChunk.Offset;
                     fileStream.Read(buffer[..pair.Value.SourceChunk.UncompressedSize]);
-                    if (!lzmaDecoder.Decode(pair.Key.Data.Span, targetChunkBuffer[..pair.Value.TargetChunk.UncompressedSize], buffer[..pair.Value.SourceChunk.UncompressedSize]))
+                    bool decodeSuccess;
+                    try { decodeSuccess = lzmaDecoder.Decode(pair.Key.Data.Span, targetChunkBuffer[..pair.Value.TargetChunk.UncompressedSize], buffer[..pair.Value.SourceChunk.UncompressedSize]); }
+                    catch (IndexOutOfRangeException) { decodeSuccess = false; }
+                    if (!decodeSuccess)
                         throw new SteamException(LocManager.GetString(LocCode.InstallationCorrupted));
                     patchCacheStream.Write(targetChunkBuffer[..pair.Value.TargetChunk.UncompressedSize]);
                     eventHandlers.UpdateProgress?.Invoke(1);

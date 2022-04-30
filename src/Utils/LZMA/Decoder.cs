@@ -59,10 +59,6 @@ struct Decoder
         {
             if (matchDecoders[0].Decode(ref rangeDecoder) != 0)
                 return false;
-            if (state < 4)
-                state = 0;
-            else
-                state -= state < 10 ? 3 : 6;
             window.PutByte(_litDecoder.Decode(ref rangeDecoder, 0, 0));
             pos++;
         }

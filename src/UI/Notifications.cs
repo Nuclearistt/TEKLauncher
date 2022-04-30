@@ -16,7 +16,8 @@ static class Notifications
     /// <param name="message">Message to be displayed in the notification.</param>
     /// <param name="buttonText">Text to be displayed on the button.</param>
     /// <param name="buttonHandler">Function to be executed when the button is clicked.</param>
-    public static void Add(string message, string buttonText, Action buttonHandler) => s_stack.Insert(0, new Notification(message, buttonText, buttonHandler));
+    /// <param name="preventHiding">When <see langword="true"/>, prevents the notification from automatically hiding itself after 7 seconds.</param>
+    public static void Add(string message, string buttonText, Action buttonHandler, bool preventHiding = false) => s_stack.Insert(0, new Notification(message, buttonText, buttonHandler, preventHiding));
     /// <summary>Initializes the manager with the element collection to put notifications to.</summary>
     /// <param name="stack">Notification stack children collection.</param>
     public static void Initialize(UIElementCollection stack) => s_stack = stack;

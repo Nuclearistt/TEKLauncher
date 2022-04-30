@@ -8,6 +8,8 @@ partial class Notification : UserControl
 {
     /// <summary>Value indicating whether the notification has been hidden.</summary>
     bool _hidden;
+    /// <summary>Value indicating whether the notification is prevented from automatically hiding itself after 7 seconds.</summary>
+    bool _preventHiding;
     /// <summary>Creates a new notification with text message and icon.</summary>
     /// <param name="messageText">Message to be displayed in the notification.</param>
     /// <param name="iconName">Name of the icon to load.</param>
@@ -22,8 +24,10 @@ partial class Notification : UserControl
     /// <param name="messageText">Message to be displayed in the notification.</param>
     /// <param name="buttonText">Text to be displayed on the button.</param>
     /// <param name="buttonHandler">Function to be executed when the button is clicked.</param>
-    public Notification(string messageText, string buttonText, Action buttonHandler)
+    /// <param name="preventHiding">When <see langword="true"/>, prevents the notification from automatically hiding itself after 7 seconds.</param>
+    public Notification(string messageText, string buttonText, Action buttonHandler, bool preventHiding)
     {
+        _preventHiding = preventHiding;
         InitializeComponent();
         Message.Text = messageText;
         var button = new Button
@@ -53,10 +57,14 @@ partial class Notification : UserControl
     }
     /// <summary>Initiates hiding the notification.</summary>
     void Hide(object sender, RoutedEventArgs e) => Hide();
-    /// <summary>Runs the task to hide the notification in 7 seconds after its creation.</summary>
-    void LoadedHandler(object sender, RoutedEventArgs e) => Task.Delay(7000).ContinueWith(delegate
+    /// <summary>Runs the task to hide the notification in 7 seconds after its creation, unless <see cref="_preventHiding"/> is <see langword="true"/>.</summary>
+    void LoadedHandler(object sender, RoutedEventArgs e)
     {
-        if (!_hidden)
-            Dispatcher.Invoke(Hide);
-    });
+        if (!_preventHiding)
+            Task.Delay(7000).ContinueWith(delegate
+            {
+                if (!_hidden)
+                    Dispatcher.Invoke(Hide);
+            });
+    }
 }

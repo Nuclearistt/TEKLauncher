@@ -64,7 +64,7 @@ partial class MainWindow : TEKWindow
                 Dispatcher.Invoke(delegate
                 {
                     LauncherVersion.Foreground = Brushes.Yellow;
-                    Notifications.Add(LocManager.GetString(LocCode.LauncherUpdateAvailable), LocManager.GetString(LocCode.Update), () => new LauncherUpdateWindow().Show());
+                    Notifications.Add(LocManager.GetString(LocCode.LauncherUpdateAvailable), LocManager.GetString(LocCode.Update), () => new LauncherUpdateWindow().Show(), true);
                 });
         }
         Dispatcher.Invoke(() => LauncherVersionBlock.Inlines.Remove(LauncherVersionBlock.Inlines.LastInline));

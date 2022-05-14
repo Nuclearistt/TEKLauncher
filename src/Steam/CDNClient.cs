@@ -51,12 +51,13 @@ static class CDNClient
             {
                 CheckServerList();
                 eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.DownloadingManifest), 0);
+                ulong requestCode = CM.Client.GetManifestRequestCode(item.DepotId, manifestId);
                 bool success = false;
                 Span<byte> buffer = stackalloc byte[81920];
                 for (int i = 0; !success && i < Servers.Length; i++)
                     try
                     {
-                        using var response = s_client.GetAsync($"{Servers[i]}depot/{item.DepotId}/manifest/{manifestId}/5", HttpCompletionOption.ResponseHeadersRead, cancellationToken).Result.EnsureSuccessStatusCode();
+                        using var response = s_client.GetAsync($"{Servers[i]}depot/{item.DepotId}/manifest/{manifestId}/5/{requestCode}", HttpCompletionOption.ResponseHeadersRead, cancellationToken).Result.EnsureSuccessStatusCode();
                         using var content = response.Content;
                         eventHandlers.PrepareProgress?.Invoke(true, content.Headers.ContentLength ?? -1);
                         using var stream = content.ReadAsStream(cancellationToken);

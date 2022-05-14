@@ -1,0 +1,12 @@
+syntax="proto3";
+
+package teklauncher.steam.cm.messages.bodies;
+option csharp_namespace = "TEKLauncher.Steam.CM.Messages.Bodies";
+
+message ManifestRequestCode
+{
+    uint32 app_id = 1;
+    uint32 depot_id = 2;
+    uint64 manifest_id = 3;
+    string app_branch = 4;
+}

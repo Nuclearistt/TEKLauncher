@@ -43,6 +43,27 @@ static class Client
             Steam.Client.DepotManifestIds[depotId] = ulong.TryParse(vdf?[depotId.ToString()]?["manifests"]?["public"]?.Value, out ulong id) ? id : 0;
         Steam.Client.ManifestIdsLastUpdated = Environment.TickCount64;
     }
+    /// <summary>Gets request code for specified manifest.</summary>
+    /// <param name="depotId">ID of the depot that the manifest belongs to.</param>
+    /// <param name="manifestId">ID of the manifest to get request code for.</param>
+    /// <returns>The manifest request code.</returns>
+    public static ulong GetManifestRequestCode(uint depotId, ulong manifestId)
+    {
+        if (!WebSocketConnection.IsLoggedOn)
+            WebSocketConnection.Connect();
+        ulong jobId = GlobalId.NextJobId();
+        var message = new Message<ManifestRequestCode>(MessageType.ServiceMethod);
+        message.Body.AppId = 346110;
+        message.Body.DepotId = depotId;
+        message.Body.ManifestId = manifestId;
+        message.Body.AppBranch = "public";
+        message.Header.SourceJobId = jobId;
+        message.Header.TargetJobName = "ContentServerDirectory.GetManifestRequestCode#1";
+        var response = WebSocketConnection.GetMessage<ManifestRequestCodeResponse>(message, MessageType.ServiceMethodResponse, jobId);
+        if (response is null)
+            throw new SteamException(LocManager.GetString(LocCode.FailedToDownloadManifest));
+        return response.Body.ManifestRequestCode;
+    }
     /// <summary>Retrieves latest manifest ID for specified mod.</summary>
     /// <param name="modId">ID of the mod to retrieve manifest ID for.</param>
     /// <returns>The manifest ID.</returns>

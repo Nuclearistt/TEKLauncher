@@ -6,7 +6,7 @@
     <OutputType>WinExe</OutputType>
     <UseWPF>True</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
-    <Version>9.0.75.0</Version>
+    <Version>9.0.75.1</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>res\Icon.ico</ApplicationIcon>
     <Authors>Nuclearist</Authors>

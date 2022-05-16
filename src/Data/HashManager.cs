@@ -1,4 +1,6 @@
-﻿namespace TEKLauncher.Data;
+﻿using TEKLauncher.Servers;
+
+namespace TEKLauncher.Data;
 
 /// <summary>Manages SHA-1 hashes used for checking for game and DLC updates.</summary>
 static class HashManager
@@ -15,7 +17,7 @@ static class HashManager
     {
         if (_loaded)
             return true;
-        byte[]? data = Downloader.DownloadBytesAsync("http://95.217.84.23/files/Ark/Hashes.sha").Result;
+        byte[]? data = UdpClient.Transact(UdpClient.ArkoudaWatcherEndpoint, stackalloc byte[] { 0 });
         if (data is null || data.Length < (DLC.List.Length + 2) * 20)
             return false;
         GameHash = new(new(data, 0, 20));

@@ -12,6 +12,8 @@ static class UdpClient
     static readonly ConcurrentDictionary<IPEndPoint, TaskCompletionSource<byte[]>> s_transactions = new(5, 32);
     /// <summary>Underlying UDP socket.</summary>
     static readonly Socket s_socket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) { SendTimeout = 2000 };
+    /// <summary>Endpoint for Arkouda Watcher bot's UDP socket.</summary>
+    public static readonly IPEndPoint ArkoudaWatcherEndpoint = new(0x1754D95F, 27055);
     /// <summary>Starts receive loop thread.</summary>
     static UdpClient()
     {

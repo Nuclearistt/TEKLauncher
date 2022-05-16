@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text.Json.Serialization;
 using Microsoft.Toolkit.HighPerformance;
+using TEKLauncher.Servers;
 using TEKLauncher.Steam.CM.Messages;
 using TEKLauncher.Steam.CM.Messages.Bodies;
 
@@ -49,6 +50,17 @@ static class Client
     /// <returns>The manifest request code.</returns>
     public static ulong GetManifestRequestCode(uint depotId, ulong manifestId)
     {
+        if (depotId > 346111) //A DLC depot
+        {
+            Span<byte> requestData = stackalloc byte[13];
+            requestData[0] = 1;
+            BitConverter.TryWriteBytes(requestData.Slice(1, 4), depotId);
+            BitConverter.TryWriteBytes(requestData.Slice(5, 8), manifestId);
+            byte[]? responseData = UdpClient.Transact(UdpClient.ArkoudaWatcherEndpoint, requestData);
+            if (responseData is null || responseData.Length != 8)
+                throw new SteamException(LocManager.GetString(LocCode.FailedToDownloadManifest));
+            return BitConverter.ToUInt64(responseData);
+        }
         if (!WebSocketConnection.IsLoggedOn)
             WebSocketConnection.Connect();
         ulong jobId = GlobalId.NextJobId();

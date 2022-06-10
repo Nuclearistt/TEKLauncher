@@ -85,6 +85,8 @@ static class Game
                 }
             }
             WinAPI.RunGameProcess($"\"{ExePath}\" {string.Join(' ', LaunchParameters)} -culture={(UseGlobalFonts ? "mixed" : CultureCodes[Language])}{server?.ConnectionLine}");
+            if (Settings.CloseOnGameLaunch)
+                Application.Current.Shutdown();
         }
     }
 }

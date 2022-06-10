@@ -606,7 +606,11 @@ static class Client
                 {
                     eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.GettingLatestManifestID), 0);
                     if (depotId == 346110)
-                        context.TargetManifestId = CM.Client.GetModManifestId(context.Item.ModId);
+                    {
+                        context.TargetManifestId = modDetails.ManifestId;
+                        if (context.TargetManifestId == 0)
+                            context.TargetManifestId = CM.Client.GetModManifestId(context.Item.ModId);
+                    }
                     else
                         CM.Client.UpdateDepotManifestIds();
                 }
@@ -643,7 +647,11 @@ static class Client
             {
                 eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.GettingLatestManifestID), 0);
                 if (depotId == 346110)
-                    context.TargetManifestId = CM.Client.GetModManifestId(context.Item.ModId);
+                {
+                    context.TargetManifestId = modDetails.ManifestId;
+                    if (context.TargetManifestId == 0)
+                        context.TargetManifestId = CM.Client.GetModManifestId(context.Item.ModId);
+                }
                 else
                     CM.Client.UpdateDepotManifestIds();
             }

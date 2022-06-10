@@ -12,6 +12,7 @@ message ModDetailsResponse
         optional uint32 app_id = 5;
         optional uint64 size = 8;
         optional string preview_url = 11;
+        optional fixed64 hcontent_file = 14;
         optional string name = 16;
         optional int64 last_updated = 20;
     }

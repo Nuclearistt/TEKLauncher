@@ -133,7 +133,7 @@ static class Client
         for (int i = 0; i < response.Body.Details.Count; i++)
         {
             var item = response.Body.Details[i];
-            result[i] = new(item.AppId, item.Result == 1 ? 1 : item.Result == 9 ? 2 : 0, DateTimeOffset.FromUnixTimeSeconds(item.LastUpdated).Ticks, item.Id, item.Name, item.PreviewUrl);
+            result[i] = new(item.AppId, item.Result == 1 ? 1 : item.Result == 9 ? 2 : 0, DateTimeOffset.FromUnixTimeSeconds(item.LastUpdated).Ticks, item.Id, item.HcontentFile, item.Name, item.PreviewUrl);
         }
         return result;
     }
@@ -166,7 +166,7 @@ static class Client
         for (int i = 0; i < response.Body.Items.Count; i++)
         {
             var item = response.Body.Items[i];
-            result[i] = new(346110, item.Result == 1 ? 1 : item.Result == 9 ? 2 : 0, DateTimeOffset.FromUnixTimeSeconds(item.LastUpdated).Ticks, item.Id, item.Name, item.PreviewUrl);
+            result[i] = new(346110, item.Result == 1 ? 1 : item.Result == 9 ? 2 : 0, DateTimeOffset.FromUnixTimeSeconds(item.LastUpdated).Ticks, item.Id, item.HcontentFile, item.Name, item.PreviewUrl);
         }
         return result;
     }

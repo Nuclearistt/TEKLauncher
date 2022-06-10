@@ -161,5 +161,5 @@ class Mod
         Deleting
     }
     /// <summary>Represents Steam published file details of a mod.</summary>
-    public readonly record struct ModDetails(uint AppId, int Status, long LastUpdated, ulong Id, string Name, string PreviewUrl);
+    public readonly record struct ModDetails(uint AppId, int Status, long LastUpdated, ulong Id, ulong ManifestId, string Name, string PreviewUrl);
 }

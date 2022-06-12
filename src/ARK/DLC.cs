@@ -82,7 +82,7 @@ class DLC
         _umapPath = umapPathBuilder.ToString();
         DepotId = depotId;
         Name = name;
-        Code = Enum.Parse<MapCode>(folderName);
+        Code = depotId == 1887561 ? MapCode.Fjordur : Enum.Parse<MapCode>(folderName);
         _status = IsInstalled ? Status.Installed : Status.NotInstalled;
     }
     /// <summary>Checks if the DLC is up to date by comparing SHA-1 hash of its .umap file with downloaded one.</summary>

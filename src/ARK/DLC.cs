@@ -28,7 +28,8 @@ class DLC
         new("Valguero", 473854, true, true),
         new("Genesis Part 1 & 2", 473857, false, false),
         new("Crystal Isles", 1318685, true, false),
-        new("Lost Island", 1691801, true, false)
+        new("Lost Island", 1691801, true, false),
+        new("Fjordur", 1887561, true, false)
     };
     /// <summary>Gets a value that indicates whether the DLC is installed.</summary>
     public bool IsInstalled

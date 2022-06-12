@@ -14,5 +14,6 @@ enum MapCode
     CrystalIsles,
     Genesis2,
     LostIsland,
+    Fjordur,
     Mod
 }

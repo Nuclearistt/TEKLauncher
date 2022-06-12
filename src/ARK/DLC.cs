@@ -65,7 +65,12 @@ class DLC
     DLC(string name, uint depotId, bool isMod, bool has_P)
     {
         string contentDirectory = isMod ? "Mods" : "Maps";
-        string folderName = depotId == 473857 ? "Genesis" : name.Replace(" ", string.Empty);
+        string folderName = depotId switch
+        {
+            473857 => "Genesis",
+            1887561 => "FjordurOfficial",
+            _ => name.Replace(" ", string.Empty)
+        };
         _path = $@"{Game.Path}\ShooterGame\Content\{contentDirectory}\{folderName}";
         _sfcPath = $@"{Game.Path}\ShooterGame\SeekFreeContent\{contentDirectory}\{folderName}";
         var umapPathBuilder = new StringBuilder(_path);

@@ -75,7 +75,7 @@ class DLC
         _sfcPath = $@"{Game.Path}\ShooterGame\SeekFreeContent\{contentDirectory}\{folderName}";
         var umapPathBuilder = new StringBuilder(_path);
         umapPathBuilder.Append('\\');
-        umapPathBuilder.Append(folderName);
+        umapPathBuilder.Append(depotId == 1887561 ? "Fjordur" : folderName);
         if (has_P)
             umapPathBuilder.Append("_P");
         umapPathBuilder.Append(".umap");

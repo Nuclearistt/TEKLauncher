@@ -86,7 +86,8 @@ partial class ModItem : UserControl
         string modInternalName = modInfoFileMissing ? LocManager.GetString(LocCode.ModInfoFileMissing) : mod.Name;
         if (mod.Details.Status == 1)
         {
-            Preview.Source = new BitmapImage(new(mod.Details.PreviewUrl.Length == 0 ? "pack://application:,,,/res/img/SteamWorkshopDefaultImage.png" : mod.Details.PreviewUrl));
+            try { Preview.Source = new BitmapImage(new(mod.Details.PreviewUrl.Length == 0 ? "pack://application:,,,/res/img/SteamWorkshopDefaultImage.png" : mod.Details.PreviewUrl)); }
+            catch { }
             MainName.Text = mod.Details.Name;
             SecondaryName.Text = string.Concat("\n", modInternalName);
             if (modInfoFileMissing)

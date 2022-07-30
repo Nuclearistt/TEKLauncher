@@ -24,6 +24,8 @@ static class App
             return steamProcess is not null;
         }
     }
+    /// <summary>Gets or sets Steam's game installation path if there is one.</summary>
+    public static string? GamePath { get; private set; }
     /// <summary>Gets or sets current Steam user status.</summary>
     public static UserStatus CurrentUserStatus { get; private set; }
     /// <summary>Retrieves primary data from Steam config files.</summary>
@@ -93,7 +95,8 @@ static class App
                                 if (app.Key == "346110")
                                 {
                                     gameInstallationFound = true;
-                                    if (Game.Path == $@"{path.Replace(@"\\", @"\")}\steamapps\common\ARK")
+                                    GamePath = $@"{path.Replace(@"\\", @"\")}\steamapps\common\ARK";
+                                    if (Game.Path == GamePath)
                                         status = Game.Status.OwnedAndInstalled;
                                     break;
                                 }

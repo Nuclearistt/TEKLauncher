@@ -69,7 +69,7 @@ partial class FirstLaunchWindow : TEKWindow
         _continueButton = (Button)template.FindName("ContinueButton", Root);
         _steamIcon = (Image)template.FindName("SteamIcon", Root);
         _status = (TextBlock)template.FindName("Status", Root);
-        string? steamGamePath = (string?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 346110")?.GetValue("InstallLocation");
+        string? steamGamePath = Steam.App.GamePath;
         if (steamGamePath is not null)
         {
             selector.SetPath(steamGamePath);

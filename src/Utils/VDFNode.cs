@@ -23,7 +23,7 @@ class VDFNode
     public List<VDFNode>? Children { get; private set; }
     /// <summary>Retrieves object's child with specified <paramref name="key"/>.</summary>
     /// <param name="key">Key of the entry to retieve.</param>
-    public VDFNode? this[string key] => Children?.Find(s => s.Key == key);
+    public VDFNode? this[string key] => Children?.Find(s => s.Key.ToLower() == key.ToLower());
     /// <summary>Parses inner text of the object into its children.</summary>
     /// <param name="reader">Reader of the stream that contains the text to parse.</param>
     void Parse(StreamReader reader)

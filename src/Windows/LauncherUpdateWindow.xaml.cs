@@ -29,7 +29,7 @@ partial class LauncherUpdateWindow : TEKWindow
         {
             File.Move(path, string.Concat(path, ".old"), true);
             File.Move(newPath, path);
-            App.ClosePipeServer();
+            IPC.Dispose();
             Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
             Application.Current.Shutdown();
         }

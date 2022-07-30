@@ -26,20 +26,7 @@ partial class PlayTab : ContentControl
             Messages.Show("Info", LocManager.GetString(LocCode.LanguageChangeInfo));
         }
         else
-        {
             Game.Language = GameLanguages.SelectedIndex;
-            string mixedFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\mixed";
-            if (Game.UseGlobalFonts && Directory.Exists(mixedFolder))
-            {
-                string currentLocFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\{Game.CultureCodes[Game.Language]}";
-                string currentArchive = $@"{currentLocFolder}\ShooterGame.archive";
-                string currentLocRes = $@"{currentLocFolder}\ShooterGame.locres";
-                if (File.Exists(currentArchive))
-                    File.Copy(currentArchive, $@"{mixedFolder}\ShooterGame.archive", true);
-                if (File.Exists(currentLocRes))
-                    File.Copy(currentLocRes, $@"{mixedFolder}\ShooterGame.locres", true);
-            }
-        }
     }
     /// <summary>Updates value of the setting that the sender checkbox is assigned to.</summary>
     void UpdateSetting(object sender, RoutedEventArgs e)
@@ -51,7 +38,7 @@ partial class PlayTab : ContentControl
         switch (((string)checkBox.Tag)[0])
         {
             case '0': Game.RunAsAdmin = newValue; break;
-            case '1': Game.UseTEKInjector = newValue; break;
+            case '1': Game.UseBattlEye = newValue; break;
         }
     }
 }

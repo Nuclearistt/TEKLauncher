@@ -329,6 +329,13 @@ partial class GameOptionsTab : ContentControl
             }
         });
     }
+    /// <summary>Toggles high process priority setting.</summary>
+    void UpdateHighProcessPriority(object sender, RoutedEventArgs e)
+    {
+        if (!IsLoaded)
+            return;
+        Game.HighProcessPriority = !Game.HighProcessPriority;
+    }
     /// <summary>Initiates update of base game or pauses Steam client task.</summary>
     void UpdatePause(object sender, RoutedEventArgs e)
     {
@@ -339,48 +346,9 @@ partial class GameOptionsTab : ContentControl
         }
         else
         {
-            if (Steam.App.IsARKPurchased && !Messages.ShowOptions("Warning", LocManager.GetString(LocCode.UpdateSteamGameWarning)))
+            if (Steam.App.CurrentUserStatus.GameStatus == Game.Status.OwnedAndInstalled && !Messages.ShowOptions("Warning", LocManager.GetString(LocCode.UpdateSteamGameWarning)))
                 return;
             RunTask(false);
-        }
-    }
-    /// <summary>Enables or disables global fonts in the game.</summary>
-    void UpdateUseGlobalFonts(object sender, RoutedEventArgs e)
-    {
-        if (!IsLoaded)
-            return;
-        string mixedFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\mixed";
-        string currentLocFolder = $@"{Game.Path}\ShooterGame\Content\Localization\Game\{Game.CultureCodes[Game.Language]}";
-        string currentArchive = $@"{currentLocFolder}\ShooterGame.archive";
-        string currentLocRes = $@"{currentLocFolder}\ShooterGame.locres";
-        string mixedArchive = $@"{mixedFolder}\ShooterGame.archive";
-        string mixedLocRes = $@"{mixedFolder}\ShooterGame.locres";
-        string archiveBak = string.Concat(mixedArchive, ".bak");
-        string locResBak = string.Concat(mixedLocRes, ".bak");
-        Game.UseGlobalFonts = !Game.UseGlobalFonts;
-        if (!Directory.Exists(mixedFolder))
-            return;
-        if (Game.UseGlobalFonts)
-        {
-            if (File.Exists(currentArchive))
-            {
-                if (File.Exists(mixedArchive))
-                    File.Move(mixedArchive, archiveBak, true);
-                File.Copy(currentArchive, mixedArchive, true);
-            }
-            if (File.Exists(currentLocRes))
-            {
-                if (File.Exists(mixedLocRes))
-                    File.Move(mixedLocRes, locResBak, true);
-                File.Copy(currentLocRes, mixedLocRes, true);
-            }
-        }
-        else
-        {
-            if (File.Exists(archiveBak))
-                File.Move(archiveBak, mixedArchive, true);
-            if (File.Exists(locResBak))
-                File.Move(locResBak, mixedLocRes, true);
         }
     }
     /// <summary>Initiates validation of base game files.</summary>

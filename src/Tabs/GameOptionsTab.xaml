@@ -63,8 +63,6 @@
                         <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-usecache"/>
                         <CheckBox ToolTip="{ui:LocString UseAllAvailableCoresDesc}" Content="{ui:LocString UseAllAvailableCores}" Tag="-useallavailablecores"/>
                         <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-useallavailablecores"/>
-                        <CheckBox ToolTip="{ui:LocString HighProcessPriorityDesc}" Content="{ui:LocString HighProcessPriority}" Tag="-high"/>
-                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-high"/>
                         <CheckBox ToolTip="{ui:LocString DisableFontsFXAADesc}" Content="{ui:LocString DisableFontsFXAA}" Tag="-noaafonts"/>
                         <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-noaafonts"/>
                         <CheckBox ToolTip="{ui:LocString UseShaderModel4Desc}" Content="{ui:LocString UseShaderModel4}" Tag="-sm4"/>
@@ -100,7 +98,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBox x:Name="CustomLaunchParameters" Tag="{ui:LocString CustomLaunchParameters}" LostFocus="LostFocusHandler"/>
-                <CheckBox Grid.Column="1" Margin="20, 0, 0, 0" HorizontalAlignment="Right" Content="{ui:LocString UseGlobalFonts}" IsChecked="{x:Static tla:Game.UseGlobalFonts}" Checked="UpdateUseGlobalFonts" Unchecked="UpdateUseGlobalFonts"/>
+                <CheckBox Grid.Column="1" Margin="20, 0, 0, 0" HorizontalAlignment="Right" ToolTip="{ui:LocString HighProcessPriorityDesc}" Content="{ui:LocString HighProcessPriority}"  IsChecked="{x:Static tla:Game.HighProcessPriority}" Checked="UpdateHighProcessPriority" Unchecked="UpdateHighProcessPriority"/>
             </Grid>
         </StackPanel>
     </ScrollViewer>

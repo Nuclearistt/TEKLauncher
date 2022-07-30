@@ -12,9 +12,12 @@ global using TEKLauncher.Data;
 global using TEKLauncher.UI;
 global using TEKLauncher.Utils;
 using System.Diagnostics;
+using System.IO.MemoryMappedFiles;
 using System.IO.Pipes;
 using System.Media;
 using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -28,8 +31,6 @@ namespace TEKLauncher;
 /// <summary>Main class of the application.</summary>
 partial class App : Application
 {
-    /// <summary>Named pipe server that prevents running another launcher instance and is used by <see cref="Steam.TEKInjectorInterop"/>.</summary>
-    readonly NamedPipeServerStream? _pipeServer;
     /// <summary>Path to launcher's folder in AppData\Roaming.</summary>
     public static readonly string AppDataFolder = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\TEK Launcher";
     /// <summary>String representation of app version.</summary>
@@ -47,17 +48,14 @@ partial class App : Application
         LocManager.Initialize(cultureCode);
         ToolTipService.ShowDurationProperty.OverrideMetadata(typeof(ToolTip), new FrameworkPropertyMetadata(30000));
         FrameworkElement.StyleProperty.OverrideMetadata(typeof(TEKWindow), new FrameworkPropertyMetadata(FindResource(typeof(TEKWindow))));
-        try { _pipeServer = new NamedPipeServerStream("TEKLauncher", PipeDirection.Out, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous); }
-        catch (IOException)
+        if (!IPC.Initialize())
         {
-            //Pipe server creation fails when another instance of the launcher is already running (because maxNumberOfServerInstances in constructor above is 1), so a message should be displayed
             Messages.Show("Error", LocManager.GetString(LocCode.AnotherInstanceRunning));
             Current.Shutdown();
             return;
         }
-        new Thread(Steam.TEKInjectorInterop.ListenPipe).Start(_pipeServer);
         Steam.App.Initialize();
-        using Process currentProcess = Process.GetCurrentProcess();
+        using var currentProcess = Process.GetCurrentProcess();
         string oldExePath = string.Concat(currentProcess.MainModule!.FileName, ".old");
         if (File.Exists(oldExePath))
             try { File.Delete(oldExePath); }
@@ -102,12 +100,10 @@ partial class App : Application
         Steam.ServerBrowser.Shutdown();
         Steam.CM.Client.Disconnect();
         Settings.Save();
-        _pipeServer?.Dispose();
+        IPC.Dispose();
     }
     /// <summary>Handles exceptions that could not be caught by any other means.</summary>
     static void DomainExceptionHandler(object sender, UnhandledExceptionEventArgs e) => File.WriteAllText($@"{AppDataFolder}\DomainException.txt", e.ExceptionObject.ToString());
-    /// <summary>Closes named pipe server before app shutdown for update purposes.</summary>
-    public static void ClosePipeServer() => ((App)Current)._pipeServer?.Dispose();
     /// <summary>Loads all remaining data that wasn't loaded in contructor and creates main window.</summary>
     public static void Initialize()
     {

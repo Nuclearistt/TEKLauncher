@@ -21,11 +21,11 @@
     <AssemblyOriginatorKeyFile>SigningKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <PublishSingleFile>True</PublishSingleFile>
-	<PostBuildEvent>call "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a TEKLauncher.exe</PostBuildEvent>
+    <PostBuildEvent>call "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a TEKLauncher.exe</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.21.1"/>
-    <PackageReference Include="Google.Protobuf.Tools" Version="3.21.1"/>
+    <PackageReference Include="Google.Protobuf" Version="3.21.4"/>
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.21.4"/>
     <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2"/>
     <PackageReference Include="SharpZipLib" Version="1.3.3"/>
   </ItemGroup>
@@ -36,6 +36,6 @@
     <Protos Include="protos\**"/>
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.21.1\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))"/>
+    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.21.4\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))"/>
   </Target>
 </Project>

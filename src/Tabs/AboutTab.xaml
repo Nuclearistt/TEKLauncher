@@ -29,7 +29,7 @@
             <TextBlock FontSize="24" Text="{ui:LocString Links}"/>
             <TextBlock Margin="20, 0, 0, 0" FontSize="18">
                 <Image Width="32" Height="32" Source="pack://application:,,,/res/icons/Discord.png"/>
-                <Hyperlink BaselineAlignment="Center" NavigateUri="https://discord.gg/47SFqqMBFN" Click="FollowLink">Discord</Hyperlink>
+                <Hyperlink BaselineAlignment="Center" NavigateUri="https://discord.gg/JBUgcwvpfc" Click="FollowLink">Discord</Hyperlink>
                 <LineBreak/>
                 <Image Width="32" Height="32" Source="pack://application:,,,/res/icons/GitHub.png"/>
                 <Hyperlink BaselineAlignment="Center" NavigateUri="https://github.com/Nuclearistt/TEKLauncher" Click="FollowLink">GitHub Repo</Hyperlink>

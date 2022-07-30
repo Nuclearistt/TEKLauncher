@@ -127,6 +127,8 @@ enum LocCode
     LauncherVersion,
     LaunchFailCorrupted,
     LaunchFailNotLoggedIntoSteam,
+    LaunchFailRequirementsNotInstalled,
+    LaunchFailSteamApiCompromised,
     LaunchFailSteamNotRunning,
     LaunchParameters,
     Links,

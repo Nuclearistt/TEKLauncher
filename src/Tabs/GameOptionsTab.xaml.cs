@@ -116,15 +116,7 @@ partial class GameOptionsTab : ContentControl
     /// <summary>Installs game's software requirements, that consist of MSVCR 2010, MSVCR 2012, MSVCR 2013 and DirectX.</summary>
     async void InstallRequirements(object sender, RoutedEventArgs e)
     {
-        var baseVCKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Microsoft\VisualStudio");
-        if (baseVCKey is not null &&
-            baseVCKey.OpenSubKey(@"10.0\VC\VCRedist\x64") is not null &&
-            baseVCKey.OpenSubKey(@"10.0\VC\VCRedist\x86") is not null &&
-            baseVCKey.OpenSubKey(@"11.0\VC\Runtimes\x64") is not null &&
-            baseVCKey.OpenSubKey(@"11.0\VC\Runtimes\x86") is not null &&
-            baseVCKey.OpenSubKey(@"12.0\VC\Runtimes\x64") is not null &&
-            baseVCKey.OpenSubKey(@"12.0\VC\Runtimes\x86") is not null &&
-            (((int?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\DirectX")?.GetValue("MaxFeatureLevel")) ?? 0) >= 0xA000)
+        if (Game.RequirementsInstalled)
         {
             Notifications.Add(LocManager.GetString(LocCode.RequirementsAlreadyInstalled), "NSuccess");
             return;

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
+using Microsoft.Win32;
 using TEKLauncher.Servers;
 
 namespace TEKLauncher.ARK;
@@ -23,6 +24,19 @@ static class Game
     public static bool IsCorrupted => !File.Exists(ExePath) || !File.Exists(ExePathBE) || !File.Exists($@"{Path}\Engine\Binaries\ThirdParty\Steamworks\Steamv132\Win64\steam_api64.dll");
     /// <summary>Gets a value that indicates whether the game is running.</summary>
     public static bool IsRunning => Process.GetProcessesByName("ShooterGame").Length > 0;
+    /// <summary>Gets a value that indicates whether software requirements for the game are installed.</summary>
+    public static bool RequirementsInstalled
+    { 
+        get
+        {
+            var baseVCKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Microsoft\VisualStudio");
+            return baseVCKey is not null &&
+                baseVCKey.OpenSubKey(@"10.0\VC\VCRedist\x64") is not null &&
+                baseVCKey.OpenSubKey(@"11.0\VC\Runtimes\x64") is not null &&
+                baseVCKey.OpenSubKey(@"12.0\VC\Runtimes\x64") is not null &&
+                (((int?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\DirectX")?.GetValue("MaxFeatureLevel")) ?? 0) >= 0xA000;
+        }
+    }
     /// <summary>Gets or sets a value that indicates whether the game should be executed with administrator privileges.</summary>
     public static bool RunAsAdmin { get; set; } = true;
     /// <summary>Gets or sets a value that indicates whether BattlEye should be used.</summary>
@@ -62,12 +76,20 @@ static class Game
             Messages.Show("Error", LocManager.GetString(LocCode.LaunchFailCorrupted));
         else if (!Steam.App.IsRunning)
             Messages.Show("Error", LocManager.GetString(LocCode.LaunchFailSteamNotRunning));
+        else if (!RequirementsInstalled)
+            Messages.Show("Error", string.Format(LocManager.GetString(LocCode.LaunchFailRequirementsNotInstalled), LocManager.GetString(LocCode.InstallRequirements)));
         else if (server is not null && server.Map > MapCode.TheIsland && server.Map < MapCode.Mod && !DLC.Get(server.Map).IsInstalled)
             Messages.Show("Warning", LocManager.GetString(LocCode.JoinFailDLCMissing));
         else if (server is not null && float.TryParse(server.Version, out float serverVersion) && float.TryParse(Version, out float clientVersion) && (int)serverVersion != (int)clientVersion)
             Messages.Show("Warning", LocManager.GetString((int)serverVersion > (int)clientVersion ? LocCode.JoinFailServerVersionHigher : LocCode.JoinFailClientVersionHigher));
         else
         {
+            using (var reader = File.OpenRead($@"{Path}\Engine\Binaries\ThirdParty\Steamworks\Steamv132\Win64\steam_api64.dll"))
+                if (CRC32.ComputeHash(reader) != 0xC56B2718)
+                {
+                    Messages.Show("Error", LocManager.GetString(LocCode.LaunchFailSteamApiCompromised));
+                    return;
+                }
             Steam.App.UpdateUserStatus();
             if (Steam.App.CurrentUserStatus.SteamId64 == 0)
             {

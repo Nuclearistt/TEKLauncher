@@ -1,10 +1,8 @@
 # TEK Launcher
-[![Discord](https://img.shields.io/discord/937821572285206659?style=flat-square&label=Discord&logo=discord&logoColor=white&color=7289DA)](https://discord.gg/47SFqqMBFN)
-![Downloads](https://img.shields.io/github/downloads/Nuclearistt/TEKLauncher/total?style=flat-square)
+[![Discord](https://img.shields.io/discord/937821572285206659?style=flat-square&label=Discord&logo=discord&logoColor=white&color=7289DA)](https://discord.gg/JBUgcwvpfc)
+[![Downloads](https://img.shields.io/github/downloads/Nuclearistt/TEKLauncher/total?style=flat-square)](https://github.com/Nuclearistt/TEKLauncher/releases)
 
-This repository contains the code for TEK Launcher
-
-## What is it?
+## Overview
 
 TEK Launcher is a launcher for ARK: Survival Evolved that can manage game files, DLCs, mods, servers and provides few extra options
 
@@ -15,10 +13,10 @@ TEK Launcher is a launcher for ARK: Survival Evolved that can manage game files,
 
 ## Key features
 
++ Uses [ARK Shellcode](https://github.com/Nuclearistt/ARKShellcode) to disable ownership checks in the game and modify its other behaviour if necessary
 + Built-in Steam CM client implementation to get certain data from Steam servers directly via anonymous account
-+ Steam CDN client and downloader/validator built upon it which allows downloading, updating, validating and possibly even downgrading files for any Steam depot as long as its depot key is provided
-+ Wrapper upon steamclient64.dll which allows using Steam matchmaking and servers interfaces without initializing the entire Steam API as a game
-+ Can make use of [TEK Injector](https://github.com/Nuclearistt/TEKInjector) to make the game ignore Steam's ownership checks and use the mods downloaded by the launcher
++ Steam CDN client and downloader/validator built upon it which allows downloading, updating and validating files for any Steam depot as long as its depot key is provided
++ Wrapper upon steamclient64.dll which allows using Steam matchmaking/servers interfaces without initializing the entire Steam API on behalf of a game
 
 ## Localizations
 

@@ -7,7 +7,7 @@
     <UseWPF>True</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
     <Version>9.1.76.3</Version>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationManifest>TEKLauncher.manifest</ApplicationManifest>
     <ApplicationIcon>res\Icon.ico</ApplicationIcon>
     <Authors>Nuclearist</Authors>
     <Product>TEK Launcher</Product>

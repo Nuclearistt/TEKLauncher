@@ -126,8 +126,8 @@ static class Client
         Span<char> requestUrl = stackalloc char[baseRequestUrl.Length + 40];
         baseRequestUrl.CopyTo(requestUrl);
         byte[] encryptedChunkBuffer = new byte[2097152];
-        Span<byte> decryptedChunkBuffer = stackalloc byte[2097152];
-        Span<byte> uncompressedChunkBuffer = stackalloc byte[1048576];
+        Span<byte> decryptedChunkBuffer = new byte[2097152];
+        Span<byte> uncompressedChunkBuffer = new byte[1048576];
         byte[] iv = new byte[16];
         int numRetryAttempts = 5 + NumberOfDownloadThreads;
         try
@@ -307,7 +307,7 @@ static class Client
     {
         string basePath = string.Concat(item.DepotId == 346110 ? $@"{Mod.CompressedModsDirectory}\{item.ModId}" : Game.Path, "\\");
         var chunks = new List<ChunkEntry>(); //Created before for loop to avoid unnecessary memory (re-)allocations
-        Span<byte> buffer = stackalloc byte[1048576];
+        Span<byte> buffer = new byte[1048576];
         var hash = new Hash.StackHash(buffer[..20]);
         for (; context.Index < files.Length; context.Index++)
         {
@@ -948,7 +948,7 @@ static class Client
             eventHandlers.SetStage?.Invoke(LocCode.Installing, false);
             string basePath = $@"{DownloadsFolder}\{context.Item}\";
             string baseLocalPath = string.Concat(depotId == 346110 ? $@"{Mod.CompressedModsDirectory}\{context.Item.ModId}" : Game.Path, "\\");
-            Span<byte> buffer = stackalloc byte[1048576];
+            Span<byte> buffer = new byte[1048576];
             FileStream? relocCacheStream = null;
             FileStream? patchCacheStream = null;
             Dictionary<PatchChunkEntry, PatchRecord>? patchRecords = null;
@@ -1012,7 +1012,7 @@ static class Client
                 eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.ReadingPatchChunks), 0);
                 eventHandlers.PrepareProgress?.Invoke(false, context.Patch.Chunks.Length);
                 var lzmaDecoder = new Utils.LZMA.Decoder();
-                Span<byte> targetChunkBuffer = stackalloc byte[1048576];
+                Span<byte> targetChunkBuffer = new byte[1048576];
                 patchCacheStream = new FileStream($@"{DownloadsFolder}\{context.Item}-{context.TargetManifestId}.patch-cache", FileMode.Create, FileAccess.ReadWrite, FileShare.Read | FileShare.Delete, 1048576, FileOptions.DeleteOnClose);
                 foreach (var pair in patchRecords)
                 {
@@ -1024,6 +1024,7 @@ static class Client
                     bool decodeSuccess;
                     try { decodeSuccess = lzmaDecoder.Decode(pair.Key.Data.Span, targetChunkBuffer[..pair.Value.TargetChunk.UncompressedSize], buffer[..pair.Value.SourceChunk.UncompressedSize]); }
                     catch (IndexOutOfRangeException) { decodeSuccess = false; }
+                    catch (ArgumentOutOfRangeException) { decodeSuccess = false; }
                     if (!decodeSuccess)
                         throw new SteamException(LocManager.GetString(LocCode.InstallationCorrupted));
                     patchCacheStream.Write(targetChunkBuffer[..pair.Value.TargetChunk.UncompressedSize]);

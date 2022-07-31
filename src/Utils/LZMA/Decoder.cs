@@ -21,7 +21,7 @@ struct Decoder
         int dictSizeCheck = dictSize;
         if (dictSizeCheck == 0)
             dictSizeCheck++;
-        var window = new LZWindow(stackalloc byte[Math.Max(dictSize, 4096)], output);
+        var window = new LZWindow(new byte[Math.Max(dictSize, 4096)], output);
         int quotient = input[7] / 9;
         _litDecoder.Initialize(quotient % 5, input[7] % 9);
         int numPosStates = 1 << (quotient / 5);

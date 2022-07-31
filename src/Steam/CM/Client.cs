@@ -58,7 +58,7 @@ static class Client
             BitConverter.TryWriteBytes(requestData.Slice(5, 8), manifestId);
             byte[]? responseData = UdpClient.Transact(UdpClient.ArkoudaWatcherEndpoint, requestData);
             if (responseData is null || responseData.Length != 8)
-                throw new SteamException(LocManager.GetString(LocCode.FailedToDownloadManifest));
+                throw new SteamException(string.Format(LocManager.GetString(LocCode.FailedToGetManifestRequestCode), $"{depotId}-{manifestId}"));
             return BitConverter.ToUInt64(responseData);
         }
         if (!WebSocketConnection.IsLoggedOn)
@@ -73,7 +73,7 @@ static class Client
         message.Header.TargetJobName = "ContentServerDirectory.GetManifestRequestCode#1";
         var response = WebSocketConnection.GetMessage<ManifestRequestCodeResponse>(message, MessageType.ServiceMethodResponse, jobId);
         if (response is null)
-            throw new SteamException(LocManager.GetString(LocCode.FailedToDownloadManifest));
+            throw new SteamException(string.Format(LocManager.GetString(LocCode.FailedToGetManifestRequestCode), $"{depotId}-{manifestId}"));
         return response.Body.ManifestRequestCode;
     }
     /// <summary>Retrieves latest manifest ID for specified mod.</summary>

@@ -61,6 +61,7 @@ enum LocCode
     FailedToDownloadPatch,
     FailedToGetCDNServerList,
     FailedToGetManifestID,
+    FailedToGetManifestRequestCode,
     FailedToLoadPreview,
     FailedToLoadWorkshopModList,
     FatalError,

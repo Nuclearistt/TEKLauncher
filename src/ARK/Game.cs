@@ -30,11 +30,12 @@ static class Game
         get
         {
             var baseVCKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Microsoft\VisualStudio");
-            return baseVCKey is not null &&
-                baseVCKey.OpenSubKey(@"10.0\VC\VCRedist\x64") is not null &&
-                baseVCKey.OpenSubKey(@"11.0\VC\Runtimes\x64") is not null &&
-                baseVCKey.OpenSubKey(@"12.0\VC\Runtimes\x64") is not null &&
-                (((int?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\DirectX")?.GetValue("MaxFeatureLevel")) ?? 0) >= 0xA000;
+            if (baseVCKey is null ||
+                baseVCKey.OpenSubKey(@"10.0\VC\VCRedist\x64") is null ||
+                baseVCKey.OpenSubKey(@"11.0\VC\Runtimes\x64") is null ||
+                baseVCKey.OpenSubKey(@"12.0\VC\Runtimes\x64") is null)
+                return false;
+            return WinAPI.GetDirectXMajorVersion() >= 11;
         }
     }
     /// <summary>Gets or sets a value that indicates whether the game should be executed with administrator privileges.</summary>

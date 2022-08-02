@@ -150,6 +150,7 @@ enum LocCode
     ModInstallerSelectNote,
     ModInstallSuccess,
     Mods,
+    ModsOnSteamWarning,
     ModsTab,
     ModUpdatesAvailable,
     ModWithThisIdDoesntExist,

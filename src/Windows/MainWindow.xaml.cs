@@ -149,6 +149,19 @@ partial class MainWindow : TEKWindow
     void NavigatedHandler(object sender, RoutedEventArgs args)
     {
         int newTabIndex = Menu.Children.IndexOf((RadioButton)sender);
+        if (newTabIndex == 4 && Steam.App.CurrentUserStatus.GameStatus == Game.Status.OwnedAndInstalled)
+        {
+            Messages.Show("Warning", LocManager.GetString(LocCode.ModsOnSteamWarning));
+            Task.Run(() => Dispatcher.Invoke(() =>
+            {
+                ((RadioButton)sender).IsChecked = false;
+                var checkedButton = (RadioButton)Menu.Children[_currentTabIndex];
+                checkedButton.Checked -= NavigatedHandler;
+                checkedButton.IsChecked = true;
+                checkedButton.Checked += NavigatedHandler;
+            }));
+            return;
+        }
         int difference = newTabIndex - _currentTabIndex;
         if (difference != 0)
         {

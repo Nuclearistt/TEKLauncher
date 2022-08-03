@@ -6,7 +6,7 @@
     <OutputType>WinExe</OutputType>
     <UseWPF>True</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
-    <Version>9.2.77.2</Version>
+    <Version>9.2.78.0</Version>
     <ApplicationManifest>TEKLauncher.manifest</ApplicationManifest>
     <ApplicationIcon>res\Icon.ico</ApplicationIcon>
     <Authors>Nuclearist</Authors>

@@ -38,20 +38,6 @@ static class IPC
                     s_accessor.Write(16, s_progress.Complete);
                     s_outputEvent!.Set();
                     break;
-                case 3: //Get injection parameters
-                    byte[] exePath = Encoding.Unicode.GetBytes($@"\??\{(Game.UseBattlEye ? Game.ExePathBE : Game.ExePath)}");
-                    s_accessor.Write(0, exePath.Length);
-                    s_accessor.WriteArray(4, exePath, 0, exePath.Length);
-                    byte[] commandLine = Encoding.Unicode.GetBytes(Game.CommandLine);
-                    s_accessor.Write(532, commandLine.Length);
-                    s_accessor.WriteArray(536, commandLine, 0, commandLine.Length);
-                    s_accessor.Write(1576, Steam.App.CurrentUserStatus.SteamId64);
-                    s_accessor.Write(1584, (uint)Steam.App.CurrentUserStatus.GameStatus);
-                    s_accessor.Write(1588, Game.UseBattlEye);
-                    s_accessor.Write(1589, !Game.RunAsAdmin);
-                    s_accessor.Write(1590, Game.HighProcessPriority);
-                    s_outputEvent!.Set();
-                    break;
             }
     }
     /// <summary>Downloads/updates specified mod and updates download progress for ARK Shellcode.</summary>

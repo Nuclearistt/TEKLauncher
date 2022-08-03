@@ -38,7 +38,6 @@ partial class PlayTab : ContentControl
         switch (((string)checkBox.Tag)[0])
         {
             case '0': Game.RunAsAdmin = newValue; break;
-            case '1': Game.UseBattlEye = newValue; break;
         }
     }
 }

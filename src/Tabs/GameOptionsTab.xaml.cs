@@ -113,12 +113,12 @@ partial class GameOptionsTab : ContentControl
         }
         Notifications.Add(LocManager.GetString(LocCode.FixBloomSuccess), "NSuccess");
     }
-    /// <summary>Installs game's software requirements, that consist of MSVCR 2010, MSVCR 2012, MSVCR 2013 and DirectX.</summary>
-    async void InstallRequirements(object sender, RoutedEventArgs e)
+    /// <summary>Installs DirectX.</summary>
+    async void InstallDirectX(object sender, RoutedEventArgs e)
     {
-        if (Game.RequirementsInstalled)
+        if (Game.DirectXInstalled)
         {
-            Notifications.Add(LocManager.GetString(LocCode.RequirementsAlreadyInstalled), "NSuccess");
+            Notifications.Add(LocManager.GetString(LocCode.DirectXAlreadyInstalled), "NSuccess");
             return;
         }
         SwitchButtons(false, false);
@@ -150,43 +150,14 @@ partial class GameOptionsTab : ContentControl
             });
             return;
         }
-        _eventHandlers.PrepareProgress?.Invoke(false, 7);
-        var startInfo = new ProcessStartInfo(string.Concat(baseDir, @"DirectX\DXSETUP.exe"), "/silent") { UseShellExecute = true };
-        _eventHandlers.SetStatus?.Invoke(string.Format(LocManager.GetString(LocCode.InstallingRequirement), "DirectX"), 0);
-        await (Process.Start(startInfo)?.WaitForExitAsync() ?? Task.CompletedTask);
-        _eventHandlers.UpdateProgress?.Invoke(1);
-        startInfo.FileName = string.Concat(baseDir, @"MSVCP\2010\vcredist_x64.exe");
-        startInfo.Arguments = "/q /norestart";
-        _eventHandlers.SetStatus?.Invoke(string.Format(LocManager.GetString(LocCode.InstallingRequirement), "Microsoft Visual C++ Redist 2010 x64"), 0);
-        await (Process.Start(startInfo)?.WaitForExitAsync() ?? Task.CompletedTask);
-        _eventHandlers.UpdateProgress?.Invoke(1);
-        startInfo.FileName = string.Concat(baseDir, @"MSVCP\2010\vcredist_x86.exe");
-        _eventHandlers.SetStatus?.Invoke(string.Format(LocManager.GetString(LocCode.InstallingRequirement), "Microsoft Visual C++ Redist 2010 x86"), 0);
-        await (Process.Start(startInfo)?.WaitForExitAsync() ?? Task.CompletedTask);
-        _eventHandlers.UpdateProgress?.Invoke(1);
-        startInfo.FileName = string.Concat(baseDir, @"MSVCP\2012\vcredist_x64.exe");
-        startInfo.Arguments = "/install /quiet /norestart";
-        _eventHandlers.SetStatus?.Invoke(string.Format(LocManager.GetString(LocCode.InstallingRequirement), "Microsoft Visual C++ Redist 2012 x64"), 0);
-        await (Process.Start(startInfo)?.WaitForExitAsync() ?? Task.CompletedTask);
-        _eventHandlers.UpdateProgress?.Invoke(1);
-        startInfo.FileName = string.Concat(baseDir, @"MSVCP\2012\vcredist_x86.exe");
-        _eventHandlers.SetStatus?.Invoke(string.Format(LocManager.GetString(LocCode.InstallingRequirement), "Microsoft Visual C++ Redist 2012 x86"), 0);
-        await (Process.Start(startInfo)?.WaitForExitAsync() ?? Task.CompletedTask);
-        _eventHandlers.UpdateProgress?.Invoke(1);
-        startInfo.FileName = string.Concat(baseDir, @"MSVCP\2013\vcredist_x64.exe");
-        _eventHandlers.SetStatus?.Invoke(string.Format(LocManager.GetString(LocCode.InstallingRequirement), "Microsoft Visual C++ Redist 2013 x64"), 0);
-        await (Process.Start(startInfo)?.WaitForExitAsync() ?? Task.CompletedTask);
-        _eventHandlers.UpdateProgress?.Invoke(1);
-        startInfo.FileName = string.Concat(baseDir, @"MSVCP\2013\vcredist_x86.exe");
-        _eventHandlers.SetStatus?.Invoke(string.Format(LocManager.GetString(LocCode.InstallingRequirement), "Microsoft Visual C++ Redist 2013 x86"), 0);
-        await (Process.Start(startInfo)?.WaitForExitAsync() ?? Task.CompletedTask);
-        _eventHandlers.UpdateProgress?.Invoke(1);
+        _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.InstallingDirectX), 0);
+        await (Process.Start(new ProcessStartInfo(string.Concat(baseDir, @"DirectX\DXSETUP.exe"), "/silent") { UseShellExecute = true })?.WaitForExitAsync() ?? Task.CompletedTask);
         await Task.Run(() => Directory.Delete($@"{App.AppDataFolder}\Dw_CommonRedist", true));
         Dispatcher.Invoke(delegate
         {
             SwitchButtons(true, false);
             _taskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
-            _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.InstallRequirementsSuccess), 1);
+            _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.InstallDirectXSuccess), 1);
         });
     }
     /// <summary>Updates <see cref="Game.LaunchParameters"/> with the parameters specified in <see cref="CustomLaunchParameters"/>.</summary>

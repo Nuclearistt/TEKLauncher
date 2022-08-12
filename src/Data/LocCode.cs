@@ -100,6 +100,7 @@ enum LocCode
     Id,
     Info,
     IncompleteDownload,
+    InjectionFailed,
     Install,
     InstallationCorrupted,
     Installed,

@@ -1,7 +1,6 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Compression;
-using Microsoft.Win32;
+using System.Runtime.InteropServices;
 using TEKLauncher.Servers;
 
 namespace TEKLauncher.ARK;
@@ -9,6 +8,12 @@ namespace TEKLauncher.ARK;
 /// <summary>Manages game files and parameters.</summary>
 static class Game
 {
+    /// <summary>Size of <see cref="s_shellcodeImage"/>.</summary>
+    static int s_shellcodeImageSize;
+    /// <summary>ARK Shellcode PE image.</summary>
+    static IntPtr s_shellcodeImage;
+    /// <summary>ARK Shellcode entry point address.</summary>
+    static IntPtr s_shellcodeEntryPoint;
     /// <summary>Path to version.txt.</summary>
     static string s_versionFilePath = null!;
     /// <summary>List of codes of all cultures supported by the game.</summary>
@@ -18,7 +23,7 @@ static class Game
     /// <summary>List of active launch parameters.</summary>
     public static readonly List<string> LaunchParameters = new();
     /// <summary>Gets a value that indicates whether DirectX is installed.</summary>
-    public static bool DirectXInstalled => WinAPI.GetDirectXMajorVersion() >= 11;
+    public static bool DirectXInstalled => File.Exists($@"{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}\System32\d3d11.dll");
     /// <summary>Gets or sets a value that indicates whether TEK Injector should set game process base priority to high.</summary>
     public static bool HighProcessPriority { get; set; }
     /// <summary>Gets a value that indicates whether game files are corrupted.</summary>
@@ -35,6 +40,7 @@ static class Game
     public static string? Path { get; set; }
     /// <summary>Gets the game version string.</summary>
     public static string? Version => File.Exists(s_versionFilePath) ? File.ReadAllText(s_versionFilePath).TrimEnd(' ', '\r', '\n') : null;
+    delegate uint Inject(in InjectionParameters injParams);
     /// <summary>Generates auxiliary paths within game folder to be used by the launcher and initializes Steam client folders.</summary>
     public static void Initialize()
     {
@@ -77,10 +83,37 @@ static class Game
                 Messages.Show("Error", LocManager.GetString(LocCode.LaunchFailNotLoggedIntoSteam));
                 return;
             }
-            string appId = Steam.App.CurrentUserStatus.GameStatus == Status.NotOwned ? "480" : "346110";
-            Environment.SetEnvironmentVariable("SteamAppId", appId);
-            Environment.SetEnvironmentVariable("GameAppId", appId);
-            WinAPI.RunGameProcess($"\"{ExePath}\" {string.Join(' ', LaunchParameters)} -culture={CultureCodes[Language]}{server?.ConnectionLine}");
+            if (s_shellcodeImage == IntPtr.Zero)
+            {
+                using var resourceStream = Application.GetResourceStream(new("pack://application:,,,/res/ARKShellcode.br")).Stream;
+                using var decoderStream = new BrotliStream(resourceStream, CompressionMode.Decompress);
+                using var ms = new MemoryStream((int)resourceStream.Length * 2);
+                decoderStream.CopyTo(ms);
+                s_shellcodeImage = WinAPI.LoadPeImage(ms.ToArray(), out s_shellcodeEntryPoint, out s_shellcodeImageSize);
+            }
+            string exePath = $@"\??\{ExePath}";
+            string commandLine = $"\"{ExePath}\" {string.Join(' ', LaunchParameters)} -culture={CultureCodes[Language]}{server?.ConnectionLine}";
+            string modsDirectoryPathUnicode = $@"\??\{Path}\Mods";
+            string modsDirectoryPathUtf8 = $@"{Path}\Mods\";
+            uint exitCode = Marshal.GetDelegateForFunctionPointer<Inject>(s_shellcodeEntryPoint)(new()
+            {
+                ImageBase = s_shellcodeImage,
+                ImageSize = s_shellcodeImageSize,
+                ExePath = exePath,
+                ExePathSize = exePath.Length * 2,
+                CommandLine = commandLine,
+                CommandLineSize = commandLine.Length * 2,
+                ModsDirectoryPathUnicode = modsDirectoryPathUnicode,
+                ModsDirectoryPathUnicodeSize = modsDirectoryPathUnicode.Length * 2,
+                ModsDirectoryPathUtf8 = modsDirectoryPathUtf8,
+                ModsDirectoryPathUtf8Size = modsDirectoryPathUtf8.Length,
+                Status = Steam.App.CurrentUserStatus.GameStatus,
+                SteamId = Steam.App.CurrentUserStatus.SteamId64,
+                ReduceIntegrityLevel = !RunAsAdmin,
+                SetHighProcessPriority = HighProcessPriority
+            });
+            if (exitCode > 0)
+                Messages.Show("Error", string.Format(LocManager.GetString(LocCode.InjectionFailed), exitCode));
             if (Settings.CloseOnGameLaunch)
                 Application.Current.Shutdown();
         }
@@ -91,5 +124,22 @@ static class Game
         NotOwned,
         Owned,
         OwnedAndInstalled
+    }
+    struct InjectionParameters
+    {
+        public IntPtr ImageBase;
+        public int ImageSize;
+        [MarshalAs(UnmanagedType.LPWStr)] public string ExePath;
+        public int ExePathSize;
+        [MarshalAs(UnmanagedType.LPWStr)] public string CommandLine;
+        public int CommandLineSize;
+        [MarshalAs(UnmanagedType.LPWStr)] public string ModsDirectoryPathUnicode;
+        public int ModsDirectoryPathUnicodeSize;
+        [MarshalAs(UnmanagedType.LPStr)] public string ModsDirectoryPathUtf8;
+        public int ModsDirectoryPathUtf8Size;
+        public Status Status;
+        public ulong SteamId;
+        public bool ReduceIntegrityLevel;
+        public bool SetHighProcessPriority;
     }
 }

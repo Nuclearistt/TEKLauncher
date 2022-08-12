@@ -27,12 +27,15 @@ static class IPC
         while (WaitHandle.WaitAny(new WaitHandle[] { s_inputEvent!, s_cts.Token.WaitHandle }) == 0)
             switch (s_accessor!.ReadUInt32(0)) //Opcode
             {
-                case 0: //Start mod download
+                case 0: //Shellcode failure
+                    Application.Current.Dispatcher.Invoke(() => Messages.Show("Error", string.Format(LocManager.GetString(LocCode.InjectionFailed), s_accessor.ReadUInt32(4))));
+                    break;
+                case 1: //Start mod download
                     s_progress.Complete = false;
                     new Thread(TaskProcedure).Start(s_accessor.ReadUInt64(8));
                     s_outputEvent!.Set();
                     break;
-                case 1: //Get mod download progress
+                case 2: //Get mod download progress
                     s_accessor.Write(0, s_progress.Current);
                     s_accessor.Write(8, s_progress.Total);
                     s_accessor.Write(16, s_progress.Complete);

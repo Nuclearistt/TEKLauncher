@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Text.Json.Serialization;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 using TEKLauncher.Servers;
 using TEKLauncher.Steam.CM.Messages;
 using TEKLauncher.Steam.CM.Messages.Bodies;

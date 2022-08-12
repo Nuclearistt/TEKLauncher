@@ -3,7 +3,6 @@ using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
-using Microsoft.Win32;
 using TEKLauncher.Controls;
 using TEKLauncher.Steam;
 using TEKLauncher.Windows;

@@ -162,6 +162,13 @@ class Server
                         infoFileUrl = values[2];
                     startIndex = nullIndex + 1;
                     break;
+                case "SERVERUSESBATTLEYE_b":
+                    startIndex = nullIndex + 1;
+                    nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);
+                    if (Encoding.ASCII.GetString(buffer, startIndex, nullIndex - startIndex) != "false")
+                        return false;
+                    startIndex = nullIndex + 1;
+                    break;
                 case "SESSIONISPVE_i":
                     startIndex = nullIndex + 1;
                     nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);

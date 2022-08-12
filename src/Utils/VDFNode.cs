@@ -1,6 +1,4 @@
-﻿using Microsoft.Toolkit.HighPerformance;
-
-namespace TEKLauncher.Utils;
+﻿namespace TEKLauncher.Utils;
 
 /// <summary>A recursive node for reading and writing VDF (Valve Data Format).</summary>
 class VDFNode

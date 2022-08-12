@@ -26,6 +26,7 @@ static class Settings
         CommunismMode = json.CommunismMode;
         Game.HighProcessPriority = json.HighProcessPriority;
         Game.RunAsAdmin = json.RunAsAdmin;
+        Game.UseSpacewar = json.UseSpacewar;
         Game.Language = json.GameLanguage;
         Steam.Client.NumberOfDownloadThreads = json.NumberOfDownloadThreads;
         Game.Path = json.ARKPath;
@@ -55,10 +56,10 @@ static class Settings
             foreach (var item in Steam.Client.CurrentManifestIds)
                 currentManifestIds.Add(item.Key.ToString(), item.Value);
         }
-        var json = new Json(CheckForUpdates, CloseOnGameLaunch, CommunismMode, Game.HighProcessPriority, Game.RunAsAdmin, Game.Language, Steam.Client.NumberOfDownloadThreads, Game.Path, LocManager.CurrentLanguage, Game.LaunchParameters, currentManifestIds);
+        var json = new Json(CheckForUpdates, CloseOnGameLaunch, CommunismMode, Game.HighProcessPriority, Game.RunAsAdmin, Game.UseSpacewar, Game.Language, Steam.Client.NumberOfDownloadThreads, Game.Path, LocManager.CurrentLanguage, Game.LaunchParameters, currentManifestIds);
         using var stream = File.Create(settingsFile);
         JsonSerializer.Serialize(stream, json, new JsonSerializerOptions() { WriteIndented = true });
     }
     /// <summary>Represents settings' JSON object.</summary>
-    readonly record struct Json(bool CheckForUpdates, bool CloseOnGameLaunch, bool CommunismMode, bool HighProcessPriority, bool RunAsAdmin, int GameLanguage, int NumberOfDownloadThreads, string? ARKPath, string? LauncherLanguage, List<string>? LaunchParameters, Dictionary<string, ulong>? CurrentManifestIds);
+    readonly record struct Json(bool CheckForUpdates, bool CloseOnGameLaunch, bool CommunismMode, bool HighProcessPriority, bool RunAsAdmin, bool UseSpacewar, int GameLanguage, int NumberOfDownloadThreads, string? ARKPath, string? LauncherLanguage, List<string>? LaunchParameters, Dictionary<string, ulong>? CurrentManifestIds);
 }

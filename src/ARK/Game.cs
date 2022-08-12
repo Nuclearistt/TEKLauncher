@@ -32,6 +32,8 @@ static class Game
     public static bool IsRunning => Process.GetProcessesByName("ShooterGame").Length > 0;
     /// <summary>Gets or sets a value that indicates whether the game should be executed with administrator privileges.</summary>
     public static bool RunAsAdmin { get; set; } = true;
+    /// <summary>Gets or sets a value that indicates whether game's Steam app ID should be set to 480.</summary>
+    public static bool UseSpacewar { get; set; }
     /// <summary>Gets or sets the index of the game localization to use.</summary>
     public static int Language { get; set; } = 4;
     /// <summary>Gets or sets path to ShooterGame.exe.</summary>
@@ -95,6 +97,9 @@ static class Game
             string commandLine = $"\"{ExePath}\" {string.Join(' ', LaunchParameters)} -culture={CultureCodes[Language]}{server?.ConnectionLine}";
             string modsDirectoryPathUnicode = $@"\??\{Path}\Mods";
             string modsDirectoryPathUtf8 = $@"{Path}\Mods\";
+            Status status = Steam.App.CurrentUserStatus.GameStatus;
+            if (status != Status.NotOwned && UseSpacewar)
+                status = Status.NotOwned;
             uint exitCode = Marshal.GetDelegateForFunctionPointer<Inject>(s_shellcodeEntryPoint)(new()
             {
                 ImageBase = s_shellcodeImage,
@@ -107,7 +112,7 @@ static class Game
                 ModsDirectoryPathUnicodeSize = modsDirectoryPathUnicode.Length * 2,
                 ModsDirectoryPathUtf8 = modsDirectoryPathUtf8,
                 ModsDirectoryPathUtf8Size = modsDirectoryPathUtf8.Length,
-                Status = Steam.App.CurrentUserStatus.GameStatus,
+                Status = status,
                 SteamId = Steam.App.CurrentUserStatus.SteamId64,
                 ReduceIntegrityLevel = !RunAsAdmin,
                 SetHighProcessPriority = HighProcessPriority

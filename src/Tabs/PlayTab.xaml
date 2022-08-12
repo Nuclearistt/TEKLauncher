@@ -15,6 +15,7 @@
         </Grid.ColumnDefinitions>
         <Image Grid.ColumnSpan="5" x:Name="Image" Stretch="Fill"/>
         <CheckBox Grid.Row="1" Grid.Column="1" Content="{ui:LocString RunGameAsAdmin}" IsChecked="{x:Static tla:Game.RunAsAdmin}" Tag="0" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
+        <CheckBox Grid.Row="2" Grid.Column="1" x:Name="UseSpacewarCheckbox" Content="{ui:LocString UseSpacewar}" IsChecked="{x:Static tla:Game.UseSpacewar}" Tag="1" Visibility="Collapsed" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
         <Button Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Template="{StaticResource PlayButton}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{ui:LocString Play}" Click="Launch"/>
         <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal">
             <TextBlock VerticalAlignment="Center" Text="{ui:LocString GameLanguage}"/>

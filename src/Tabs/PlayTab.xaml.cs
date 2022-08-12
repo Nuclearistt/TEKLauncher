@@ -12,6 +12,8 @@ partial class PlayTab : ContentControl
         InitializeComponent();
         string cmImagePath = $@"{App.AppDataFolder}\CM\Image.jpg";
         Image.Source = new BitmapImage(new(Settings.CommunismMode && File.Exists(cmImagePath) ? cmImagePath : "pack://application:,,,/res/img/PlayTab.jpg"));
+        if (Steam.App.CurrentUserStatus.GameStatus != Game.Status.NotOwned)
+            UseSpacewarCheckbox.Visibility = Visibility.Visible;
     }
     /// <summary>Launches the game.</summary>
     void Launch(object sender, RoutedEventArgs e) => Game.Launch(null);
@@ -38,6 +40,7 @@ partial class PlayTab : ContentControl
         switch (((string)checkBox.Tag)[0])
         {
             case '0': Game.RunAsAdmin = newValue; break;
+            case '1': Game.UseSpacewar = newValue; break;
         }
     }
 }

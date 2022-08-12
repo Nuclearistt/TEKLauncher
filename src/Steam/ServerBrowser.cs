@@ -140,7 +140,7 @@ static class ServerBrowser
         var filters = type == ServerListType.LAN ? null : new MatchMakingKeyValuePair_t[]
         {
             new() { m_szKey = "gamedir", m_szValue = "ark_survival_evolved" },
-            new() { m_szKey = "gamedataand", m_szValue = clusterId is null ? "TEKWrapper:1" : $"TEKWrapper:1,CLUSTERID_s:{clusterId}" }
+            new() { m_szKey = "gamedataand", m_szValue = clusterId is null ? "SERVERUSESBATTLEYE_b:false,TEKWrapper:1" : $"SERVERUSESBATTLEYE_b:false,TEKWrapper:1,CLUSTERID_s:{clusterId}" }
         };
         var request = type switch
         {

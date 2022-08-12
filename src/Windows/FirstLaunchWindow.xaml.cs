@@ -1,7 +1,6 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using Microsoft.Win32;
 using TEKLauncher.Controls;
 
 namespace TEKLauncher.Windows;

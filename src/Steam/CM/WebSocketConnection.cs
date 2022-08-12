@@ -2,7 +2,7 @@
 using System.Net.WebSockets;
 using System.Threading;
 using Google.Protobuf;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 using TEKLauncher.Steam.CM.Messages;
 using TEKLauncher.Steam.CM.Messages.Bodies;
 

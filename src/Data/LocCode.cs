@@ -223,6 +223,7 @@ enum LocCode
     UseGlobalFonts,
     UseShaderModel4,
     UseShaderModel4Desc,
+    UseSpacewar,
     Validate,
     ValidateAll,
     Validating,

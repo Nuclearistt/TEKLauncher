@@ -151,15 +151,24 @@ class Server
                     if (values.Length < 3 || values[0] != "TEKWrapper")
                         return false;
                     tekWrapperInstalled = true;
-                    if (values[1] != "0")
+                    if (values.Length > 3) //Mod list for some reason is comma-and-whitespace-separated instead of comma-separated
                     {
-                        string[] ids = values[1].Split(',');
-                        ModIds = new ulong[ids.Length];
-                        for (int j = 0; j < ids.Length; j++)
-                            ModIds[j] = ulong.Parse(ids[j]);
+                        ModIds = new ulong[values.Length - 2];
+                        for (int j = 1; j < values.Length - 1; j++)
+                            ModIds[j - 1] = ulong.Parse(values[j].TrimEnd(','));
                     }
-                    if (values[2] != "0")
-                        infoFileUrl = values[2];
+                    else
+                    {
+                        if (values[1] != "0")
+                        {
+                            string[] ids = values[1].Split(',');
+                            ModIds = new ulong[ids.Length];
+                            for (int j = 0; j < ids.Length; j++)
+                                ModIds[j] = ulong.Parse(ids[j]);
+                        }
+                        if (values[2] != "0")
+                            infoFileUrl = values[2];
+                    }
                     startIndex = nullIndex + 1;
                     break;
                 case "SERVERUSESBATTLEYE_b":

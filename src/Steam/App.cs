@@ -62,14 +62,27 @@ static class App
     }
     public static void UpdateUserStatus()
     {
-        uint steamId3 = (uint)((int?)Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess")?.GetValue("ActiveUser") ?? 0);
-        if (steamId3 == 0)
+        ulong steamId64 = 0;
+        string loginUsersFile = $@"{s_path}\config\loginusers.vdf";
+        if (File.Exists(loginUsersFile))
+        {
+            using var reader = new StreamReader(loginUsersFile);
+            var users = new VDFNode(reader)?.Children;
+            if (users is not null)
+                foreach (var user in users)
+                    if (user["MostRecent"]?.Value == "1")
+                    {
+                        _ = ulong.TryParse(user.Key, out steamId64);
+                        break;
+                    }
+        }
+        if (steamId64 == 0)
         {
             CurrentUserStatus = new(0, Game.Status.NotOwned);
             return;
         }
         Game.Status status = Game.Status.NotOwned;
-        string configFile = $@"{s_path}\userdata\{steamId3}\config\localconfig.vdf";
+        string configFile = $@"{s_path}\userdata\{(uint)steamId64}\config\localconfig.vdf";
         if (File.Exists(configFile))
         {
             using var reader = new StreamReader(configFile);
@@ -105,7 +118,7 @@ static class App
                     }
             }
         }
-        CurrentUserStatus = new(0x110000100000000ul | steamId3, status);
+        CurrentUserStatus = new(steamId64, status);
     }
     /// <summary>Contains user's Steam ID in 64-bit format and their game ownership status.</summary>
     public readonly record struct UserStatus(ulong SteamId64, Game.Status GameStatus);

@@ -19,7 +19,7 @@ static class Game
     /// <summary>List of codes of all cultures supported by the game.</summary>
     public static readonly string[] CultureCodes = { "ca", "cs", "da", "de", "en", "es", "eu", "fi", "fr", "hu", "it", "ja", "ka", "ko", "nl", "pl", "pt_BR", "ru", "sv", "th", "tr", "uk", "zh", "zh-Hans-CN", "zh-TW" };
     /// <summary>List of standard launch parameters.</summary>
-    public static readonly string[] StandardLaunchParameters = { "-usecache", "-useallavailablecores", "-noaafonts", "-sm4", "-d3d10", "-nosplash", "-nomansky", "-nomemorybias", "-lowmemory", "-norhithread", "-novsync", "-preventhibernation", "-allowansel" };
+    public static readonly string[] StandardLaunchParameters = { "-d3d10", "-nosplash", "-nomansky", "-nomemorybias", "-lowmemory", "-norhithread", "-novsync", "-preventhibernation", "-allowansel" };
     /// <summary>List of active launch parameters.</summary>
     public static readonly List<string> LaunchParameters = new();
     /// <summary>Gets a value that indicates whether DirectX is installed.</summary>

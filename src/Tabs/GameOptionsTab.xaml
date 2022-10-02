@@ -55,20 +55,8 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <CheckBox ToolTip="{ui:LocString UseCacheDesc}" Content="{ui:LocString UseCache}" Tag="-usecache"/>
-                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-usecache"/>
-                        <CheckBox ToolTip="{ui:LocString UseAllAvailableCoresDesc}" Content="{ui:LocString UseAllAvailableCores}" Tag="-useallavailablecores"/>
-                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-useallavailablecores"/>
-                        <CheckBox ToolTip="{ui:LocString DisableFontsFXAADesc}" Content="{ui:LocString DisableFontsFXAA}" Tag="-noaafonts"/>
-                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-noaafonts"/>
-                        <CheckBox ToolTip="{ui:LocString UseShaderModel4Desc}" Content="{ui:LocString UseShaderModel4}" Tag="-sm4"/>
-                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-sm4"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
                         <CheckBox ToolTip="{ui:LocString UseDirectX10Desc}" Content="{ui:LocString UseDirectX10}" Tag="-d3d10"/>
                         <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-d3d10"/>
                         <CheckBox ToolTip="{ui:LocString NoSplashScreenDesc}" Content="{ui:LocString NoSplashScreen}" Tag="-nosplash"/>
@@ -78,7 +66,7 @@
                         <CheckBox ToolTip="{ui:LocString NoMemoryBiasDesc}" Content="{ui:LocString NoMemoryBias}" Tag="-nomemorybias"/>
                         <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-nomemorybias"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="4">
+                    <StackPanel Grid.Column="2">
                         <CheckBox ToolTip="{ui:LocString LowMemoryModeDesc}" Content="{ui:LocString LowMemoryMode}" Tag="-lowmemory"/>
                         <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-lowmemory"/>
                         <CheckBox ToolTip="{ui:LocString NoRHIThreadDesc}" Content="{ui:LocString NoRHIThread}" Tag="-norhithread"/>

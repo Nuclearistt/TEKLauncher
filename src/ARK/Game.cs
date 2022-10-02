@@ -95,6 +95,7 @@ static class Game
             }
             string exePath = $@"\??\{ExePath}";
             string commandLine = $"\"{ExePath}\" {string.Join(' ', LaunchParameters)} -culture={CultureCodes[Language]}{server?.ConnectionLine}";
+            string steamApiPath = $@"{Path}\Engine\Binaries\ThirdParty\Steamworks\Steamv132\Win64\steam_api64.dll";
             string modsDirectoryPathUnicode = $@"\??\{Path}\Mods";
             string modsDirectoryPathUtf8 = $@"{Path}\Mods\";
             Status status = Steam.App.CurrentUserStatus.GameStatus;
@@ -108,6 +109,8 @@ static class Game
                 ExePathSize = exePath.Length * 2,
                 CommandLine = commandLine,
                 CommandLineSize = commandLine.Length * 2,
+                SteamApiPath = steamApiPath,
+                SteamApiPathSize = steamApiPath.Length * 2,
                 ModsDirectoryPathUnicode = modsDirectoryPathUnicode,
                 ModsDirectoryPathUnicodeSize = modsDirectoryPathUnicode.Length * 2,
                 ModsDirectoryPathUtf8 = modsDirectoryPathUtf8,
@@ -138,6 +141,8 @@ static class Game
         public int ExePathSize;
         [MarshalAs(UnmanagedType.LPWStr)] public string CommandLine;
         public int CommandLineSize;
+        [MarshalAs(UnmanagedType.LPWStr)] public string SteamApiPath;
+        public int SteamApiPathSize;
         [MarshalAs(UnmanagedType.LPWStr)] public string ModsDirectoryPathUnicode;
         public int ModsDirectoryPathUnicodeSize;
         [MarshalAs(UnmanagedType.LPStr)] public string ModsDirectoryPathUtf8;

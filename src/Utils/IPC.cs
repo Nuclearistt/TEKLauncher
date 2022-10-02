@@ -28,7 +28,8 @@ static class IPC
             switch (s_accessor!.ReadUInt32(0)) //Opcode
             {
                 case 0: //Shellcode failure
-                    Application.Current.Dispatcher.Invoke(() => Messages.Show("Error", string.Format(LocManager.GetString(LocCode.InjectionFailed), s_accessor.ReadUInt32(4))));
+                    uint errorCode = s_accessor.ReadUInt32(4);
+                    Application.Current.Dispatcher.Invoke(() => Messages.Show("Error", errorCode == 8 ? "Steam API initialization failed" : string.Format(LocManager.GetString(LocCode.InjectionFailed), errorCode)));
                     break;
                 case 1: //Start mod download
                     s_progress.Complete = false;

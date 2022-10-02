@@ -238,24 +238,21 @@ partial class GameOptionsTab : ContentControl
                 SwitchButtons(true, true);
             });
         }
-        catch (SteamException e)
+        catch (Exception e)
         {
-            _eventHandlers.SetStatus?.Invoke(e.Message, 2);
+            bool steamException = e is SteamException;
+            if (steamException)
+                _eventHandlers.SetStatus?.Invoke(e.Message, 2);
+            else
+                File.WriteAllText($@"{App.AppDataFolder}\SteamClientException.txt", e.ToString());
             Dispatcher.Invoke(delegate
             {
                 _taskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
                 _currentSubStage?.Finish(false);
                 _currentStage?.Finish(false);
                 SwitchButtons(true, true);
-            });
-        }
-        catch (Exception e)
-        {
-            File.WriteAllText($@"{App.AppDataFolder}\SteamClientException.txt", e.ToString());
-            Dispatcher.Invoke(delegate
-            {
-                new FatalErrorWindow(e).ShowDialog();
-                Application.Current.Shutdown();
+                if (!steamException)
+                    new FatalErrorWindow(e).ShowDialog();
             });
         }
     }

@@ -1104,7 +1104,12 @@ static class Client
                     else
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(localPath)!);
-                        File.Move(path, localPath, true);
+                        try { File.Move(path, localPath, true); }
+                        catch (UnauthorizedAccessException)
+                        {
+                            File.SetAttributes(localPath, File.GetAttributes(localPath) & ~FileAttributes.ReadOnly);
+                            File.Move(path, localPath, true);
+                        }
                         eventHandlers.UpdateProgress?.Invoke(delta.FileSize);
                     }
                 }

@@ -84,9 +84,14 @@ static class CDNClient
                         eventHandlers.UpdateProgress?.Invoke(progressAccumulator);
                         success = true;
                     }
-                    catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested) { throw new OperationCanceledException(); }
-                    catch (OperationCanceledException) { throw; }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        if (e is TaskCanceledException && cancellationToken.IsCancellationRequested)
+                            throw new OperationCanceledException();
+                        if (e is OperationCanceledException)
+                            throw;
+                        File.WriteAllText($@"{TEKLauncher.App.AppDataFolder}\ManifestDownloadException.txt", e.ToString());
+                    }
                 if (!success)
                 {
                     if (File.Exists(encodedManifestPath))

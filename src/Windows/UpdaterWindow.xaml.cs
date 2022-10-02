@@ -262,9 +262,13 @@ partial class UpdaterWindow : TEKWindow
                 PauseRetryButton.Tag = FindResource("Retry");
             });
         }
-        catch (SteamException e)
+        catch (Exception e)
         {
-            _eventHandlers.SetStatus?.Invoke(e.Message, 2);
+            bool steamException = e is SteamException;
+            if (steamException)
+                _eventHandlers.SetStatus?.Invoke(e.Message, 2);
+            else
+                File.WriteAllText($@"{App.AppDataFolder}\SteamClientException.txt", e.ToString());
             Dispatcher.Invoke(delegate
             {
                 TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
@@ -273,15 +277,8 @@ partial class UpdaterWindow : TEKWindow
                 PauseRetryButton.IsEnabled = true;
                 PauseRetryButton.Content = LocManager.GetString(LocCode.Retry);
                 PauseRetryButton.Tag = FindResource("Retry");
-            });
-        }
-        catch (Exception e)
-        {
-            File.WriteAllText($@"{App.AppDataFolder}\SteamClientException.txt", e.ToString());
-            Dispatcher.Invoke(delegate
-            {
-                new FatalErrorWindow(e).ShowDialog();
-                Application.Current.Shutdown();
+                if (!steamException)
+                    new FatalErrorWindow(e).ShowDialog();
             });
         }
     }

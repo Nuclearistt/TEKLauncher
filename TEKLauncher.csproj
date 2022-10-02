@@ -6,7 +6,7 @@
     <OutputType>WinExe</OutputType>
     <UseWPF>True</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
-    <Version>9.2.79.3</Version>
+    <Version>9.3.80.0</Version>
     <ApplicationManifest>TEKLauncher.manifest</ApplicationManifest>
     <ApplicationIcon>res\Icon.ico</ApplicationIcon>
     <Authors>Nuclearist</Authors>
@@ -24,10 +24,10 @@
     <PostBuildEvent>call "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a TEKLauncher.exe</PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-	  <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.0.0"/>
-	  <PackageReference Include="Google.Protobuf" Version="3.21.7"/>
-	  <PackageReference Include="Google.Protobuf.Tools" Version="3.21.7"/>
-	  <PackageReference Include="SharpZipLib" Version="1.4.0"/>
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.0.0"/>
+    <PackageReference Include="Google.Protobuf" Version="3.21.7"/>
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.21.7"/>
+    <PackageReference Include="SharpZipLib" Version="1.4.0"/>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="res\**"/>

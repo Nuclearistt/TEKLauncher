@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-	<assemblyIdentity type="win32" version="9.2.79.3" name="TEKLauncher" processorArchitecture="amd64"/>
+	<assemblyIdentity type="win32" version="9.3.80.0" name="TEKLauncher" processorArchitecture="amd64"/>
 	<compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
 		<application>
 			<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>

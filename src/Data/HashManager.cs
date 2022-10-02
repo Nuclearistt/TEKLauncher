@@ -17,7 +17,7 @@ static class HashManager
     {
         if (_loaded)
             return true;
-        byte[]? data = UdpClient.Transact(UdpClient.ArkoudaWatcherEndpoint, stackalloc byte[] { 0 });
+        byte[]? data = UdpClient.Transact(UdpClient.TEKProviderEndpoint, stackalloc byte[] { 0 });
         if (data is null || data.Length < (DLC.List.Length + 2) * 20)
             return false;
         GameHash = new(new(data, 0, 20));

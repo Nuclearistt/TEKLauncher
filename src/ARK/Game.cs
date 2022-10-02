@@ -23,7 +23,14 @@ static class Game
     /// <summary>List of active launch parameters.</summary>
     public static readonly List<string> LaunchParameters = new();
     /// <summary>Gets a value that indicates whether DirectX is installed.</summary>
-    public static bool DirectXInstalled => File.Exists($@"{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}\System32\d3d11.dll");
+    public static bool DirectXInstalled
+    {
+        get
+        {
+            string system32 = $@"{Environment.GetFolderPath(Environment.SpecialFolder.Windows)}\System32";
+            return File.Exists($@"{system32}\d3d11.dll") && File.Exists($@"{system32}\xinput1_3.dll") && File.Exists($@"{system32}\xapofx1_5.dll") && File.Exists($@"{system32}\x3daudio1_7.dll");
+        }
+    }
     /// <summary>Gets or sets a value that indicates whether TEK Injector should set game process base priority to high.</summary>
     public static bool HighProcessPriority { get; set; }
     /// <summary>Gets a value that indicates whether game files are corrupted.</summary>

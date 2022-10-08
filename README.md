@@ -27,6 +27,7 @@ Currently supported:
 + Portuguese
 + French
 + Greek
++ Simplified Chinese
 
 If you want to translate the launcher to your language, contact me (Nuclearist) in Discord and I'll provide you with the details. I expect you to be fluent in both English and the language you are going to translate to (or preferably be a native speaker)
 

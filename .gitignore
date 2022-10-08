@@ -1,6 +1,8 @@
 .vs/
 bin/
 obj/
+out/
+Properties/
 res/
 *.snk
 *.g.cs

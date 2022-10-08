@@ -59,6 +59,7 @@
                     <ComboBoxItem Content="Português"/>
                     <ComboBoxItem Content="Ελληνικά"/>
                     <ComboBoxItem Content="Русский"/>
+                    <ComboBoxItem Content="简体中文"/>
                 </ComboBox.Items>
             </ComboBox>
         </StackPanel>

@@ -114,7 +114,7 @@ partial class MainWindow : TEKWindow
     /// <summary>Checks whether the window is eligible for closing.</summary>
     void ClosingHandler(object sender, CancelEventArgs e)
     {
-        if (Game.IsRunning && !Messages.ShowOptions("Warning", LocManager.GetString(LocCode.LauncherCloseWarning)))
+        if ((Steam.App.CurrentUserStatus.GameStatus != Game.Status.OwnedAndInstalled || Game.UseSpacewar) && Game.IsRunning && !Messages.ShowOptions("Warning", LocManager.GetString(LocCode.LauncherCloseWarning)))
         {
             e.Cancel = true;
             return;
@@ -149,7 +149,7 @@ partial class MainWindow : TEKWindow
     void NavigatedHandler(object sender, RoutedEventArgs args)
     {
         int newTabIndex = Menu.Children.IndexOf((RadioButton)sender);
-        if (newTabIndex == 4 && Steam.App.CurrentUserStatus.GameStatus == Game.Status.OwnedAndInstalled)
+        if (newTabIndex == 4 && Steam.App.CurrentUserStatus.GameStatus == Game.Status.OwnedAndInstalled && !Game.UseSpacewar)
         {
             Messages.Show("Warning", LocManager.GetString(LocCode.ModsOnSteamWarning));
             Task.Run(() => Dispatcher.Invoke(() =>

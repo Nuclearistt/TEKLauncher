@@ -101,14 +101,15 @@ partial class GameOptionsTab : ContentControl
             Notifications.Add(LocManager.GetString(LocCode.FixBloomFail), "NError");
             return;
         }
-        string file = $@"{Game.Path}\Engine\Config\BaseScalability.ini";
-        if (File.Exists(file))
+        string file = $@"{Game.Path}\ShooterGame\Saved\Config\WindowsNoEditor\Scalability.ini";
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        using var writer = new StreamWriter(file);
+        for (int i = 0; i < 4; i++)
         {
-            string[] lines = File.ReadAllLines(file);
-            for (int i = 0; i < lines.Length; i++)
-                if (lines[i].StartsWith("r.BloomQuality"))
-                    lines[i] = "r.BloomQuality=1";
-            File.WriteAllLines(file, lines);
+            string entry = $"[PostProcessQuality@{i}]\r\nr.BloomQuality=1";
+            if (i < 3)
+                entry += "\r\n";
+            writer.Write(entry);
         }
         Notifications.Add(LocManager.GetString(LocCode.FixBloomSuccess), "NSuccess");
     }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
 namespace TEKLauncher.Utils;
@@ -6,10 +7,6 @@ namespace TEKLauncher.Utils;
 /// <summary>Consolidates function imports from Windows APIs and util methods using them.</summary>
 static class WinAPI
 {
-    #region ntdll.dll
-    [DllImport("ntdll.dll")]
-    static extern void NtAllocateVirtualMemory(IntPtr process, ref IntPtr baseAddress, ulong zeroBits, ref ulong regionSize, uint allocationType, uint protection);
-    #endregion
     #region kernel32.dll
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     static extern bool GetDiskFreeSpaceExW(string lpDirectoryName, out long lpFreeBytesAvailableToCaller, out long lpTotalNumberOfBytes, out long lpTotalNumberOfFreeBytes);
@@ -17,6 +14,8 @@ static class WinAPI
     static extern IntPtr GetModuleHandleW(string moduleName);
     [DllImport("kernel32.dll")]
     static extern IntPtr GetProcAddress(IntPtr module, string procName);
+    [DllImport("kernel32.dll")]
+    static extern IntPtr VirtualAlloc(IntPtr lpAddress, ulong dwSize, uint flAllocationType, uint flProtect);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     public static extern IntPtr LoadLibraryExW(string lpLibFileName, IntPtr hFile, uint dwFlags);
     #endregion
@@ -44,20 +43,18 @@ static class WinAPI
     /// <param name="entryPoint">When the function returns, contains the pointer to image's entry point function specified in its optional header.</param>
     /// <param name="imageSize">When the function returns, contains the size of loaded image in size.</param>
     /// <returns>Pointer to image memory region with read, write and execute access.</returns>
-    public static IntPtr LoadPeImage(byte[] imageData, out IntPtr entryPoint, out int imageSize)
+    public static IntPtr LoadPeImage(byte[] imageData, out IntPtr entryPoint, out ulong imageSize)
     {
         //Read required offsets from the header
         int peHeaderRva = BitConverter.ToInt32(imageData, 0x3C);
         int numSections = BitConverter.ToUInt16(imageData, peHeaderRva + 6);
         int entryPointRva = BitConverter.ToInt32(imageData, peHeaderRva + 40);
-        imageSize = BitConverter.ToInt32(imageData, peHeaderRva + 80);
+        imageSize = (ulong)BitConverter.ToInt32(imageData, peHeaderRva + 80);
         int headersSize = BitConverter.ToInt32(imageData, peHeaderRva + 84);
         int importTableRva = BitConverter.ToInt32(imageData, peHeaderRva + 144);
         int sectionHeaderRva = peHeaderRva + 136 + BitConverter.ToInt32(imageData, peHeaderRva + 132) * 8;
         //Allocate memory region for the image
-        IntPtr regionBase = IntPtr.Zero;
-        ulong regionSize = (ulong)imageSize;
-        NtAllocateVirtualMemory(new IntPtr(-1L), ref regionBase, 0, ref regionSize, 0x3000, 0x40);
+        IntPtr regionBase = VirtualAlloc(IntPtr.Zero, imageSize, 0x3000, 0x40);
         //Copy headers
         Marshal.Copy(imageData, 0, regionBase, headersSize);
         //Copy sections

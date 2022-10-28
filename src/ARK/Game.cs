@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO.Compression;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using TEKLauncher.Servers;
 
@@ -9,7 +11,7 @@ namespace TEKLauncher.ARK;
 static class Game
 {
     /// <summary>Size of <see cref="s_shellcodeImage"/>.</summary>
-    static int s_shellcodeImageSize;
+    static ulong s_shellcodeImageSize;
     /// <summary>ARK Shellcode PE image.</summary>
     static IntPtr s_shellcodeImage;
     /// <summary>ARK Shellcode entry point address.</summary>
@@ -100,11 +102,7 @@ static class Game
                 decoderStream.CopyTo(ms);
                 s_shellcodeImage = WinAPI.LoadPeImage(ms.ToArray(), out s_shellcodeEntryPoint, out s_shellcodeImageSize);
             }
-            string exePath = $@"\??\{ExePath}";
-            string commandLine = $"\"{ExePath}\" {string.Join(' ', LaunchParameters)} -culture={CultureCodes[Language]}{server?.ConnectionLine}";
-            string steamApiPath = $@"{Path}\Engine\Binaries\ThirdParty\Steamworks\Steamv132\Win64\steam_api64.dll";
-            string modsDirectoryPathUnicode = $@"\??\{Path}\Mods";
-            string modsDirectoryPathUtf8 = $@"{Path}\Mods\";
+            string modsDirectorySearchPath = $@"{Path}\Mods\*";
             Status status = Steam.App.CurrentUserStatus.GameStatus;
             if (status != Status.NotOwned && UseSpacewar)
                 status = Status.NotOwned;
@@ -112,16 +110,12 @@ static class Game
             {
                 ImageBase = s_shellcodeImage,
                 ImageSize = s_shellcodeImageSize,
-                ExePath = exePath,
-                ExePathSize = exePath.Length * 2,
-                CommandLine = commandLine,
-                CommandLineSize = commandLine.Length * 2,
-                SteamApiPath = steamApiPath,
-                SteamApiPathSize = steamApiPath.Length * 2,
-                ModsDirectoryPathUnicode = modsDirectoryPathUnicode,
-                ModsDirectoryPathUnicodeSize = modsDirectoryPathUnicode.Length * 2,
-                ModsDirectoryPathUtf8 = modsDirectoryPathUtf8,
-                ModsDirectoryPathUtf8Size = modsDirectoryPathUtf8.Length,
+                ExePath = ExePath,
+                CommandLine = $"\"{ExePath}\" {string.Join(' ', LaunchParameters)} -culture={CultureCodes[Language]}{server?.ConnectionLine}",
+                CurrentDirectory = $@"{Path}\ShooterGame\Binaries\Win64",
+                SteamApiPath = $@"{Path}\Engine\Binaries\ThirdParty\Steamworks\Steamv132\Win64\steam_api64.dll",
+                ModsDirectorySearchPath = modsDirectorySearchPath,
+                ModsDirectorySearchPathSize = (ulong)modsDirectorySearchPath.Length * 2,
                 Status = status,
                 SteamId = Steam.App.CurrentUserStatus.SteamId64,
                 ReduceIntegrityLevel = !RunAsAdmin,
@@ -143,17 +137,13 @@ static class Game
     struct InjectionParameters
     {
         public IntPtr ImageBase;
-        public int ImageSize;
+        public ulong ImageSize;
         [MarshalAs(UnmanagedType.LPWStr)] public string ExePath;
-        public int ExePathSize;
         [MarshalAs(UnmanagedType.LPWStr)] public string CommandLine;
-        public int CommandLineSize;
+        [MarshalAs(UnmanagedType.LPWStr)] public string CurrentDirectory;
         [MarshalAs(UnmanagedType.LPWStr)] public string SteamApiPath;
-        public int SteamApiPathSize;
-        [MarshalAs(UnmanagedType.LPWStr)] public string ModsDirectoryPathUnicode;
-        public int ModsDirectoryPathUnicodeSize;
-        [MarshalAs(UnmanagedType.LPStr)] public string ModsDirectoryPathUtf8;
-        public int ModsDirectoryPathUtf8Size;
+        [MarshalAs(UnmanagedType.LPWStr)] public string ModsDirectorySearchPath;
+        public ulong ModsDirectorySearchPathSize;
         public Status Status;
         public ulong SteamId;
         public bool ReduceIntegrityLevel;

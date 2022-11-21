@@ -1,4 +1,5 @@
 ﻿using TEKLauncher.Controls;
+using TEKLauncher.Steam;
 
 namespace TEKLauncher.ARK;
 
@@ -85,40 +86,16 @@ class DLC
         Code = depotId == 1887561 ? MapCode.Fjordur : Enum.Parse<MapCode>(folderName);
         _status = IsInstalled ? Status.Installed : Status.NotInstalled;
     }
-    /// <summary>Checks if the DLC is up to date by comparing SHA-1 hash of its .umap file with downloaded one.</summary>
+    /// <summary>Checks if the DLC is up to date.</summary>
     public void CheckForUpdates()
     {
-        if (_status != Status.Installed && _status != Status.UpdateAvailable)
+        if (_status != Status.Installed)
             return;
-        CurrentStatus = Status.CheckingForUpdates;
-        bool match = false;
-        Span<byte> hash = stackalloc byte[20];
-        if (Code == MapCode.Genesis)
-        {
-            //Since Genesis DLC consists of 2 maps, the resulting match is AND of matches of both maps
-            bool gen1Installed = File.Exists(_umapPath);
-            if (gen1Installed)
-            {
-                using var stream = File.OpenRead(_umapPath);
-                SHA1.ComputeHash(stream, hash);
-                match = new Hash.StackHash(hash) == HashManager.DLCHashes[6];
-            }
-            string gen2Umap = $@"{Game.Path}\ShooterGame\Content\Maps\Genesis2\Gen2.umap";
-            if (File.Exists(gen2Umap))
-            {
-                using var stream = File.OpenRead(gen2Umap);
-                SHA1.ComputeHash(stream, hash);
-                bool gen2Match = new Hash.StackHash(hash) == HashManager.DLCHashes[8];
-                match = gen1Installed ? (match & gen2Match) : gen2Match;
-            }
-        }
-        else
-        {
-            using var stream = File.OpenRead(_umapPath);
-            SHA1.ComputeHash(stream, hash);
-            match = new Hash.StackHash(hash) == HashManager.DLCHashes[(int)Code - 1];
-        }
-        CurrentStatus = match ? Status.Installed : Status.UpdateAvailable;
+        var identifier = new ItemIdentifier(DepotId);
+        if (!Client.CurrentManifestIds.TryGetValue(identifier, out ulong manifestId))
+            Client.CurrentManifestIds[identifier] = manifestId = Client.DepotManifestIds[DepotId];
+        if (manifestId != Client.DepotManifestIds[DepotId])
+            CurrentStatus = Status.UpdateAvailable;
     }
     /// <summary>Uninstalls the DLC.</summary>
     public void Delete()

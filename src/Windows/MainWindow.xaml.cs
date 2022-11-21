@@ -56,7 +56,7 @@ partial class MainWindow : TEKWindow
         });
         //Check for launcher updates
         var release = await Downloader.DownloadJsonAsync<Release>("https://api.github.com/repos/Nuclearistt/TEKLauncher/releases/latest");
-        string? versionString = release.TagName?[1..] ?? await Downloader.DownloadStringAsync("http://95.217.84.23/files/Ark/TEKLauncher/Version.txt", "https://drive.google.com/uc?export=download&id=1QMMdl9OsdTROQjidnhH6y8l_yQv2-DGr");
+        string? versionString = release.TagName?[1..] ?? await Downloader.DownloadStringAsync("https://drive.google.com/uc?export=download&id=1QMMdl9OsdTROQjidnhH6y8l_yQv2-DGr");
         if (versionString is not null)
         {
             var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
@@ -68,48 +68,40 @@ partial class MainWindow : TEKWindow
                 });
         }
         Dispatcher.Invoke(() => LauncherVersionBlock.Inlines.Remove(LauncherVersionBlock.Inlines.LastInline));
-        //Ensure that check for updates are enabled in settings
-        if (Game.IsCorrupted || !Settings.CheckForUpdates)
-            return;
-        //Check for game updates
-        Dispatcher.Invoke(() => GameVersionBlock.Inlines.Add(new ContentControl { Template = (ControlTemplate)FindResource("LoadingDots") }));
-        if (!await Task.Run(HashManager.Load))
+        //Check for updates
+        try
         {
-            Dispatcher.Invoke(() => GameVersionBlock.Inlines.Remove(GameVersionBlock.Inlines.LastInline));
-            return;
-        }
-        using var stream = File.OpenRead(Game.ExePath);
-        byte[] hash = new byte[20];
-        await Task.Run(() => SHA1.ComputeHash(stream, hash));
-        bool match = new Hash.StackHash(hash) == HashManager.GameHash;
-        Dispatcher.Invoke(delegate
-        {
-            if (version is null)
-                GameVersion.Text = LocManager.GetString(match ? LocCode.Latest : LocCode.Outdated);
-            GameVersion.Foreground = match ? new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E)) : Brushes.Yellow;
-            GameVersionBlock.Inlines.Remove(GameVersionBlock.Inlines.LastInline);
-            if (!match)
-                Notifications.Add(LocManager.GetString(LocCode.GameUpdateAvailable), LocManager.GetString(LocCode.Update), delegate
-                {
-                    if (TabFrame.Child is not GameOptionsTab)
-                    {
-                        s_gameOptionsTab ??= new GameOptionsTab();
-                        Navigate(s_gameOptionsTab);
-                    }
-                    s_gameOptionsTab!.RunTask(false);
-                });
-        });
-        //Check for DLC updates
-        var dlcCheckTasks = new Task[ARK.DLC.List.Length];
-        for (int i = 0; i < dlcCheckTasks.Length; i++)
-            dlcCheckTasks[i] = Task.Run(ARK.DLC.List[i].CheckForUpdates);
-        await Task.WhenAll(dlcCheckTasks);
-        if (Array.Exists(ARK.DLC.List, d => d.CurrentStatus == ARK.DLC.Status.UpdateAvailable))
-            Dispatcher.Invoke(() => Notifications.Add(LocManager.GetString(LocCode.DLCUpdatesAvailable), LocManager.GetString(LocCode.Update), delegate
+            await Task.Run(Steam.CM.Client.UpdateDepotManifestIds);
+            var identifier = new Steam.ItemIdentifier(346111);
+            if (!Steam.Client.CurrentManifestIds.TryGetValue(identifier, out ulong manifestId))
+                Steam.Client.CurrentManifestIds[identifier] = manifestId = Steam.Client.DepotManifestIds[346111];
+            bool match = manifestId == Steam.Client.DepotManifestIds[346111];
+            Dispatcher.Invoke(delegate
             {
-                if (TabFrame.Child is not DLCTab)
-                    Navigate(new DLCTab());
-            }));
+                if (version is null)
+                    GameVersion.Text = LocManager.GetString(match ? LocCode.Latest : LocCode.Outdated);
+                GameVersion.Foreground = match ? new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E)) : Brushes.Yellow;
+                if (!match)
+                    Notifications.Add(LocManager.GetString(LocCode.GameUpdateAvailable), LocManager.GetString(LocCode.Update), delegate
+                    {
+                        if (TabFrame.Child is not GameOptionsTab)
+                        {
+                            s_gameOptionsTab ??= new GameOptionsTab();
+                            Navigate(s_gameOptionsTab);
+                        }
+                        s_gameOptionsTab!.RunTask(false);
+                    });
+            });
+            foreach (var dlc in ARK.DLC.List)
+                dlc.CheckForUpdates();
+            if (Array.Exists(ARK.DLC.List, d => d.CurrentStatus == ARK.DLC.Status.UpdateAvailable))
+                Dispatcher.Invoke(() => Notifications.Add(LocManager.GetString(LocCode.DLCUpdatesAvailable), LocManager.GetString(LocCode.Update), delegate
+                {
+                    if (TabFrame.Child is not DLCTab)
+                        Navigate(new DLCTab());
+                }));
+        }
+        catch { }
     }
     /// <summary>Checks whether the window is eligible for closing.</summary>
     void ClosingHandler(object sender, CancelEventArgs e)

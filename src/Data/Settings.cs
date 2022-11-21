@@ -3,8 +3,6 @@
 /// <summary>Manages launcher settings.</summary>
 static class Settings
 {
-    /// <summary>Gets or sets a value that indicates whether the launcher should check for game and DLC updates when it starts.</summary>
-    public static bool CheckForUpdates { get; set; } = true;
     /// <summary>Gets or sets a value that indicates whether the launcher should close itself after launching the game.</summary>
     public static bool CloseOnGameLaunch { get; set; }
     /// <summary>Gets or sets a value that indicates whether communism mode is enabled.</summary>
@@ -21,7 +19,6 @@ static class Settings
         Json json;
         try { json = JsonSerializer.Deserialize<Json>(stream)!; }
         catch { return; }
-        CheckForUpdates = json.CheckForUpdates;
         CloseOnGameLaunch = json.CloseOnGameLaunch;
         CommunismMode = json.CommunismMode;
         Game.HighProcessPriority = json.HighProcessPriority;
@@ -29,6 +26,10 @@ static class Settings
         Game.UseSpacewar = json.UseSpacewar;
         Game.Language = json.GameLanguage;
         Steam.Client.NumberOfDownloadThreads = json.NumberOfDownloadThreads;
+        if (Steam.Client.NumberOfDownloadThreads < 4)
+            Steam.Client.NumberOfDownloadThreads = 4;
+        else if (Steam.Client.NumberOfDownloadThreads > 20)
+            Steam.Client.NumberOfDownloadThreads = 20;
         Game.Path = json.ARKPath;
         if (json.LaunchParameters is not null)
             foreach (string parameter in json.LaunchParameters)
@@ -56,10 +57,10 @@ static class Settings
             foreach (var item in Steam.Client.CurrentManifestIds)
                 currentManifestIds.Add(item.Key.ToString(), item.Value);
         }
-        var json = new Json(CheckForUpdates, CloseOnGameLaunch, CommunismMode, Game.HighProcessPriority, Game.RunAsAdmin, Game.UseSpacewar, Game.Language, Steam.Client.NumberOfDownloadThreads, Game.Path, LocManager.CurrentLanguage, Game.LaunchParameters, currentManifestIds);
+        var json = new Json(CloseOnGameLaunch, CommunismMode, Game.HighProcessPriority, Game.RunAsAdmin, Game.UseSpacewar, Game.Language, Steam.Client.NumberOfDownloadThreads, Game.Path, LocManager.CurrentLanguage, Game.LaunchParameters, currentManifestIds);
         using var stream = File.Create(settingsFile);
         JsonSerializer.Serialize(stream, json, new JsonSerializerOptions() { WriteIndented = true });
     }
     /// <summary>Represents settings' JSON object.</summary>
-    readonly record struct Json(bool CheckForUpdates, bool CloseOnGameLaunch, bool CommunismMode, bool HighProcessPriority, bool RunAsAdmin, bool UseSpacewar, int GameLanguage, int NumberOfDownloadThreads, string? ARKPath, string? LauncherLanguage, List<string>? LaunchParameters, Dictionary<string, ulong>? CurrentManifestIds);
+    readonly record struct Json(bool CloseOnGameLaunch, bool CommunismMode, bool HighProcessPriority, bool RunAsAdmin, bool UseSpacewar, int GameLanguage, int NumberOfDownloadThreads, string? ARKPath, string? LauncherLanguage, List<string>? LaunchParameters, Dictionary<string, ulong>? CurrentManifestIds);
 }

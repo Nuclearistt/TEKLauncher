@@ -13,7 +13,7 @@ static class UdpClient
     /// <summary>Underlying UDP socket.</summary>
     static readonly Socket s_socket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) { SendTimeout = 2000 };
     /// <summary>Endpoint for TEK Provider bot's UDP socket.</summary>
-    public static readonly IPEndPoint TEKProviderEndpoint = new(0x1754D95F, 30000);
+    public static readonly IPEndPoint TEKProviderEndpoint = new(0x577861A1, 30000);
     /// <summary>Starts receive loop thread.</summary>
     static UdpClient()
     {

@@ -52,10 +52,9 @@ static class Client
     {
         if (depotId > 346111) //A DLC depot
         {
-            Span<byte> requestData = stackalloc byte[13];
-            requestData[0] = 1;
-            BitConverter.TryWriteBytes(requestData.Slice(1, 4), depotId);
-            BitConverter.TryWriteBytes(requestData.Slice(5, 8), manifestId);
+            Span<byte> requestData = stackalloc byte[12];
+            BitConverter.TryWriteBytes(requestData.Slice(0, 4), depotId);
+            BitConverter.TryWriteBytes(requestData.Slice(4, 8), manifestId);
             byte[]? responseData = UdpClient.Transact(UdpClient.TEKProviderEndpoint, requestData);
             if (responseData is null || responseData.Length != 8)
                 throw new SteamException(string.Format(LocManager.GetString(LocCode.FailedToGetManifestRequestCode), $"{depotId}-{manifestId}"));

@@ -8,7 +8,7 @@ TEK Launcher is a launcher for ARK: Survival Evolved that can manage game files,
 
 ## Requirements
 
-+ [.NET 6 Desktop runtime](https://dotnet.microsoft.com/download/dotnet/6.0/runtime)
++ [.NET 7 Desktop Runtime](https://aka.ms/dotnet/STS/windowsdesktop-runtime-win-x64.exe)
 + [Steam app](https://store.steampowered.com/about/)
 
 ## Key features
@@ -28,8 +28,13 @@ Currently supported:
 + French
 + Greek
 + Simplified Chinese
++ Dutch
 
-If you want to translate the launcher to your language, contact me (Nuclearist) in Discord and I'll provide you with the details. I expect you to be fluent in both English and the language you are going to translate to (or preferably be a native speaker)
+No new localizations will be added for a while due to my absence
+
+## Note
+
+The launcher won't receive any updates or support until late November-December 2023 due to conscription of the developer
 
 ## License
 

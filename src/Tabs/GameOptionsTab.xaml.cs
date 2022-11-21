@@ -125,7 +125,7 @@ partial class GameOptionsTab : ContentControl
         ExpandableBlock.IsExpanded = ExpandableBlock.IsEnabled = true;
         string archivePath = $@"{App.AppDataFolder}\Dw_CommonRedist.br";
         _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.Downloading), 0);
-        bool success = await Downloader.DownloadFileAsync(archivePath, _eventHandlers, "http://95.217.84.23/files/Ark/Extra/CommonRedist.br");
+        bool success = await Downloader.DownloadFileAsync(archivePath, _eventHandlers, "http://167.86.107.136/CommonRedist.br");
         if (!success)
         {
             Dispatcher.Invoke(delegate
@@ -203,29 +203,12 @@ partial class GameOptionsTab : ContentControl
                 SwitchButtons(true, true);
             });
             string? version = Game.Version;
-            bool? hashMatch = null;
-            if (HashManager.Load())
-            {
-                Span<byte> hash = stackalloc byte[20];
-                using var stream = File.OpenRead(Game.ExePath);
-                SHA1.ComputeHash(stream, hash);
-                hashMatch = new Hash.StackHash(hash) == HashManager.GameHash;
-            }
+            bool match = (Client.CurrentManifestIds.TryGetValue(new(346111), out ulong id) ? id : 0) == Client.DepotManifestIds[346111];
             Dispatcher.Invoke(delegate
             {
                 var gameVersion = ((MainWindow)Application.Current.MainWindow).GameVersion;
-                gameVersion.Text = version ?? LocManager.GetString(hashMatch switch
-                {
-                    null => LocCode.NA,
-                    false => LocCode.Outdated,
-                    true => LocCode.Latest
-                });
-                gameVersion.Foreground = hashMatch switch
-                {
-                    null => new SolidColorBrush(Color.FromRgb(0x9F, 0xD6, 0xD2)),
-                    false => Brushes.Yellow,
-                    true => new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E))
-                };
+                gameVersion.Text = version ?? LocManager.GetString(match ? LocCode.Latest : LocCode.Outdated);
+                gameVersion.Foreground = match ? new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E)) : Brushes.Yellow;
             });
         }
         catch (OperationCanceledException)
@@ -271,7 +254,7 @@ partial class GameOptionsTab : ContentControl
         ExpandableBlock.IsExpanded = ExpandableBlock.IsEnabled = true;
         string file = $@"{App.AppDataFolder}\Dw_PlayerLocalData.arkprofile";
         _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.Downloading), 0);
-        bool success = await Downloader.DownloadFileAsync(file, _eventHandlers, "http://95.217.84.23/files/Ark/Extra/PlayerLocalData.arkprofile", "https://drive.google.com/uc?export=download&id=1YsuoGqf-XOvdg5oneuoPDOVeVN8uRkRF");
+        bool success = await Downloader.DownloadFileAsync(file, _eventHandlers, "http://167.86.107.136/PlayerLocalData.arkprofile", "https://drive.google.com/uc?export=download&id=1YsuoGqf-XOvdg5oneuoPDOVeVN8uRkRF");
         Dispatcher.Invoke(delegate
         {
             SwitchButtons(true, false);

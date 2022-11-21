@@ -6,7 +6,7 @@ static class LocManager
     /// <summary>List of all localized strings.</summary>
     static readonly string[] s_list = new string[223];
     /// <summary>List of ISO 639-1 codes of all currently supported languages.</summary>
-    static readonly string[] s_supportedLangs = { "en", "es", "fr", "pt", "el", "ru", "zh" };
+    static readonly string[] s_supportedLangs = { "en", "es", "fr", "nl", "pt", "el", "ru", "zh" };
     /// <summary>Gets the index of current launcher language in the list of all supported languages.</summary>
     public static int CurrentLanguageIndex => Array.IndexOf(s_supportedLangs, CurrentLanguage);
     /// <summary>Gets or sets the ISO 639-1 code of current display language of the launcher.</summary>

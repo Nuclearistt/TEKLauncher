@@ -9,7 +9,6 @@
             <TextBlock VerticalAlignment="Center" Text="{ui:LocString GamePath}"/>
             <tlc:PathSelector Grid.Column="1" x:Name="GamePathSelector" Margin="5, 0, 0, 0" PathChanged="PathChangedHandler"/>
         </Grid>
-        <CheckBox Content="{ui:LocString CheckForUpdates}" IsChecked="{x:Static tld:Settings.CheckForUpdates}" Tag="0" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
         <CheckBox Content="{ui:LocString CloseOnGameLaunch}" IsChecked="{x:Static tld:Settings.CloseOnGameLaunch}" Tag="1" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
         <CheckBox Content="{ui:LocString CommunismMode}" IsChecked="{x:Static tld:Settings.CommunismMode}" Tag="2" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
         <Grid>

@@ -55,7 +55,6 @@ partial class LauncherSettingsTab : ContentControl
         bool newValue = checkBox.IsChecked!.Value;
         switch (((string)checkBox.Tag)[0])
         {
-            case '0': Settings.CheckForUpdates = newValue; break;
             case '1':
                 Settings.CloseOnGameLaunch = newValue;
                 if (newValue && (Steam.App.CurrentUserStatus.GameStatus != Game.Status.OwnedAndInstalled || Game.UseSpacewar) && !Messages.ShowOptions("Warning", LocManager.GetString(LocCode.LauncherCloseWarning)))

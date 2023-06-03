@@ -34,7 +34,7 @@ No new localizations will be added for a while due to my absence
 
 ## Note
 
-The launcher won't receive any updates or support until late November-December 2023 due to conscription of the developer
+The launcher will receive few to none updates until November 21st 2023 due to army conscription of the developer
 
 ## License
 

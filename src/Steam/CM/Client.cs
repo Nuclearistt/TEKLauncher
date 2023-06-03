@@ -41,7 +41,7 @@ static class Client
         using var reader = new StreamReader(response.Body.Apps[0].Buffer.Memory.AsStream());
         var vdf = new VDFNode(reader)["depots"];
         foreach (uint depotId in Steam.Client.DepotManifestIds.Keys)
-            Steam.Client.DepotManifestIds[depotId] = ulong.TryParse(vdf?[depotId.ToString()]?["manifests"]?["public"]?.Value, out ulong id) ? id : 0;
+            Steam.Client.DepotManifestIds[depotId] = ulong.TryParse(vdf?[depotId.ToString()]?["manifests"]?["public"]?["gid"]?.Value, out ulong id) ? id : 0;
         Steam.Client.ManifestIdsLastUpdated = Environment.TickCount64;
     }
     /// <summary>Gets request code for specified manifest.</summary>

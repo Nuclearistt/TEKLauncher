@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright © 2022 Nuclearist
+Copyright © 2020 Nuclearist
 
 All rights reserved.
 

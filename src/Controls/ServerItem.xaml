@@ -21,6 +21,8 @@
                     <Run Text="|"/>
                     <Run Text="{ui:LocString Version}"/>
                     <Run x:Name="Version"/>
+                    <Run Text="|"/>
+                    <Run Text="{Binding NumPlayers, Mode=OneTime}"/><Run Text="/"/><Run Text="{Binding MaxNumPlayers, Mode=OneTime}"/>
                 </TextBlock>
             </StackPanel>
             <StackPanel Grid.Column="2" Margin="10, 0, 0, 0" Orientation="Horizontal">

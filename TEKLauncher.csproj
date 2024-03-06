@@ -1,19 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Platform>x64</Platform>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <OutputType>WinExe</OutputType>
     <UseWPF>True</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
-    <Version>9.4.84.0</Version>
+    <Version>9.4.85.0</Version>
     <ApplicationManifest>TEKLauncher.manifest</ApplicationManifest>
     <ApplicationIcon>res\Icon.ico</ApplicationIcon>
     <Authors>Nuclearist</Authors>
     <Product>TEK Launcher</Product>
-    <Copyright>Copyright © 2020-2023 Nuclearist</Copyright>
+    <Copyright>Copyright © 2020-2024 Nuclearist</Copyright>
     <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
-	<AppendRuntimeIdentifierToOutputPath>False</AppendRuntimeIdentifierToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>False</AppendRuntimeIdentifierToOutputPath>
     <Nullable>Enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -25,9 +25,9 @@
     <SelfContained>False</SelfContained>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.0"/>
-    <PackageReference Include="Google.Protobuf" Version="3.23.2"/>
-    <PackageReference Include="Google.Protobuf.Tools" Version="3.23.2"/>
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.2"/>
+    <PackageReference Include="Google.Protobuf" Version="3.25.3"/>
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.25.3"/>
     <PackageReference Include="SharpZipLib" Version="1.4.2"/>
   </ItemGroup>
   <ItemGroup>
@@ -37,7 +37,7 @@
     <Protos Include="protos\**"/>
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.23.2\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))"/>
+    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.25.3\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))"/>
   </Target>
   <Target Name="SignFile" AfterTargets="ComputeAndCopyFilesToPublishDirectory">
     <Exec Command="call &quot;C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe&quot; sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /a $(ProjectDir)out\TEKLauncher.exe"/>

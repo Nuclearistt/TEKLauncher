@@ -9,17 +9,14 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Button Template="{StaticResource IconTextButton}" x:Name="UpdatePauseButton" Content="{ui:LocString Update}" Tag="{StaticResource Retry}" Click="UpdatePause"/>
-                <Button Grid.Column="4" Template="{StaticResource IconTextButton}" x:Name="UnlockSkinsButton" Content="{ui:LocString UnlockSkins}" Tag="{StaticResource Unlock}" Click="UnlockSkins"/>
-                <Button Grid.Row="2" Template="{StaticResource IconTextButton}" x:Name="ValidateButton" Content="{ui:LocString Validate}" Tag="{StaticResource ValidateIcon}" Click="Validate"/>
-                <Button Grid.Row="2" Grid.Column="2" Template="{StaticResource IconTextButton}" x:Name="InstallRequirementsButton" Content="{ui:LocString InstallDirectX}" Tag="{StaticResource InstallIcon}" Click="InstallDirectX"/>
-                <Button Grid.Row="2" Grid.Column="4" Template="{StaticResource IconTextButton}" Content="{ui:LocString FixBloom}" Tag="{StaticResource Fix}" Click="FixBloom"/>
+                <Button Grid.Column="2" Template="{StaticResource IconTextButton}" x:Name="UnlockSkinsButton" Content="{ui:LocString UnlockSkins}" Tag="{StaticResource Unlock}" Click="UnlockSkins"/>
+				<Button Grid.Row="2" Template="{StaticResource IconTextButton}" x:Name="ValidateButton" Content="{ui:LocString Validate}" Tag="{StaticResource ValidateIcon}" Click="Validate"/>
+				<Button Grid.Row="2" Grid.Column="2" Template="{StaticResource IconTextButton}" Content="{ui:LocString FixBloom}" Tag="{StaticResource Fix}" Click="FixBloom"/>
             </Grid>
             <Expander x:Name="ExpandableBlock" Margin="0, 10, 0, 0" IsEnabled="False">
                 <Grid Margin="5">

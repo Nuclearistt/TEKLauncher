@@ -8,12 +8,29 @@ namespace TEKLauncher.Servers;
 /// <remarks>The purpose of this class is using only one socket to send and receive datagrams from all servers.</remarks>
 static class UdpClient
 {
-    /// <summary>Ongoing datagram transactions.</summary>
-    static readonly ConcurrentDictionary<IPEndPoint, TaskCompletionSource<byte[]>> s_transactions = new(5, 32);
+    static IPEndPoint? s_mrcpEndpoint;
+	/// <summary>Ongoing datagram transactions.</summary>
+	static readonly ConcurrentDictionary<IPEndPoint, TaskCompletionSource<byte[]>> s_transactions = new(5, 32);
     /// <summary>Underlying UDP socket.</summary>
     static readonly Socket s_socket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp) { SendTimeout = 2000 };
-    /// <summary>Endpoint for TEK Provider bot's UDP socket.</summary>
-    public static readonly IPEndPoint TEKProviderEndpoint = new(0x577861A1, 30000);
+    /// <summary>Endpoint for my MRCP bot.</summary>
+    public static IPEndPoint? MRCPEndpoint
+    {
+        get
+        {
+            if (s_mrcpEndpoint is null)
+            {
+                try
+                {
+                    var addresses = Dns.GetHostAddresses("api.nuclearist.ru", AddressFamily.InterNetwork);
+                    if (addresses.Length > 0)
+					    s_mrcpEndpoint = new (addresses[0], 2000);
+                }
+                catch { }
+            }
+            return s_mrcpEndpoint;
+        }
+    }
     /// <summary>Starts receive loop thread.</summary>
     static UdpClient()
     {
@@ -23,7 +40,7 @@ static class UdpClient
     /// <summary>Processes all incoming datagrams in a loop.</summary>
     static void ReceiveLoop()
     {
-        Span<byte> buffer = stackalloc byte[1400]; //1400 bytes is the max size of Steam server query packet
+        Span<byte> buffer = stackalloc byte[2800]; //1400 bytes is the max size of Steam server query packet
         EndPoint remoteEndpoint = new IPEndPoint(0, 0);
         try
         {

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
@@ -113,53 +112,6 @@ partial class GameOptionsTab : ContentControl
         }
         Notifications.Add(LocManager.GetString(LocCode.FixBloomSuccess), "NSuccess");
     }
-    /// <summary>Installs DirectX.</summary>
-    async void InstallDirectX(object sender, RoutedEventArgs e)
-    {
-        if (Game.DirectXInstalled)
-        {
-            Notifications.Add(LocManager.GetString(LocCode.DirectXAlreadyInstalled), "NSuccess");
-            return;
-        }
-        SwitchButtons(false, false);
-        ExpandableBlock.IsExpanded = ExpandableBlock.IsEnabled = true;
-        string archivePath = $@"{App.AppDataFolder}\Dw_CommonRedist.br";
-        _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.Downloading), 0);
-        bool success = await Downloader.DownloadFileAsync(archivePath, _eventHandlers, "http://167.86.107.136/CommonRedist.br");
-        if (!success)
-        {
-            Dispatcher.Invoke(delegate
-            {
-                SwitchButtons(true, false);
-                _taskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
-                _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.DownloadFailed), 2);
-            });
-            return;
-        }
-        _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.ExtractingArchive), 0);
-        string baseDir = $@"{App.AppDataFolder}\Dw_CommonRedist\";
-        success = await Task.Run(() => BrotliArchive.Decompress(archivePath, baseDir, _eventHandlers));
-        if (!success)
-        {
-            File.Delete(archivePath);
-            Dispatcher.Invoke(delegate
-            {
-                SwitchButtons(true, false);
-                _taskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
-                _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.ArchiveCorrupted), 2);
-            });
-            return;
-        }
-        _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.InstallingDirectX), 0);
-        await (Process.Start(new ProcessStartInfo(string.Concat(baseDir, @"DirectX\DXSETUP.exe"), "/silent") { UseShellExecute = true })?.WaitForExitAsync() ?? Task.CompletedTask);
-        await Task.Run(() => Directory.Delete($@"{App.AppDataFolder}\Dw_CommonRedist", true));
-        Dispatcher.Invoke(delegate
-        {
-            SwitchButtons(true, false);
-            _taskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
-            _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.InstallDirectXSuccess), 1);
-        });
-    }
     /// <summary>Updates <see cref="Game.LaunchParameters"/> with the parameters specified in <see cref="CustomLaunchParameters"/>.</summary>
     void LostFocusHandler(object sender, RoutedEventArgs e)
     {
@@ -175,7 +127,7 @@ partial class GameOptionsTab : ContentControl
     /// <param name="steamTask">Indicates whether switch is initiated by a Steam client task and Update/Pause state of the button should be determined.</param>
     void SwitchButtons(bool newState, bool steamTask)
     {
-        InstallRequirementsButton.IsEnabled = ValidateButton.IsEnabled = UnlockSkinsButton.IsEnabled = newState;
+        ValidateButton.IsEnabled = UnlockSkinsButton.IsEnabled = newState;
         if (steamTask)
         {
             UpdatePauseButton.Content = LocManager.GetString(newState ? LocCode.Update : LocCode.Pause);
@@ -254,7 +206,7 @@ partial class GameOptionsTab : ContentControl
         ExpandableBlock.IsExpanded = ExpandableBlock.IsEnabled = true;
         string file = $@"{App.AppDataFolder}\Dw_PlayerLocalData.arkprofile";
         _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.Downloading), 0);
-        bool success = await Downloader.DownloadFileAsync(file, _eventHandlers, "http://167.86.107.136/PlayerLocalData.arkprofile", "https://drive.google.com/uc?export=download&id=1YsuoGqf-XOvdg5oneuoPDOVeVN8uRkRF");
+        bool success = await Downloader.DownloadFileAsync(file, _eventHandlers, "https://nuclearist.ru/static/teklauncher/PlayerLocalData.arkprofile", "https://drive.google.com/uc?export=download&id=1YsuoGqf-XOvdg5oneuoPDOVeVN8uRkRF");
         Dispatcher.Invoke(delegate
         {
             SwitchButtons(true, false);

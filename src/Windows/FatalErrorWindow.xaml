@@ -22,7 +22,7 @@
                 <ContentControl Template="{StaticResource Error}" Width="150" Height="150"/>
                 <TextBlock Grid.Column="2" VerticalAlignment="Center" TextWrapping="Wrap">
                     <Run Text="{ui:LocString FatalErrorMessage}"/>
-                    <Hyperlink NavigateUri="https://discord.gg/JBUgcwvpfc" Click="FollowLink">
+                    <Hyperlink NavigateUri="https://discord.com/servers/teknology-hub-937821572285206659" Click="FollowLink">
                         <Run Text="{ui:LocString FatalErrorMessageLink}"/>
                     </Hyperlink>
                 </TextBlock>

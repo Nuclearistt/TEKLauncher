@@ -46,14 +46,29 @@ partial class App : Application
         if (!IPC.Initialize())
         {
             Messages.Show("Error", LocManager.GetString(LocCode.AnotherInstanceRunning));
-            Current.Shutdown();
+            Shutdown();
             return;
         }
         Steam.App.Initialize();
-        using var currentProcess = Process.GetCurrentProcess();
-        string oldExePath = string.Concat(currentProcess.MainModule!.FileName, ".old");
+        string oldExePath = string.Concat(Environment.ProcessPath, ".old");
         if (File.Exists(oldExePath))
-            try { File.Delete(oldExePath); }
+            try
+            {
+                string tlaSettingsFile = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\TEK Launcher Ascended\Settings.json";
+				if (File.Exists(tlaSettingsFile) && File.GetLastWriteTimeUtc(tlaSettingsFile) > File.GetLastWriteTimeUtc($@"{AppDataFolder}\Settings.json")) //The last launcher used before update was TEK Launcher Ascended
+                {
+                    string tlaFile = $@"{Path.GetDirectoryName(oldExePath)}\TEK Launcher Ascended.exe";
+					if (Downloader.DownloadFileAsync(tlaFile, new(), "https://github.com/Nuclearistt/TEKLauncher/releases/latest/download/TEKLauncherAscended.exe").Result)
+					{
+                        File.Delete(oldExePath);
+						File.Move(Environment.ProcessPath!, $@"{tlaFile}.old", true);
+						Process.Start(new ProcessStartInfo(tlaFile) { UseShellExecute = true });
+						Shutdown();
+					}
+				}
+                else
+                 File.Delete(oldExePath);
+            }
             catch { }
         if (string.IsNullOrEmpty(Game.Path) || !Directory.Exists(Path.GetPathRoot(Game.Path)))
             new FirstLaunchWindow().Show();

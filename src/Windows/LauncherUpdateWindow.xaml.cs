@@ -25,7 +25,7 @@ partial class LauncherUpdateWindow : TEKWindow
                 TaskbarItemInfo.ProgressValue = ProgressBar.Ratio;
             })
         };
-        if (await Downloader.DownloadFileAsync($"{path}.new", eventHandlers, "https://github.com/Nuclearistt/TEKLauncher/releases/latest/download/TEKLauncher.exe"))
+        if (await Downloader.DownloadFileAsync(newPath, eventHandlers, "https://api.nuclearist.ru/apps/teklauncher/release/download/win-x64") || await Downloader.DownloadFileAsync(newPath, eventHandlers, "https://github.com/Nuclearistt/TEKLauncher/releases/latest/download/TEKLauncher.exe"))
         {
             File.Move(path, string.Concat(path, ".old"), true);
             File.Move(newPath, path);

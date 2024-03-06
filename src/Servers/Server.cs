@@ -15,8 +15,10 @@ class Server
     static readonly ConcurrentDictionary<string, Info> s_infoCache = new();
     /// <summary>Gets a value that indicates whether server's mode is PvE.</summary>
     public bool IsPvE { get; private set; }
-    /// <summary>Gets IDs of the mods that the server is running.</summary>
-    public ulong[] ModIds { get; private set; } = Array.Empty<ulong>();
+    public int NumPlayers { get; private set; }
+    public int MaxNumPlayers { get; private set; }
+	/// <summary>Gets IDs of the mods that the server is running.</summary>
+	public ulong[] ModIds { get; private set; } = Array.Empty<ulong>();
     /// <summary>Gets cluster ID of the server.</summary>
     public string? ClusterId { get; private set; }
     /// <summary>Gets a launch parameter for joining the server directly.</summary>
@@ -118,8 +120,9 @@ class Server
         nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);
         if (Encoding.ASCII.GetString(buffer, startIndex, nullIndex - startIndex) != "ark_survival_evolved")
             return false;
-        //A2S_RULES
-        request = request[..9];
+        MaxNumPlayers = buffer[Array.IndexOf(buffer, (byte)0, nullIndex + 1) + 4];
+		//A2S_RULES
+		request = request[..9];
         request[4] = 0x56;
         BitConverter.TryWriteBytes(request[5..], 0xFFFFFFFF);
         buffer = UdpClient.Transact(_endpoint, request);
@@ -144,6 +147,12 @@ class Server
                     ClusterId = Encoding.ASCII.GetString(buffer, startIndex, nullIndex - startIndex);
                     startIndex = nullIndex + 1;
                     break;
+                case "NUMOPENPUBCONN":
+					startIndex = nullIndex + 1;
+					nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);
+					NumPlayers = MaxNumPlayers - (int.TryParse(Encoding.ASCII.GetString(buffer, startIndex, nullIndex - startIndex), out int num) ? num : MaxNumPlayers);
+					startIndex = nullIndex + 1;
+					break;
                 case "SEARCHKEYWORDS_s":
                     startIndex = nullIndex + 1;
                     nullIndex = Array.IndexOf(buffer, (byte)0, startIndex);

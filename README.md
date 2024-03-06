@@ -1,5 +1,5 @@
 # TEK Launcher
-[![Discord](https://img.shields.io/discord/937821572285206659?style=flat-square&label=Discord&logo=discord&logoColor=white&color=7289DA)](https://discord.gg/JBUgcwvpfc)
+[![Discord](https://img.shields.io/discord/937821572285206659?style=flat-square&label=Discord&logo=discord&logoColor=white&color=7289DA)](https://discord.com/servers/teknology-hub-937821572285206659)
 [![Downloads](https://img.shields.io/github/downloads/Nuclearistt/TEKLauncher/total?style=flat-square)](https://github.com/Nuclearistt/TEKLauncher/releases)
 
 ## Overview
@@ -8,7 +8,7 @@ TEK Launcher is a launcher for ARK: Survival Evolved that can manage game files,
 
 ## Requirements
 
-+ [.NET 7 Desktop Runtime](https://aka.ms/dotnet/STS/windowsdesktop-runtime-win-x64.exe)
++ [.NET 8 Desktop Runtime](https://dotnetcli.azureedge.net/dotnet/WindowsDesktop/8.0.2/windowsdesktop-runtime-8.0.2-win-x64.exe)
 + [Steam app](https://store.steampowered.com/about/)
 
 ## Key features
@@ -30,11 +30,7 @@ Currently supported:
 + Simplified Chinese
 + Dutch
 
-No new localizations will be added for a while due to my absence
-
-## Note
-
-The launcher will receive few to none updates until November 21st 2023 due to army conscription of the developer
+New localizations are currently not accepted due to ongoing complete rework of the app
 
 ## License
 

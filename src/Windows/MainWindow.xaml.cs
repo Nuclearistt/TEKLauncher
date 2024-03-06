@@ -54,10 +54,14 @@ partial class MainWindow : TEKWindow
             else
                 GameVersion.Text = version ?? LocManager.GetString(LocCode.NA);
         });
-        //Check for launcher updates
-        var release = await Downloader.DownloadJsonAsync<Release>("https://api.github.com/repos/Nuclearistt/TEKLauncher/releases/latest");
-        string? versionString = release.TagName?[1..] ?? await Downloader.DownloadStringAsync("https://drive.google.com/uc?export=download&id=1QMMdl9OsdTROQjidnhH6y8l_yQv2-DGr");
-        if (versionString is not null)
+		//Check for launcher updates
+		string? versionString = await Downloader.DownloadStringAsync("https://api.nuclearist.ru/apps/teklauncher/release/version");
+		if (versionString is null)
+		{
+			var release = await Downloader.DownloadJsonAsync<Release>("https://api.github.com/repos/Nuclearistt/TEKLauncher/releases/latest");
+			versionString = release.TagName?[1..] ?? await Downloader.DownloadStringAsync("https://drive.google.com/uc?export=download&id=1QMMdl9OsdTROQjidnhH6y8l_yQv2-DGr");
+		}
+		if (versionString is not null)
         {
             var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
             if (Version.TryParse(versionString, out var onlineVersion) && onlineVersion > currentVersion)

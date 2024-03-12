@@ -31,7 +31,7 @@
                 <Hyperlink BaselineAlignment="Center" NavigateUri="https://github.com/Nuclearistt/TEKLauncher/releases/latest/download/TEKLauncherAscended.exe" Click="FollowLink">TEK Launcher Ascended for ARK: Survival Ascended</Hyperlink>
                 <LineBreak/>
                 <Image Width="32" Height="32" Source="pack://application:,,,/res/icons/Discord.png"/>
-                <Hyperlink BaselineAlignment="Center" NavigateUri="https://discord.com/servers/teknology-hub-937821572285206659" Click="FollowLink">Discord</Hyperlink>
+                <Hyperlink BaselineAlignment="Center" NavigateUri="https://discord.gg/JBUgcwvpfc" Click="FollowLink">Discord</Hyperlink>
                 <LineBreak/>
                 <Image Width="32" Height="32" Source="pack://application:,,,/res/icons/GitHub.png"/>
                 <Hyperlink BaselineAlignment="Center" NavigateUri="https://github.com/Nuclearistt/TEKLauncher" Click="FollowLink">GitHub Repo</Hyperlink>

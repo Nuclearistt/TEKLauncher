@@ -15,5 +15,6 @@ enum MapCode
     Genesis2,
     LostIsland,
     Fjordur,
+    Aquatica,
     Mod
 }

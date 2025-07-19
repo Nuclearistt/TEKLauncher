@@ -48,7 +48,7 @@ partial class FirstLaunchWindow : TEKWindow
     void GIPathChangedHandler(string newPath)
     {
         long freeSpace = WinAPI.GetDiskFreeSpace(newPath);
-        bool enoughSpace = freeSpace >= 139586437120; //130 GB
+        bool enoughSpace = freeSpace >= 178241142784; //166 GB
         _freeSpace.Foreground = new SolidColorBrush(enoughSpace ? Color.FromRgb(0x0A, 0xA6, 0x3E) : Color.FromRgb(0x9E, 0x23, 0x13));
         _freeSpace.Text = LocManager.BytesToString(freeSpace);
         _beginInstallationButton.IsEnabled = enoughSpace;

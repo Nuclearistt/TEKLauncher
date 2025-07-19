@@ -37,7 +37,6 @@ partial class App : Application
         AppDomain.CurrentDomain.UnhandledException += DomainExceptionHandler;
         string cultureCode = CultureInfo.CurrentUICulture.Name; //This will be used later to initialize LocManager
         CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("en-US"); //Set .NET culture to en-US for exceptions to be in English and type conversions to work properly
-        ServicePointManager.DefaultConnectionLimit = 20; //Allow up to 20 simultaneous downloads from the same host, needed for Steam CDN client
         InitializeComponent(); //Load XAML component
         Settings.Load();
         LocManager.Initialize(cultureCode);

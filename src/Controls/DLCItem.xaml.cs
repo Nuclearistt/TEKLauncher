@@ -31,7 +31,15 @@ partial class DLCItem : UserControl
             Task.Run(dlc.Delete);
     }
     /// <summary>Creates an <see cref="UpdaterWindow"/> for installing/updating the DLC.</summary>
-    void Install(object sender, RoutedEventArgs e) => new UpdaterWindow((DLC)DataContext, false).Show();
+    void Install(object sender, RoutedEventArgs e)
+	{
+		if (TEKSteamClient.Ctx == null)
+		{
+			Messages.Show("Error", "tek-steamclient library hasn't been downloaded yet, try again later");
+			return;
+		}
+		new UpdaterWindow((DLC)DataContext, false).Show();
+    }
     /// <summary>Triggers an animation to make content grid visible.</summary>
     void MouseEnterHandler(object sender, MouseEventArgs e)
     {
@@ -48,7 +56,15 @@ partial class DLCItem : UserControl
         Blur.BeginAnimation(BlurEffect.RadiusProperty, _animation);
     }
     /// <summary>Creates an <see cref="UpdaterWindow"/> for validating the DLC.</summary>
-    void Validate(object sender, RoutedEventArgs e) => new UpdaterWindow((DLC)DataContext, true).Show();
+    void Validate(object sender, RoutedEventArgs e)
+	{
+		if (TEKSteamClient.Ctx == null)
+		{
+			Messages.Show("Error", "tek-steamclient library hasn't been downloaded yet, try again later");
+			return;
+		}
+		new UpdaterWindow((DLC)DataContext, true).Show();
+    }
     /// <summary>Updates the item accordingly to new DLC status.</summary>
     internal void SetStatus()
     {

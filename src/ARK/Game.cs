@@ -1,7 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Compression;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using TEKLauncher.Servers;
 
@@ -49,22 +47,12 @@ static class Game
     public static string ExePath { get; private set; } = null!;
     /// <summary>Gets or sets path to the root game folder.</summary>
     public static string? Path { get; set; }
-    /// <summary>Gets the game version string.</summary>
-    public static string? Version => File.Exists(s_versionFilePath) ? File.ReadAllText(s_versionFilePath).TrimEnd(' ', '\r', '\n') : null;
     delegate uint Inject(in InjectionParameters injParams);
     /// <summary>Generates auxiliary paths within game folder to be used by the launcher and initializes Steam client folders.</summary>
     public static void Initialize()
     {
         s_versionFilePath = $@"{Path}\version.txt";
         ExePath = $@"{Path}\ShooterGame\Binaries\Win64\ShooterGame.exe";
-        Steam.Client.DownloadsFolder = $@"{Path}\Downloads";
-        Steam.Client.ManifestsFolder = $@"{Path}\Manifests";
-        try
-        {
-            Directory.CreateDirectory(Steam.Client.DownloadsFolder).Attributes |= FileAttributes.Hidden;
-            Directory.CreateDirectory(Steam.Client.ManifestsFolder).Attributes |= FileAttributes.Hidden;
-        }
-        catch { }
     }
     /// <summary>Executes the game and optionally initiates connection to a server.</summary>
     /// <param name="server">Server to join, <see langword="null"/> if no server needs to be joined.</param>
@@ -78,8 +66,6 @@ static class Game
             Messages.Show("Error", string.Format(LocManager.GetString(LocCode.LaunchFailDirectXNotInstalled), LocManager.GetString(LocCode.InstallDirectX)));
         else if (server is not null && server.Map > MapCode.TheIsland && server.Map < MapCode.Mod && !DLC.Get(server.Map).IsInstalled)
             Messages.Show("Warning", LocManager.GetString(LocCode.JoinFailDLCMissing));
-        else if (server is not null && float.TryParse(server.Version, out float serverVersion) && float.TryParse(Version, out float clientVersion) && (int)serverVersion != (int)clientVersion)
-            Messages.Show("Warning", LocManager.GetString((int)serverVersion > (int)clientVersion ? LocCode.JoinFailServerVersionHigher : LocCode.JoinFailClientVersionHigher));
         else
         {
             using (var reader = File.OpenRead($@"{Path}\Engine\Binaries\ThirdParty\Steamworks\Steamv132\Win64\steam_api64.dll"))

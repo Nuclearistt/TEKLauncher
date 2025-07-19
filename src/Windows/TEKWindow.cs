@@ -92,6 +92,10 @@ public class TEKWindow : Window
     /// <summary>Processes maximize/restore state changes.</summary>
     protected virtual void StateChangedHandler(object? sender, EventArgs e)
     {
+        if (_root is null || _caption is null)
+        {
+            return;
+        }
         if (WindowState == WindowState.Normal)
         {
             _root.Margin = new(0);
@@ -103,7 +107,8 @@ public class TEKWindow : Window
         {
             _root.Margin = new(8); //Fix window content going out of screen in maximized mode
             _caption.CornerRadius = new(0);
-            _maximizeRestoreButton!.Tag = "3"; //Set Restore icon
-        }
+            if (_maximizeRestoreButton is not null)
+                _maximizeRestoreButton.Tag = "3"; //Set Restore icon
+		}
     }
 }

@@ -1,9 +1,10 @@
-﻿using System.Threading;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
 using TEKLauncher.Controls;
-using TEKLauncher.Steam;
 using TEKLauncher.Windows;
 
 namespace TEKLauncher.Tabs;
@@ -13,14 +14,11 @@ partial class GameOptionsTab : ContentControl
 {
     /// <summary>Indicator of Steam client task's current stage.</summary>
     StageIndicator? _currentStage;
-    /// <summary>Indicator of Steam client task's current sub-stage.</summary>
-    StageIndicator? _currentSubStage;
     /// <summary>Handlers for dowloader and Steam client events.</summary>
     readonly EventHandlers _eventHandlers;
     /// <summary>Taskbar item info of main window.</summary>
     readonly TaskbarItemInfo _taskbarItemInfo;
-    /// <summary>Cancellation token source for pausing/cancelling Steam client task.</summary>
-    static CancellationTokenSource s_cts = new();
+    static unsafe TEKSteamClient.AmItemDesc *s_desc = null;
     /// <summary>Steam client task thread.</summary>
     static Thread? s_taskThread;
     /// <summary>Initializes a new instance of Game options tab.</summary>
@@ -41,18 +39,7 @@ partial class GameOptionsTab : ContentControl
         _taskbarItemInfo = Application.Current.MainWindow.TaskbarItemInfo;
         _eventHandlers = new()
         {
-            StartValidation = () => Dispatcher.Invoke(delegate
-            {
-                Counters.Visibility = Visibility.Visible;
-                FilesUpToDate.Text = FilesOutdated.Text = FilesMissing.Text = "0";
-            }),
             PrepareProgress = (mode, total) => Dispatcher.Invoke(() => ProgressBar.Initialize(mode, total)),
-            UpdateCounters = (missing, outdated, upToDate) => Dispatcher.InvokeAsync(delegate
-            {
-                FilesMissing.Text = missing.ToString();
-                FilesOutdated.Text = outdated.ToString();
-                FilesUpToDate.Text = upToDate.ToString();
-            }),
             UpdateProgress = increment => Dispatcher.Invoke(delegate
             {
                 ProgressBar.Update(increment);
@@ -68,23 +55,6 @@ partial class GameOptionsTab : ContentControl
                     2 => Color.FromRgb(0x9E, 0x23, 0x13),
                     _ => default
                 });
-            }),
-            SetStage = (textCode, isSubStage) => Dispatcher.Invoke(delegate
-            {
-                if (isSubStage)
-                {
-                    _currentSubStage?.Finish(true);
-                    _currentSubStage = new(textCode) { Margin = new(20, 0, 0, 0) };
-                    Stages.Children.Add(_currentSubStage);
-                }
-                else
-                {
-                    _currentSubStage?.Finish(true);
-                    _currentSubStage = null;
-                    _currentStage?.Finish(true);
-                    _currentStage = new(textCode);
-                    Stages.Children.Add(_currentStage);
-                }
             })
         };
     }
@@ -137,60 +107,151 @@ partial class GameOptionsTab : ContentControl
         else
             UpdatePauseButton.IsEnabled = newState;
     }
+    static string? s_spcMsg = null;
+    void UpdHandler(ref TEKSteamClient.AmItemDesc desc, TEKSteamClient.AmUpdType upd_mask)
+    {
+        if (upd_mask.HasFlag(TEKSteamClient.AmUpdType.DeltaCreated))
+        {
+			long diskFreeSpace = WinAPI.GetDiskFreeSpace($@"{Game.Path}\tek-sc-data") + 20971520; //Add 20 MB to take NTFS entries into account
+            long reqSpace = TEKSteamClient.DeltaEstimateDiskSpace(desc.Job.Delta);
+			if (diskFreeSpace < reqSpace)
+            {
+				s_spcMsg = string.Format(LocManager.GetString(LocCode.NotEnoughSpace), LocManager.BytesToString(reqSpace));
+                TEKSteamClient.AppManager.PauseJob(ref desc);
+			}
+        }
+		if (upd_mask.HasFlag(TEKSteamClient.AmUpdType.Stage))
+		{
+            var stage = desc.Job.Stage;
+            Dispatcher.Invoke(() =>
+			{
+                LocCode code = LocCode.NA;
+				switch (stage)
+				{
+					case TEKSteamClient.AmJobStage.FetchingData:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.None);
+                        code = LocCode.FetchingData;
+						break;
+					case TEKSteamClient.AmJobStage.DwManifest:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.Binary);
+                        code = LocCode.DownloadingManifest;
+						break;
+					case TEKSteamClient.AmJobStage.DwPatch:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.Binary);
+                        code = LocCode.DownloadingPatch;
+						break;
+					case TEKSteamClient.AmJobStage.Verifying:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.Percentage);
+                        code = LocCode.Validating;
+						break;
+					case TEKSteamClient.AmJobStage.Downloading:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.Binary);
+                        code = LocCode.DownloadingFiles;
+						break;
+					case TEKSteamClient.AmJobStage.Pathcing:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.Numbers);
+                        code = LocCode.Patching;
+						break;
+					case TEKSteamClient.AmJobStage.Installing:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.Numbers);
+                        code = LocCode.InstallingFiles;
+						break;
+					case TEKSteamClient.AmJobStage.Deleting:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.Numbers);
+                        code = LocCode.Deleting;
+						break;
+					case TEKSteamClient.AmJobStage.Finalizing:
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.None);
+                        code = LocCode.Finalizing;
+						break;
+				}
+				Status.Text = LocManager.GetString(code);
+				Status.Foreground = Brushes.Yellow;
+				_currentStage?.Finish(true);
+				_currentStage = new(code);
+				Stages.Children.Add(_currentStage);
+			});
+		}
+        if (upd_mask.HasFlag(TEKSteamClient.AmUpdType.Progress))
+        {
+            var current = desc.Job.Stage switch
+            {
+                TEKSteamClient.AmJobStage.Verifying
+                or TEKSteamClient.AmJobStage.Downloading
+                or TEKSteamClient.AmJobStage.Installing => Interlocked.Read(ref desc.Job.ProgressCurrent),
+                _ => desc.Job.ProgressCurrent
+            };
+            var total = desc.Job.ProgressTotal;
+			Dispatcher.Invoke(delegate
+			{
+				ProgressBar.Update(current, total);
+				_taskbarItemInfo.ProgressValue = ProgressBar.Ratio;
+			});
+
+		}
+	}
     /// <summary>Executes Steam client tasks and catches its exceptions.</summary>
     /// <param name="obj">Thread parameter, for this method it's a <see cref="bool"/> that indicates whether validation should be performed.</param>
     /// <exception cref="AggregateException">And error occurred in Steam client task.</exception>
-    void TaskProcedure(object? obj)
+    unsafe void TaskProcedure(object? obj)
     {
-        var tasks = Tasks.ReserveDiskSpace | Tasks.Download | Tasks.Install;
-        tasks |= ((bool)obj!) ? Tasks.Validate : Tasks.GetUpdateData;
-        try
+        bool forceVerify = (bool)obj!;
+        var itemId = new TEKSteamClient.ItemId { AppId = 346110, DepotId = 346111, WorkshopItemId = 0 };
+        var res = TEKSteamClient.AppMng!.RunJob(in itemId, Settings.PreAquatica ? 8075379529797638112ul : 0, forceVerify, UpdHandler, out s_desc);
+        if (res.Primary == 65)
         {
-            Client.RunTasks(346111, tasks, _eventHandlers, s_cts.Token);
-            Dispatcher.Invoke(delegate
-            {
-                _taskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
-                _currentSubStage?.Finish(true);
-                _currentStage?.Finish(true);
-                SwitchButtons(true, true);
-            });
-            string? version = Game.Version;
-            bool match = (Client.CurrentManifestIds.TryGetValue(new(346111), out ulong id) ? id : 0) == Client.DepotManifestIds[346111];
-            Dispatcher.Invoke(delegate
-            {
-                var gameVersion = ((MainWindow)Application.Current.MainWindow).GameVersion;
-                gameVersion.Text = version ?? LocManager.GetString(match ? LocCode.Latest : LocCode.Outdated);
-                gameVersion.Foreground = match ? new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E)) : Brushes.Yellow;
-            });
+			Dispatcher.Invoke(delegate
+			{
+                if (s_spcMsg is null)
+                {
+					ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
+					Status.Text = LocManager.GetString(LocCode.OperationPaused);
+					Status.Foreground = new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
+					_taskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
+
+				}
+				else
+                {
+					ProgressBar.Reset(Controls.ProgressBar.Mode.None);
+				    Status.Text = s_spcMsg;
+                    s_spcMsg = null;
+				    Status.Foreground = new SolidColorBrush(Color.FromRgb(0x9E, 0x23, 0x13));
+				    _taskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+				}
+				_currentStage?.Finish(false);
+				SwitchButtons(true, true);
+			});
         }
-        catch (OperationCanceledException)
+        else if (!res.Success && res.Primary != 82)
         {
-            _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.OperationPaused), 1);
-            Dispatcher.Invoke(delegate
-            {
-                _taskbarItemInfo.ProgressState = TaskbarItemProgressState.Paused;
-                _currentSubStage?.Finish(false);
-                _currentStage?.Finish(false);
-                SwitchButtons(true, true);
-            });
-        }
-        catch (Exception e)
+			Dispatcher.Invoke(delegate
+			{
+                ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
+				Status.Text = res.Message;
+                if (res.Uri != 0)
+                    Marshal.FreeHGlobal(res.Uri);
+				Status.Foreground = new SolidColorBrush(Color.FromRgb(0x9E, 0x23, 0x13));
+				_taskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
+				_currentStage?.Finish(false);
+				SwitchButtons(true, true);
+			});
+		}
+        else
         {
-            bool steamException = e is SteamException;
-            if (steamException)
-                _eventHandlers.SetStatus?.Invoke(e.Message, 2);
-            else
-                File.WriteAllText($@"{App.AppDataFolder}\SteamClientException.txt", e.ToString());
-            Dispatcher.Invoke(delegate
-            {
-                _taskbarItemInfo.ProgressState = TaskbarItemProgressState.Error;
-                _currentSubStage?.Finish(false);
-                _currentStage?.Finish(false);
-                SwitchButtons(true, true);
-                if (!steamException)
-                    new FatalErrorWindow(e).ShowDialog();
-            });
-        }
+			Dispatcher.Invoke(delegate
+			{
+                ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
+				Status.Text = res.Primary == 82 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), "ARK") : LocManager.GetString(LocCode.UpdateFinished);
+				Status.Foreground = new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
+				_taskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+				_currentStage?.Finish(true);
+				SwitchButtons(true, true);
+			    bool updAvailable = s_desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
+				var gameVersion = ((MainWindow)Application.Current.MainWindow).GameVersion;
+				gameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
+				gameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
+			});
+		}
     }
     /// <summary>Disables launch parameter that belongs to sender checkbox.</summary>
     void UncheckParameter(object sender, RoutedEventArgs e) => Game.LaunchParameters.Remove((string)((CheckBox)sender).Tag);
@@ -237,8 +298,11 @@ partial class GameOptionsTab : ContentControl
         if ((string)UpdatePauseButton.Content == LocManager.GetString(LocCode.Pause))
         {
             UpdatePauseButton.IsEnabled = false;
-            s_cts.Cancel();
-        }
+            unsafe
+            {
+                TEKSteamClient.AppManager.PauseJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(s_desc));
+            }
+		}
         else
         {
             if (Steam.App.CurrentUserStatus.GameStatus == Game.Status.OwnedAndInstalled && !Messages.ShowOptions("Warning", LocManager.GetString(LocCode.UpdateSteamGameWarning)))
@@ -252,6 +316,11 @@ partial class GameOptionsTab : ContentControl
     /// <param name="validate">Indicates whether validation should be preferred over update.</param>
     public void RunTask(bool validate)
     {
+        if (TEKSteamClient.Ctx == null)
+        {
+            Messages.Show("Error", "tek-steamclient library hasn't been downloaded yet, try again later");
+            return;
+        }
         if (IsSteamTaskActive)
             return;
         ExpandableBlock.IsExpanded = ExpandableBlock.IsEnabled = true;
@@ -260,19 +329,16 @@ partial class GameOptionsTab : ContentControl
             _eventHandlers.SetStatus?.Invoke(LocManager.GetString(LocCode.UpdateFailGameRunning), 2);
             return;
         }
-        s_cts.Dispose();
-        s_cts = new();
         _taskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-        Counters.Visibility = Visibility.Collapsed;
         Stages.Children.Clear();
-        s_taskThread = new(TaskProcedure, 6291456);
+        s_taskThread = new(TaskProcedure);
         SwitchButtons(false, true);
         s_taskThread.Start(validate);
     }
     /// <summary>Force cancels Steam client task if it's running.</summary>
-    public static void AbortTask()
+    public static unsafe void AbortTask()
     {
         if (IsSteamTaskActive)
-            s_cts.Cancel();
+            TEKSteamClient.AppManager.PauseJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(s_desc));
     }
 }

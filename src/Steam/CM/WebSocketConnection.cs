@@ -120,7 +120,11 @@ static class WebSocketConnection
             catch { }
             if (!connected)
             {
-                s_cts.Cancel();
+                try {
+                    s_cts.Cancel();
+                    s_cts.Dispose();
+                } catch (ObjectDisposedException)
+                { }
                 s_socket.Dispose();
                 continue;
             }

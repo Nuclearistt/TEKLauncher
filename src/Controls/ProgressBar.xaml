@@ -14,11 +14,11 @@
             </Ellipse.Stroke>
         </Ellipse>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock x:Name="Progress" HorizontalAlignment="Center">
-                <Run x:Name="ProgressValue" Text="0"/>
+            <TextBlock x:Name="Progress" HorizontalAlignment="Center" Visibility="Collapsed">
+                <Run x:Name="ProgressValue"/>
                 <Run x:Name="ProgressUnit"/>
                 <Run Text="/"/>
-                <Run x:Name="TotalValue" Text="0"/>
+                <Run x:Name="TotalValue"/>
                 <Run x:Name="TotalUnit"/>
             </TextBlock>
             <TextBlock x:Name="Percentage" FontSize="38" HorizontalAlignment="Center" Visibility="Collapsed"/>

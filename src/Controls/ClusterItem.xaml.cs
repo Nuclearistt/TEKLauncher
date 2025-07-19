@@ -16,7 +16,7 @@ partial class ClusterItem : UserControl
         InitializeComponent();
         DataContext = cluster;
         NameBlock.Text = cluster.Name;
-        if (cluster.IconUrl is null)
+        if (string.IsNullOrEmpty(cluster.IconUrl))
             Icon.Height = 32;
         else
             Icon.Source = new BitmapImage(new(cluster.IconUrl));

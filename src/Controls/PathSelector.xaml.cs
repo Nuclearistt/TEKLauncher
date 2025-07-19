@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using Microsoft.Win32;
 
 namespace TEKLauncher.Controls;
 
@@ -10,11 +11,11 @@ partial class PathSelector : UserControl
     /// <summary>Creates a dialog to select new path.</summary>
     void Select(object sender, RoutedEventArgs e)
     {
-        var dialog = new System.Windows.Forms.FolderBrowserDialog(); //The only reason to reference WinForms assembly :/
-        if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        var dialog = new OpenFolderDialog();
+        if (dialog.ShowDialog() == true)
         {
-            Path.Text = dialog.SelectedPath;
-            PathChanged?.Invoke(dialog.SelectedPath);
+            Path.Text = dialog.FolderName;
+            PathChanged?.Invoke(dialog.FolderName);
         }
     }
     /// <summary>Sets the path displayed in the path selector.</summary>

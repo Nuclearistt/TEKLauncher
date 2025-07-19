@@ -1,4 +1,5 @@
-﻿using TEKLauncher.Controls;
+﻿using System.Runtime.CompilerServices;
+using TEKLauncher.Controls;
 using TEKLauncher.Tabs;
 using TEKLauncher.Windows;
 
@@ -63,28 +64,45 @@ class Mod
         ModFilePath = string.Concat(ModsFolderPath, ".mod");
     }
     /// <summary>Uninstalls the mod.</summary>
-    public void Delete()
-    {
-        CurrentStatus = Status.Deleting;
-        if (Directory.Exists(CompressedFolderPath))
-            Directory.Delete(CompressedFolderPath, true);
-        if (Directory.Exists(ModsFolderPath))
-            Directory.Delete(ModsFolderPath, true);
-        if (File.Exists(ModFilePath))
-            File.Delete(ModFilePath);
-        string downloadCache = $@"{Steam.Client.DownloadsFolder}\346110.{Id}";
-        if (Directory.Exists(downloadCache))
-            Directory.Delete(downloadCache, true);
-        foreach (string file in Directory.EnumerateFiles(Steam.Client.DownloadsFolder, $"346110.{Id}-*.*"))
-            File.Delete(file);
-        foreach (string manifest in Directory.EnumerateFiles(Steam.Client.ManifestsFolder, $"346110.{Id}-*.*"))
-            File.Delete(manifest);
-        Steam.Client.CurrentManifestIds.Remove(new(Id));
+    public unsafe void Delete()
+	{
+		var itemId = new TEKSteamClient.ItemId { AppId = 346110, DepotId = 346110, WorkshopItemId = Id };
+		var desc = TEKSteamClient.AppMng!.GetItemDesc(&itemId);
+        var prevStatus = _status;
+		CurrentStatus = Status.Deleting;
+        if (desc == null)
+		{
+			if (Directory.Exists(CompressedFolderPath))
+				Directory.Delete(CompressedFolderPath, true);
+			if (Directory.Exists(ModsFolderPath))
+				Directory.Delete(ModsFolderPath, true);
+			if (File.Exists(ModFilePath))
+				File.Delete(ModFilePath);
+		}
+        else
+        {
+			if (desc->Status.HasFlag(TEKSteamClient.AmItemStatus.Job))
+			{
+				if (!TEKSteamClient.AppMng.CancelJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(desc)).Success)
+				{
+					CurrentStatus = prevStatus;
+					return;
+				}
+			}
+			if (desc->CurrentManifestId != 0)
+			{
+				if (!TEKSteamClient.AppMng.RunJob(in itemId, ulong.MaxValue, false, null, out desc).Success)
+				{
+					CurrentStatus = prevStatus;
+					return;
+				}
+			}
+		}
         lock (List)
             List.Remove(this);
     }
     /// <summary>Finds all installed mods, gets their details, checks for updates and populates the <see cref="List"/>.</summary>
-    public static void InitializeList()
+    public static unsafe void InitializeList()
     {
         //Set up Mods directory
         CompressedModsDirectory = $@"{Game.Path}\Mods";
@@ -130,14 +148,19 @@ class Mod
             foreach (var item in details)
                 if (item.Status == 1)
                     List.Find(m => m.Id == item.Id)!.Details = item;
-            //Check for updates
-            foreach (var mod in List)
-                if (mod.Details.LastUpdated > File.GetLastWriteTimeUtc($@"{mod.CompressedFolderPath}\mod.info").Ticks)
-                {
-                    updatesAvailable = true;
-                    mod.CurrentStatus = Status.UpdateAvailable;
-                }
-        }
+			//Check for updates
+			if (TEKSteamClient.AppMng != null)
+				foreach (var mod in List)
+				{
+                    var id = new TEKSteamClient.ItemId { AppId = 346110, DepotId = 346110, WorkshopItemId = mod.Id };
+					var desc = TEKSteamClient.AppMng.GetItemDesc(&id);
+                    if (desc != null && desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable))
+					{
+						updatesAvailable = true;
+						mod.CurrentStatus = Status.UpdateAvailable;
+					}
+				}
+		}
         //Update the GUI with the details
         Application.Current.Dispatcher.InvokeAsync(delegate
         {

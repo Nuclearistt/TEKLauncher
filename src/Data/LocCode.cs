@@ -225,5 +225,8 @@ enum LocCode
     WorkshopPage,
     WritingPatchChunks,
     WritingRelocs,
-    Yes
+    Yes,
+    FetchingData,
+    Patching,
+    Finalizing
 }

@@ -19,23 +19,11 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel x:Name="Stages"/>
                 <StackPanel Grid.Column="1" Margin="15, 0, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <TextBlock x:Name="Status"/>
+                    <TextBlock x:Name="Status" Padding="0,2,0,2" TextWrapping="Wrap"/>
                     <tlc:ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left"/>
                 </StackPanel>
-                <Button Grid.Column="1" Template="{StaticResource IconTextButton}" x:Name="PauseRetryButton" Margin="0, 0, 80, 0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="{ui:LocString Pause}" Tag="{StaticResource Pause}" Click="PauseRetry"/>
-                <Border Grid.Column="1" x:Name="Counters" Width="320" Padding="5" Background="#212C33" HorizontalAlignment="Right" VerticalAlignment="Bottom" CornerRadius="4" Visibility="Collapsed">
-                    <TextBlock>
-                        <Run Text="{ui:LocString FilesMissing}"/>
-                        <Run x:Name="FilesMissing" Foreground="#9E2313"/>
-                        <LineBreak/>
-                        <Run Text="{ui:LocString FilesOutdated}"/>
-                        <Run x:Name="FilesOutdated" Foreground="Yellow"/>
-                        <LineBreak/>
-                        <Run Text="{ui:LocString FilesUpToDate}"/>
-                        <Run x:Name="FilesUpToDate" Foreground="#0AA63E"/>
-                    </TextBlock>
-                </Border>
-            </Grid>
+				<Button Grid.Column="1" Template="{StaticResource IconTextButton}" x:Name="PauseRetryButton" Margin="0, 0, 80, 0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="{ui:LocString Pause}" Tag="{StaticResource Pause}" Click="PauseRetry"/>
+			</Grid>
         </Border>
     </Border>
 </tlw:TEKWindow>

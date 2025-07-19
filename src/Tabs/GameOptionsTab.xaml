@@ -25,23 +25,11 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <StackPanel x:Name="Stages"/>
-                    <StackPanel Grid.Column="1" Margin="15, 0, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock x:Name="Status"/>
-                        <tlc:ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left"/>
-                    </StackPanel>
-                    <Border Grid.Column="1" x:Name="Counters" Width="270" Padding="5" Background="#212C33" HorizontalAlignment="Right" VerticalAlignment="Bottom" CornerRadius="4" Visibility="Collapsed">
-                        <TextBlock>
-                            <Run Text="{ui:LocString FilesMissing}"/>
-                            <Run x:Name="FilesMissing" Foreground="#9E2313"/>
-                            <LineBreak/>
-                            <Run Text="{ui:LocString FilesOutdated}"/>
-                            <Run x:Name="FilesOutdated" Foreground="Yellow"/>
-                            <LineBreak/>
-                            <Run Text="{ui:LocString FilesUpToDate}"/>
-                            <Run x:Name="FilesUpToDate" Foreground="#0AA63E"/>
-                        </TextBlock>
-                    </Border>
-                </Grid>
+					<StackPanel Grid.Column="1" Margin="15, 0, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Center">
+						<TextBlock x:Name="Status" Padding="0,2,0,2" TextWrapping="Wrap"/>
+						<tlc:ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left"/>
+					</StackPanel>
+				</Grid>
             </Expander>
             <Border Margin="0, 10, 0, 0" Padding="5, 0, 5, 0" Background="#D021252B" BorderBrush="Gray" BorderThickness="2, 2, 2, 0" HorizontalAlignment="Center" CornerRadius="10, 10, 0, 0">
                 <TextBlock FontSize="26" Text="{ui:LocString LaunchParameters}"/>

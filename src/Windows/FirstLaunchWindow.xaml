@@ -18,7 +18,7 @@
                         <Border Margin="10, 0, 0, 0" Padding="3" Background="#293635" CornerRadius="10">
                             <TextBlock>
                                 <Run Text="{ui:LocString RequiredDiskSpace}"/>
-                                <Run Text="130"/>
+                                <Run Text="166"/>
                                 <Run Text="{ui:LocString GB}"/>
                             </TextBlock>
                         </Border>

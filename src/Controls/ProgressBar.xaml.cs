@@ -81,4 +81,106 @@ partial class ProgressBar : UserControl
         else
             ProgressValue.Text = _current.ToString();
     }
+    public enum Mode
+    {
+        None,
+        Done,
+		Percentage,
+        Numbers,
+        Binary
+    }
+    Mode _mode;
+    long _initialProgress;
+	public void Reset(Mode mode)
+	{
+		_mode = mode;
+		_lastRecordedValue = 0;
+		_total = 0;
+		Bar.StrokeDashOffset = 311;
+		_startTime = _lastRecordedTime = Environment.TickCount64;
+        switch (mode)
+        {
+            case Mode.None:
+                Progress.Visibility = Percentage.Visibility = Speed.Visibility = ETA.Visibility = Visibility.Collapsed;
+                break;
+			case Mode.Done:
+				Speed.Visibility = ETA.Visibility = Visibility.Collapsed;
+				break;
+            case Mode.Percentage:
+                Progress.Visibility = Speed.Visibility = Visibility.Collapsed;
+                Percentage.Text = "0%";
+                ETAValue.Text = null;
+                Percentage.Visibility = ETA.Visibility = Visibility.Visible;
+                break;
+			case Mode.Numbers:
+                Percentage.Visibility = Speed.Visibility = Visibility.Collapsed;
+			    Progress.FontSize = 34;
+				ProgressValue.Text = TotalValue.Text = "0";
+                ProgressUnit.Text = TotalUnit.Text = null;
+				ETAValue.Text = null;
+				Progress.Visibility = ETA.Visibility = Visibility.Visible;
+				break;
+            case Mode.Binary:
+				Progress.FontSize = 20;
+				ProgressValue.Text = TotalValue.Text = "0";
+				ProgressUnit.Text = TotalUnit.Text = null;
+                Percentage.Text = "0%";
+                SpeedValue.Text = "0";
+			    SpeedUnit.Text = LocManager.GetString(LocCode.KB);
+				ETAValue.Text = null;
+				Progress.Visibility = Percentage.Visibility = Speed.Visibility = ETA.Visibility = Visibility.Visible;
+                break;
+		}
+	}
+	public void Update(long current, long total)
+	{
+		Ratio = (double)current / total;
+		Bar.StrokeDashOffset = 311 * (1 - Ratio);
+		switch (_mode)
+		{
+            case Mode.Percentage:
+				if (total != _total)
+				{
+					_initialProgress = current;
+					_total = total;
+				}
+				Percentage.Text = $"{(Ratio * 100).ToString(_total >= 104857600 ? "0.##" : "0")}%";
+                break;
+			case Mode.Numbers:
+                if (total != _total)
+                {
+					_initialProgress = current;
+                    _total = total;
+					TotalValue.Text = total.ToString();
+				}
+                ProgressValue.Text = current.ToString();
+				break;
+			case Mode.Binary:
+				if (total != _total)
+				{
+					_lastRecordedValue = _initialProgress = current;
+					_total = total;
+					TotalValue.Text = LocManager.BytesToString(total, out string tunit);
+					TotalUnit.Text = tunit;
+				}
+			    ProgressValue.Text = LocManager.BytesToString(current, out string unit);
+			    ProgressUnit.Text = unit;
+				Percentage.Text = $"{(Ratio * 100).ToString(total >= 104857600 ? "0.##" : "0")}%";
+				break;
+		}
+		long timeDifference = Environment.TickCount64 - _lastRecordedTime;
+		if (timeDifference >= 1000)
+		{
+			_lastRecordedTime += timeDifference;
+            if (_mode == Mode.Binary)
+            {
+			    long speed = (long)((current - _lastRecordedValue) * 1000.0 / timeDifference);
+			    SpeedValue.Text = LocManager.BytesToString(speed, out string unit);
+			    SpeedUnit.Text = unit;
+			    _lastRecordedValue = current;
+            }
+            long diff = current - _initialProgress;
+			ETAValue.Text = LocManager.SecondsToString((long)((total - current) / ((diff == 0 ? 1 : diff) / ((_lastRecordedTime - _startTime) / 1000.0))));
+		}
+	}
 }

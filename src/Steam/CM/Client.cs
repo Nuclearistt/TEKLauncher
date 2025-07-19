@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Text.Json.Serialization;
-using CommunityToolkit.HighPerformance;
-using TEKLauncher.Servers;
 using TEKLauncher.Steam.CM.Messages;
 using TEKLauncher.Steam.CM.Messages.Bodies;
 
@@ -24,94 +22,6 @@ static class Client
         for (int i = 0; i < urls.Length; i++)
             urls[i] = new($"wss://{serverList.Response.Servers[i]}/cmsocket/");
         WebSocketConnection.ServerList = new(urls);
-    }
-    /// <summary>Retrieves latest game and DLC manifest IDs for <see cref="Steam.Client.DepotManifestIds"/>.</summary>
-    public static void UpdateDepotManifestIds()
-    {
-        if (!WebSocketConnection.IsLoggedOn)
-            WebSocketConnection.Connect();
-        ulong jobId = GlobalId.NextJobId();
-        var message = new Message<ProductInfo>(MessageType.ProductInfo);
-        message.Body.Apps.Add(new ProductInfo.Types.AppInfo { AppId = 346110, AccessToken = 0 });
-        message.Body.MetadataOnly = false;
-        message.Header.SourceJobId = jobId;
-        var response = WebSocketConnection.GetMessage<ProductInfoResponse>(message, MessageType.ProductInfoResponse, jobId);
-        if (response is null || response.Body.Apps.Count == 0)
-            throw new SteamException(LocManager.GetString(LocCode.FailedToGetManifestID));
-        using var reader = new StreamReader(response.Body.Apps[0].Buffer.Memory.AsStream());
-        var vdf = new VDFNode(reader)["depots"];
-        foreach (uint depotId in Steam.Client.DepotManifestIds.Keys)
-            Steam.Client.DepotManifestIds[depotId] = ulong.TryParse(vdf?[depotId.ToString()]?["manifests"]?["public"]?["gid"]?.Value, out ulong id) ? id : 0;
-        Steam.Client.ManifestIdsLastUpdated = Environment.TickCount64;
-    }
-    /// <summary>Gets request code for specified manifest.</summary>
-    /// <param name="depotId">ID of the depot that the manifest belongs to.</param>
-    /// <param name="manifestId">ID of the manifest to get request code for.</param>
-    /// <returns>The manifest request code.</returns>
-    public static ulong GetManifestRequestCode(uint depotId, ulong manifestId)
-    {
-        if (depotId > 346111) //A DLC depot
-        {
-            var endpoint = UdpClient.MRCPEndpoint ?? throw new SteamException(string.Format(LocManager.GetString(LocCode.FailedToGetManifestRequestCode), "IP not resolved"));
-            Span<byte> requestData = stackalloc byte[16];
-            BitConverter.TryWriteBytes(requestData.Slice(0, 4), 346110);
-            BitConverter.TryWriteBytes(requestData.Slice(4, 4), depotId);
-            BitConverter.TryWriteBytes(requestData.Slice(8, 8), manifestId);
-            byte[]? responseData = UdpClient.Transact(UdpClient.MRCPEndpoint, requestData);
-            if (responseData is null || responseData.Length != 8)
-                throw new SteamException(string.Format(LocManager.GetString(LocCode.FailedToGetManifestRequestCode), $"{depotId}-{manifestId}"));
-            return BitConverter.ToUInt64(responseData);
-        }
-        if (!WebSocketConnection.IsLoggedOn)
-            WebSocketConnection.Connect();
-        ulong jobId = GlobalId.NextJobId();
-        var message = new Message<ManifestRequestCode>(MessageType.ServiceMethod);
-        message.Body.AppId = 346110;
-        message.Body.DepotId = depotId;
-        message.Body.ManifestId = manifestId;
-        message.Body.AppBranch = "public";
-        message.Header.SourceJobId = jobId;
-        message.Header.TargetJobName = "ContentServerDirectory.GetManifestRequestCode#1";
-        var response = WebSocketConnection.GetMessage<ManifestRequestCodeResponse>(message, MessageType.ServiceMethodResponse, jobId);
-        if (response is null)
-            throw new SteamException(string.Format(LocManager.GetString(LocCode.FailedToGetManifestRequestCode), $"{depotId}-{manifestId}"));
-        return response.Body.ManifestRequestCode;
-    }
-    /// <summary>Retrieves latest manifest ID for specified mod.</summary>
-    /// <param name="modId">ID of the mod to retrieve manifest ID for.</param>
-    /// <returns>The manifest ID.</returns>
-    public static ulong GetModManifestId(ulong modId)
-    {
-        if (!WebSocketConnection.IsLoggedOn)
-            WebSocketConnection.Connect();
-        ulong jobId = GlobalId.NextJobId();
-        var message = new Message<ModInfo>(MessageType.ServiceMethod);
-        message.Body.AppId = 346110;
-        message.Body.Items.Add(new ModInfo.Types.Item { Id = modId });
-        message.Header.SourceJobId = jobId;
-        message.Header.TargetJobName = "PublishedFile.GetItemInfo#1";
-        var response = WebSocketConnection.GetMessage<ModInfoResponse>(message, MessageType.ServiceMethodResponse, jobId);
-        if (response is null || response.Body.Items.Count == 0)
-            throw new SteamException(LocManager.GetString(LocCode.FailedToGetManifestID));
-        return response.Body.Items[0].ManifestId;
-    }
-    /// <summary>Retrieves Steam CDN server list.</summary>
-    /// <returns>An array of Steam CDN server entries.</returns>
-    public static CDNServersResponse.Types.Server[] GetCDNServers()
-    {
-        if (!WebSocketConnection.IsLoggedOn)
-            WebSocketConnection.Connect();
-        ulong jobId = GlobalId.NextJobId();
-        var message = new Message<CDNServers>(MessageType.ServiceMethod);
-        message.Body.CellId = CellId;
-        message.Header.SourceJobId = jobId;
-        message.Header.TargetJobName = "ContentServerDirectory.GetServersForSteamPipe#1";
-        var response = WebSocketConnection.GetMessage<CDNServersResponse>(message, MessageType.ServiceMethodResponse, jobId);
-        if (response is null)
-            throw new SteamException(LocManager.GetString(LocCode.FailedToGetCDNServerList));
-        var result = new CDNServersResponse.Types.Server[response.Body.Servers.Count];
-        response.Body.Servers.CopyTo(result, 0);
-        return result;
     }
     /// <summary>Retrieves details for specified mods.</summary>
     /// <param name="ids">IDs of the mods to retrieve details for.</param>

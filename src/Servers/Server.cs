@@ -10,7 +10,7 @@ class Server
     /// <summary>Server query endpoint.</summary>
     readonly IPEndPoint _endpoint;
     /// <summary>List of official map names that may be returned by server queries.</summary>
-    static readonly string[] s_mapNames = { "TheIsland", "TheCenter", "ScorchedEarth", "Ragnarok", "Aberration", "Extinction", "Valguero_P", "Genesis", "CrystalIsles", "Gen2", "LostIsland" };
+    static readonly string[] s_mapNames = { "TheIsland", "TheCenter", "ScorchedEarth", "Ragnarok", "Aberration", "Extinction", "Valguero_P", "Genesis", "CrystalIsles", "Gen2", "LostIsland", "Abyss" };
     /// <summary>Stores cached server/cluster information objects by their URLs.</summary>
     static readonly ConcurrentDictionary<string, Info> s_infoCache = new();
     /// <summary>Gets a value that indicates whether server's mode is PvE.</summary>
@@ -111,7 +111,6 @@ class Server
         DisplayMapName = Map switch
         {
             MapCode.TheIsland => "The Island",
-            MapCode.Genesis => "Genesis",
             MapCode.Genesis2 => "Genesis 2",
             MapCode.Mod => map,
             _ => DLC.Get(Map).Name

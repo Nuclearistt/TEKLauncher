@@ -1,6 +1,6 @@
 ﻿using System.IO.MemoryMappedFiles;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using TEKLauncher.Steam;
 
 namespace TEKLauncher.Utils;
 
@@ -44,46 +44,29 @@ static class IPC
                     break;
             }
     }
-    /// <summary>Downloads/updates specified mod and updates download progress for ARK Shellcode.</summary>
-    /// <param name="obj">Thread parameter, for this method it's a <see cref="ulong"/>.</param>
-    static void TaskProcedure(object? obj)
+	static void UpdHandler(ref TEKSteamClient.AmItemDesc desc, TEKSteamClient.AmUpdType upd_mask)
+	{
+		if (!upd_mask.HasFlag(TEKSteamClient.AmUpdType.Progress) || desc.Job.Stage != TEKSteamClient.AmJobStage.Downloading)
+            return;
+        s_progress.Current = Interlocked.Read(ref desc.Job.ProgressCurrent);
+        s_progress.Total = desc.Job.ProgressTotal;
+	}
+    static unsafe TEKSteamClient.AmItemDesc* s_desc = null;
+	/// <summary>Downloads/updates specified mod and updates download progress for ARK Shellcode.</summary>
+	/// <param name="obj">Thread parameter, for this method it's a <see cref="ulong"/>.</param>
+	static unsafe void TaskProcedure(object? obj)
     {
-        ulong modId = (ulong)obj!;
-        try
-        {
-            var details = Steam.CM.Client.GetModDetails(modId);
-            if (details.Length != 0)
-            {
-                long currentProgress = 0;
-                bool watchProgress = false; //Non-binary progresses should not be reported
-                Client.RunTasks(346110, Tasks.GetUpdateData | Tasks.ReserveDiskSpace | Tasks.Download | Tasks.Install | Tasks.FinishModInstall, new()
-                {
-                    PrepareProgress = (mode, total) =>
-                    {
-                        watchProgress = mode;
-                        if (mode)
-                        {
-                            currentProgress = 0;
-                            s_progress.Total = total;
-                        }
-                    },
-                    UpdateProgress = increment =>
-                    {
-                        if (watchProgress)
-                        {
-                            currentProgress += increment;
-                            s_progress.Current = currentProgress;
-                        }
-                    }
-                }, default, in details[0]);
-            }
-        }
-        catch { }
+        s_progress = new() { Current = 0, Total = 0, Complete = false };
+		var itemId = new TEKSteamClient.ItemId { AppId = 346110, DepotId = 346110, WorkshopItemId = (ulong)obj! };
+		TEKSteamClient.AppMng!.RunJob(in itemId, 0, false, UpdHandler, out s_desc);
+        s_desc = null;
         s_progress.Complete = true;
     }
     /// <summary>Closes and releases all IPC objects.</summary>
-    public static void Dispose()
+    public static unsafe void Dispose()
     {
+        if (s_desc != null)
+            TEKSteamClient.AppManager.PauseJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(s_desc));
         s_cts.Cancel();
         s_loopThread!.Join();
         s_outputEvent!.Dispose();

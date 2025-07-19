@@ -42,7 +42,12 @@ partial class ModInstallerTab : ContentControl
         foreach (var window in Application.Current.Windows)
             if (window is UpdaterWindow updaterWindow && updaterWindow.Item is Mod.ModDetails details && details.Id == _modDetails.Id)
                 return;
-        new UpdaterWindow(in _modDetails, false).Show();
+		if (TEKSteamClient.Ctx == null)
+		{
+			Messages.Show("Error", "tek-steamclient library hasn't been downloaded yet, try again later");
+			return;
+		}
+		new UpdaterWindow(in _modDetails, false).Show();
     }
     /// <summary>Sets up copying/pasting handlers, starts the timer and loads initial workshop page.</summary>
     void LoadedHandler(object sender, RoutedEventArgs e)

@@ -4,7 +4,7 @@
 static class LocManager
 {
     /// <summary>List of all localized strings.</summary>
-    static readonly string[] s_list = new string[223];
+    static readonly string[] s_list = new string[226];
     /// <summary>List of ISO 639-1 codes of all currently supported languages.</summary>
     static readonly string[] s_supportedLangs = { "en", "es", "fr", "nl", "pt", "el", "ru", "zh" };
     /// <summary>Gets the index of current launcher language in the list of all supported languages.</summary>

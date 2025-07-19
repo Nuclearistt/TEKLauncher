@@ -3,14 +3,15 @@
 /// <summary>Manages launcher settings.</summary>
 static class Settings
 {
-    /// <summary>Gets or sets a value that indicates whether the launcher should close itself after launching the game.</summary>
-    public static bool CloseOnGameLaunch { get; set; }
+	/// <summary>Gets or sets a value that indicates whether the launcher should close itself after launching the game.</summary>
+	public static bool CloseOnGameLaunch { get; set; }
     /// <summary>Gets or sets a value that indicates whether communism mode is enabled.</summary>
     public static bool CommunismMode { get; set; }
     /// <summary>Gets or sets a value that indicates whether settings file should be deleted rather than saved when shutting down the app.</summary>
     public static bool Delete { get; set; }
-    /// <summary>Loads settings from the file and assigns their values to appropriate properties in static classes.</summary>
-    public static void Load()
+	public static bool PreAquatica { get; set; }
+	/// <summary>Loads settings from the file and assigns their values to appropriate properties in static classes.</summary>
+	public static void Load()
     {
         string settingsFile = $@"{App.AppDataFolder}\Settings.json";
         if (!File.Exists(settingsFile))
@@ -22,23 +23,16 @@ static class Settings
         CloseOnGameLaunch = json.CloseOnGameLaunch;
         CommunismMode = json.CommunismMode;
         Game.HighProcessPriority = json.HighProcessPriority;
+        PreAquatica = json.PreAquatica;
         Game.RunAsAdmin = json.RunAsAdmin;
         Game.UseSpacewar = json.UseSpacewar;
         Game.Language = json.GameLanguage;
-        Steam.Client.NumberOfDownloadThreads = json.NumberOfDownloadThreads;
-        if (Steam.Client.NumberOfDownloadThreads < 4)
-            Steam.Client.NumberOfDownloadThreads = 4;
-        else if (Steam.Client.NumberOfDownloadThreads > 20)
-            Steam.Client.NumberOfDownloadThreads = 20;
         Game.Path = json.ARKPath;
         if (json.LaunchParameters is not null)
             foreach (string parameter in json.LaunchParameters)
                 if (!Game.LaunchParameters.Contains(parameter))
                     Game.LaunchParameters.Add(parameter);
         LocManager.CurrentLanguage = json.LauncherLanguage;
-        if (json.CurrentManifestIds is not null)
-            foreach (var item in json.CurrentManifestIds)
-                Steam.Client.CurrentManifestIds.Add(new(item.Key), item.Value);
     }
     /// <summary>Saves settings into the JSON file.</summary>
     public static void Save()
@@ -50,17 +44,10 @@ static class Settings
                 File.Delete(settingsFile);
             return;
         }
-        Dictionary<string, ulong>? currentManifestIds = null;
-        if (Steam.Client.CurrentManifestIds.Count > 0)
-        {
-            currentManifestIds = new(Steam.Client.CurrentManifestIds.Count);
-            foreach (var item in Steam.Client.CurrentManifestIds)
-                currentManifestIds.Add(item.Key.ToString(), item.Value);
-        }
-        var json = new Json(CloseOnGameLaunch, CommunismMode, Game.HighProcessPriority, Game.RunAsAdmin, Game.UseSpacewar, Game.Language, Steam.Client.NumberOfDownloadThreads, Game.Path, LocManager.CurrentLanguage, Game.LaunchParameters, currentManifestIds);
+        var json = new Json(CloseOnGameLaunch, CommunismMode, Game.HighProcessPriority, PreAquatica, Game.RunAsAdmin, Game.UseSpacewar, Game.Language, Game.Path, LocManager.CurrentLanguage, Game.LaunchParameters);
         using var stream = File.Create(settingsFile);
         JsonSerializer.Serialize(stream, json, new JsonSerializerOptions() { WriteIndented = true });
     }
     /// <summary>Represents settings' JSON object.</summary>
-    readonly record struct Json(bool CloseOnGameLaunch, bool CommunismMode, bool HighProcessPriority, bool RunAsAdmin, bool UseSpacewar, int GameLanguage, int NumberOfDownloadThreads, string? ARKPath, string? LauncherLanguage, List<string>? LaunchParameters, Dictionary<string, ulong>? CurrentManifestIds);
+    readonly record struct Json(bool CloseOnGameLaunch, bool CommunismMode, bool HighProcessPriority, bool PreAquatica, bool RunAsAdmin, bool UseSpacewar, int GameLanguage, string? ARKPath, string? LauncherLanguage, List<string>? LaunchParameters);
 }

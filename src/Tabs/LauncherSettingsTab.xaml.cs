@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 using TEKLauncher.Windows;
 
 namespace TEKLauncher.Tabs;
@@ -11,7 +12,6 @@ partial class LauncherSettingsTab : ContentControl
     {
         InitializeComponent();
         GamePathSelector.SetPath(Game.Path!);
-        Slider.Value = Steam.Client.NumberOfDownloadThreads;
     }
     /// <summary>Cleans download cache folder for current game installation.</summary>
     async void CleanDownloadCache(object sender, RoutedEventArgs e)
@@ -20,10 +20,18 @@ partial class LauncherSettingsTab : ContentControl
             return;
         await Task.Run(delegate
         {
-            foreach (string file in Directory.EnumerateFiles(Steam.Client.DownloadsFolder))
-                File.Delete(file);
-            foreach (string directory in Directory.EnumerateDirectories(Steam.Client.DownloadsFolder))
-                Directory.Delete(directory, true);
+            TEKSteamClient.AppMng!.LockItemDescs();
+            unsafe
+            {
+				var desc = TEKSteamClient.AppMng.GetItemDesc(null);
+                while (desc != null)
+                {
+                    if (desc->Status.HasFlag(TEKSteamClient.AmItemStatus.Job))
+                        TEKSteamClient.AppMng.CancelJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(desc));
+                    desc = desc->Next;
+                }
+			}
+			TEKSteamClient.AppMng.UnlockItemDescs();
         });
         Dispatcher.Invoke(() => Notifications.Add(LocManager.GetString(LocCode.CleanDownloadCacheSuccess), "NSuccess"));
     }
@@ -98,12 +106,9 @@ partial class LauncherSettingsTab : ContentControl
                     App.Player?.Stop();
                 }
                 break;
+            case '3':
+                Settings.PreAquatica = newValue;
+                break;
         }
-    }
-    /// <summary>Sets new game path and shuts down the launcher.</summary>
-    void ValueChangedHandler(object sender, RoutedPropertyChangedEventArgs<double> e)
-    {
-        if (IsLoaded)
-            Steam.Client.NumberOfDownloadThreads = (int)e.NewValue;
     }
 }

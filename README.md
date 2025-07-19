@@ -8,15 +8,14 @@ TEK Launcher is a launcher for ARK: Survival Evolved that can manage game files,
 
 ## Requirements
 
-+ [.NET 8 Desktop Runtime](https://dotnetcli.azureedge.net/dotnet/WindowsDesktop/8.0.2/windowsdesktop-runtime-8.0.2-win-x64.exe)
++ [.NET 9 Desktop Runtime](https://dotnetcli.azureedge.net/dotnet/WindowsDesktop/9.0.7/windowsdesktop-runtime-9.0.7-win-x64.exe)
 + [Steam app](https://store.steampowered.com/about/)
 
 ## Key features
 
 + Uses [ARK Shellcode](https://github.com/Nuclearistt/ARKShellcode) to disable ownership checks in the game and modify its other behaviour if necessary
-+ Built-in Steam CM client implementation to get certain data from Steam servers directly via anonymous account
-+ Steam CDN client and downloader/validator built upon it which allows downloading, updating and validating files for any Steam depot as long as its depot key is provided
-+ Wrapper upon steamclient64.dll which allows using Steam matchmaking/servers interfaces without initializing the entire Steam API on behalf of a game
++ Uses [TEK Steam Client](https://github.com/teknology-hub/tek-steamclient) to download game/DLC/mod files from Steam servers directly, with the ability to update and validate them
++ Uses steamclient64.dll to query server list right in the launcher
 
 ## Localizations
 

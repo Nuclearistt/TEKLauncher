@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Windows.Controls;
+using System.Windows.Media;
 using TEKLauncher.Windows;
 
 namespace TEKLauncher.Tabs;
@@ -55,7 +56,7 @@ partial class LauncherSettingsTab : ContentControl
             GamePathSelector.SetPath(Game.Path!);
     }
     /// <summary>Updates value of the setting that the sender checkbox is assigned to.</summary>
-    void UpdateSetting(object sender, RoutedEventArgs e)
+    unsafe void UpdateSetting(object sender, RoutedEventArgs e)
     {
         if (!IsLoaded)
             return;
@@ -108,7 +109,44 @@ partial class LauncherSettingsTab : ContentControl
                 break;
             case '3':
                 Settings.PreAquatica = newValue;
-                break;
+                if (TEKSteamClient.Ctx == null)
+                    break;
+				static TEKSteamClient.AmItemDesc* getDesc(uint depotId)
+				{
+					var itemId = new TEKSteamClient.ItemId { AppId = 346110, DepotId = depotId, WorkshopItemId = 0 };
+					return TEKSteamClient.AppMng!.GetItemDesc((TEKSteamClient.ItemId*)Unsafe.AsPointer(ref itemId));
+				}
+				var desc = getDesc(346111);
+				if (desc != null && desc->CurrentManifestId != 0)
+                {
+					bool updAvailable = Settings.PreAquatica ? desc->CurrentManifestId != 8075379529797638112 : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
+					var gameVersion = ((MainWindow)Application.Current.MainWindow).GameVersion;
+					gameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
+					gameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
+				}
+				foreach (var dlc in ARK.DLC.List)
+				{
+					if (dlc.CurrentStatus is not (ARK.DLC.Status.Installed or ARK.DLC.Status.UpdateAvailable))
+						continue;
+					desc = getDesc(dlc.DepotId);
+					if (desc == null)
+						continue;
+					dlc.CurrentStatus = (Settings.PreAquatica ? desc->CurrentManifestId != dlc.DepotId switch
+					{
+						346114 => 5573587184752106093,
+						375351 => 8265777340034981821,
+						375354 => 7952753366101555648,
+						375357 => 1447242805278740772,
+						473851 => 2551727096735353757,
+						473854 => 847717640995143866,
+						473857 => 1054814513659387220,
+						1318685 => 8189621638927588129,
+						1691801 => 3147973472387347535,
+						1887561 => 580528532335699271,
+						_ => 0
+					} : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable)) ? ARK.DLC.Status.UpdateAvailable : ARK.DLC.Status.Installed;
+				}
+				break;
         }
     }
 }

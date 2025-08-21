@@ -246,7 +246,7 @@ partial class GameOptionsTab : ContentControl
 				_taskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 				_currentStage?.Finish(true);
 				SwitchButtons(true, true);
-			    bool updAvailable = s_desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
+			    bool updAvailable = Settings.PreAquatica ? s_desc->CurrentManifestId != 8075379529797638112 : s_desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
 				var gameVersion = ((MainWindow)Application.Current.MainWindow).GameVersion;
 				gameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
 				gameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));

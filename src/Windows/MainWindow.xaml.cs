@@ -74,13 +74,54 @@ partial class MainWindow : TEKWindow
 		}
 		Dispatcher.Invoke(() => LauncherVersionBlock.Inlines.Remove(LauncherVersionBlock.Inlines.LastInline));
 		//Initialize tek-steamclient
-		if (!File.Exists(TEKSteamClient.DllPath))
+		var latestTscVer = await Downloader.DownloadStringAsync("https://teknology-hub.com/software/tek-steamclient/version", "https://de.teknology-hub.com/software/tek-steamclient/version").ConfigureAwait(false);
+		for (bool updated = false;; )
 		{
-			Dispatcher.Invoke(() => Notifications.Add("Downloading tek-steamclient library...", "", () => { }));
-			if (!Downloader.DownloadFileAsync(TEKSteamClient.DllPath, new(), "https://teknology-hub.com/software/tek-steamclient/releases/latest/win-x86_64-static/libtek-steamclient-1.dll", "https://de.teknology-hub.com/software/tek-steamclient/releases/latest/win-x86_64-static/libtek-steamclient-1.dll").Result)
-				throw new TEKSteamClient.Exception("Failed to download libtek-steamclient-1.dll");
+			if (!File.Exists(TEKSteamClient.DllPath))
+			{
+				Dispatcher.Invoke(() => Notifications.Add("Downloading tek-steamclient library...", "", () => { }));
+				if (!Downloader.DownloadFileAsync($"{TEKSteamClient.DllPath}.tmp", new(), "https://teknology-hub.com/software/tek-steamclient/releases/latest/win-x86_64-static/libtek-steamclient-1.dll", "https://de.teknology-hub.com/software/tek-steamclient/releases/latest/win-x86_64-static/libtek-steamclient-1.dll").Result)
+				{
+					Dispatcher.Invoke(() => throw new TEKSteamClient.Exception("Failed to download libtek-steamclient-1.dll"));
+					return;
+				}
+				File.Move($"{TEKSteamClient.DllPath}.tmp", TEKSteamClient.DllPath);
+			}
+			if (updated)
+			{
+				Dispatcher.Invoke(delegate
+				{
+					Messages.Show("Info", "Launcher has to be restarted to load new version of tek-steamclient");
+					Application.Current.Shutdown();
+				});
+				return;
+			}
+			nint handle = 0;
+			try
+			{
+				handle = NativeLibrary.Load(TEKSteamClient.DllPath);
+			}
+			catch (BadImageFormatException)
+			{
+				File.Delete(TEKSteamClient.DllPath);
+				continue;
+			}
+			if (latestTscVer is not null && Version.Parse(latestTscVer) > Version.Parse(Marshal.PtrToStringUTF8(TEKSteamClient.GetVersion())!))
+			{
+				try
+				{
+					NativeLibrary.Free(handle);
+					NativeLibrary.Free(handle);
+				}
+				catch { }
+				File.Delete(TEKSteamClient.DllPath);
+				updated = true;
+			}
+			else
+			{
+				break;
+			}
 		}
-		NativeLibrary.Load(TEKSteamClient.DllPath);
 		TEKSteamClient.Ctx = new();
 		TEKSteamClient.AppMng = new(TEKSteamClient.Ctx, Game.Path!);
 		if (TEKSteamClient.AppMng.IsInvalid)
@@ -112,7 +153,7 @@ partial class MainWindow : TEKWindow
 				{
 					Dispatcher.Invoke(delegate
 					{
-						bool updAvailable = desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
+						bool updAvailable = Settings.PreAquatica ? desc->CurrentManifestId != 8075379529797638112 : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
 						GameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
 						GameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
 						if (updAvailable)
@@ -132,7 +173,22 @@ partial class MainWindow : TEKWindow
 					if (dlc.CurrentStatus != ARK.DLC.Status.Installed)
 						continue;
 					desc = getDesc(dlc.DepotId);
-					if (desc != null && desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable))
+					if (desc == null)
+						continue;
+					if (Settings.PreAquatica ? desc->CurrentManifestId != dlc.DepotId switch
+					{
+						346114 => 5573587184752106093,
+						375351 => 8265777340034981821,
+						375354 => 7952753366101555648,
+						375357 => 1447242805278740772,
+						473851 => 2551727096735353757,
+						473854 => 847717640995143866,
+						473857 => 1054814513659387220,
+						1318685 => 8189621638927588129,
+						1691801 => 3147973472387347535,
+						1887561 => 580528532335699271,
+						_ => 0
+					} : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable))
 						dlc.CurrentStatus = ARK.DLC.Status.UpdateAvailable;
 				}
 			}

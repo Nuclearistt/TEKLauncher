@@ -10,6 +10,8 @@ static partial class TEKSteamClient
 	public static AppManager? AppMng = null;
 
 	#region Native Functions
+	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_version")]
+	public static partial nint GetVersion();
 	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_lib_init")]
 	private static partial nint LibInit([MarshalAs(UnmanagedType.I1)] bool useFileCache, [MarshalAs(UnmanagedType.I1)] bool disableLwsLogs);
 	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_lib_cleanup")]
@@ -66,7 +68,7 @@ static partial class TEKSteamClient
 					msg += $"\n{Marshal.PtrToStringUTF8(msgs.Extra)}";
 				if (Uri != 0)
 				{
-					msg += $"\n{Marshal.PtrToStringUTF8(msgs.UriType)}: n{Marshal.PtrToStringUTF8(Uri)}";
+					msg += $"\n{Marshal.PtrToStringUTF8(msgs.UriType)}: {Marshal.PtrToStringUTF8(Uri)}";
 				}
 				ReleaseMsgs(ref msgs);
 				return msg;

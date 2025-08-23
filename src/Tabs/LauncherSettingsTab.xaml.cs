@@ -17,7 +17,12 @@ partial class LauncherSettingsTab : ContentControl
     /// <summary>Cleans download cache folder for current game installation.</summary>
     async void CleanDownloadCache(object sender, RoutedEventArgs e)
     {
-        if (!Messages.ShowOptions("Warning", LocManager.GetString(LocCode.CleanDownloadCachePrompt)))
+		if (TEKSteamClient.Ctx == null)
+		{
+			Messages.Show("Error", "tek-steamclient library is not loaded");
+			return;
+		}
+		if (!Messages.ShowOptions("Warning", LocManager.GetString(LocCode.CleanDownloadCachePrompt)))
             return;
         await Task.Run(delegate
         {

@@ -44,7 +44,7 @@ partial class ModInstallerTab : ContentControl
                 return;
 		if (TEKSteamClient.Ctx == null)
 		{
-			Messages.Show("Error", "tek-steamclient library hasn't been downloaded yet, try again later");
+			Messages.Show("Error", "tek-steamclient library is not loaded");
 			return;
 		}
 		new UpdaterWindow(in _modDetails, false).Show();

@@ -14,6 +14,7 @@ class DLC
     readonly string _sfcPath;
     /// <summary>Path to the .umap file of the DLC.</summary>
     readonly string _umapPath;
+    public readonly uint AppId;
     /// <summary>ID of Steam depot that stores the DLC content.</summary>
     public readonly uint DepotId;
     /// <summary>Code of the map provided by the DLC.</summary>
@@ -21,17 +22,17 @@ class DLC
     /// <summary>List of all DLC supported by the launcher.</summary>
     public static readonly DLC[] List =
     {
-        new("The Center", 346114, true, false),
-        new("Scorched Earth", 375351, false, true),
-        new("Ragnarok", 375354, true, false),
-        new("Aberration", 375357, false, true),
-        new("Extinction", 473851, false, false),
-        new("Valguero", 473854, true, true),
-        new("Genesis Part 1 & 2", 473857, false, false),
-        new("Crystal Isles", 1318685, true, false),
-        new("Lost Island", 1691801, true, false),
-        new("Fjordur", 1887561, true, false),
-        new("Aquatica", 3537070, false, false)
+        new("The Center", 473850, 346114, true, false),
+        new("Scorched Earth", 512540, 375351, false, true),
+        new("Ragnarok", 642250, 375354, true, false),
+        new("Aberration", 708770, 375357, false, true),
+        new("Extinction", 887380, 473851, false, false),
+        new("Valguero", 1100810, 473854, true, true),
+        new("Genesis Part 1 & 2", 1113410, 473857, false, false),
+        new("Crystal Isles", 1270830, 1318685, true, false),
+        new("Lost Island", 1691800, 1691801, true, false),
+        new("Fjordur", 1887560, 1887561, true, false),
+        new("Aquatica", 3537070, 3537070, false, false)
 	};
     /// <summary>Gets a value that indicates whether the DLC is installed.</summary>
     public bool IsInstalled
@@ -64,7 +65,7 @@ class DLC
     /// <param name="depotId">ID of Steam depot that stores the DLC content.</param>
     /// <param name="isMod"><see langword="true"/> if the DLC folders are located in Mods directory rather than Maps; otherwise, <see langword="false"/>.</param>
     /// <param name="has_P"><see langword="true"/> if the name of DLC's .umap file is suffixed with "_P"; otherwise, <see langword="false"/>.</param>
-    DLC(string name, uint depotId, bool isMod, bool has_P)
+    DLC(string name, uint appId, uint depotId, bool isMod, bool has_P)
     {
         string contentDirectory = isMod ? "Mods" : "Maps";
         string folderName = depotId switch
@@ -88,6 +89,7 @@ class DLC
             umapPathBuilder.Append("_P");
         umapPathBuilder.Append(".umap");
         _umapPath = umapPathBuilder.ToString();
+        AppId = appId;
         DepotId = depotId;
         Name = name;
         Code = depotId switch

@@ -35,7 +35,7 @@ partial class DLCItem : UserControl
 	{
 		if (TEKSteamClient.Ctx == null)
 		{
-			Messages.Show("Error", "tek-steamclient library hasn't been downloaded yet, try again later");
+			Messages.Show("Error", "tek-steamclient library is not loaded");
 			return;
 		}
 		new UpdaterWindow((DLC)DataContext, false).Show();
@@ -60,7 +60,7 @@ partial class DLCItem : UserControl
 	{
 		if (TEKSteamClient.Ctx == null)
 		{
-			Messages.Show("Error", "tek-steamclient library hasn't been downloaded yet, try again later");
+			Messages.Show("Error", "tek-steamclient library is not loaded");
 			return;
 		}
 		new UpdaterWindow((DLC)DataContext, true).Show();

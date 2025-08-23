@@ -22,7 +22,7 @@ class Server
     /// <summary>Gets cluster ID of the server.</summary>
     public string? ClusterId { get; private set; }
     /// <summary>Gets a launch parameter for joining the server directly.</summary>
-    public string ConnectionLine => $" +connect {_endpoint.Address}:{_endpoint.Port}";
+    public string Address => $"{_endpoint.Address}:{_endpoint.Port}";
     /// <summary>Gets map name to be displayed in the GUI.</summary>
     public string DisplayMapName { get; private set; } = string.Empty;
     /// <summary>Gets server display name for cluster.</summary>

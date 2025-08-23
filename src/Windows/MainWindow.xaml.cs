@@ -39,22 +39,18 @@ partial class MainWindow : TEKWindow
 		Notifications.Initialize(NotificationStack.Children);
 		LauncherVersion.Text = App.Version;
 		TabFrame.Child = new PlayTab();
-		CheckForUpdates();
 	}
 	/// <summary>Checks for launcher, game and DLC updates.</summary>
-	async void CheckForUpdates()
+	async void LoadedHandler(object sender, RoutedEventArgs e)
 	{
 		//Set initial displayed game version
-		Dispatcher.Invoke(delegate
+		if (Game.IsCorrupted)
 		{
-			if (Game.IsCorrupted)
-			{
-				GameVersion.Text = LocManager.GetString(LocCode.None);
-				GameVersion.Foreground = new SolidColorBrush(Color.FromRgb(0x9E, 0x23, 0x13));
-			}
-			else
-				GameVersion.Text = LocManager.GetString(LocCode.NA);
-		});
+			GameVersion.Text = LocManager.GetString(LocCode.None);
+			GameVersion.Foreground = new SolidColorBrush(Color.FromRgb(0x9E, 0x23, 0x13));
+		}
+		else
+			GameVersion.Text = LocManager.GetString(LocCode.NA);
 		//Check for launcher updates
 		string? versionString = await Downloader.DownloadStringAsync("https://teknology-hub.com/software/tek-launcher/version", "https://de.teknology-hub.com/software/tek-launcher/version");
 		if (versionString is null)
@@ -66,34 +62,31 @@ partial class MainWindow : TEKWindow
 		{
 			var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
 			if (Version.TryParse(versionString, out var onlineVersion) && onlineVersion > currentVersion)
-				Dispatcher.Invoke(delegate
-				{
-					LauncherVersion.Foreground = Brushes.Yellow;
-					Notifications.Add(LocManager.GetString(LocCode.LauncherUpdateAvailable), LocManager.GetString(LocCode.Update), () => new LauncherUpdateWindow().Show(), true);
-				});
+			{
+				LauncherVersion.Foreground = Brushes.Yellow;
+				Notifications.Add(LocManager.GetString(LocCode.LauncherUpdateAvailable), LocManager.GetString(LocCode.Update), () => new LauncherUpdateWindow().Show(), true);
+			}
 		}
-		Dispatcher.Invoke(() => LauncherVersionBlock.Inlines.Remove(LauncherVersionBlock.Inlines.LastInline));
+		LauncherVersionBlock.Inlines.Remove(LauncherVersionBlock.Inlines.LastInline);
 		//Initialize tek-steamclient
-		var latestTscVer = await Downloader.DownloadStringAsync("https://teknology-hub.com/software/tek-steamclient/version", "https://de.teknology-hub.com/software/tek-steamclient/version").ConfigureAwait(false);
+		var latestTscVer = await Downloader.DownloadStringAsync("https://teknology-hub.com/software/tek-steamclient/version-1", "https://de.teknology-hub.com/software/tek-steamclient/version-1");
 		for (bool updated = false;; )
 		{
 			if (!File.Exists(TEKSteamClient.DllPath))
 			{
-				Dispatcher.Invoke(() => Notifications.Add("Downloading tek-steamclient library...", "", () => { }));
-				if (!Downloader.DownloadFileAsync($"{TEKSteamClient.DllPath}.tmp", new(), "https://teknology-hub.com/software/tek-steamclient/releases/latest/win-x86_64-static/libtek-steamclient-1.dll", "https://de.teknology-hub.com/software/tek-steamclient/releases/latest/win-x86_64-static/libtek-steamclient-1.dll").Result)
+				Notifications.Add("Downloading tek-steamclient library...", "", () => { });
+				var data = await Downloader.DownloadBytesAsync("https://teknology-hub.com/software/tek-steamclient/releases/latest-1/win-x86_64-static/libtek-steamclient-1.dll", "https://de.teknology-hub.com/software/tek-steamclient/releases/latest-1/win-x86_64-static/libtek-steamclient-1.dll");
+				if (data is null)
 				{
-					Dispatcher.Invoke(() => throw new TEKSteamClient.Exception("Failed to download libtek-steamclient-1.dll"));
+					Messages.ShowDownloadErr("libtek-steamclient-1.dll", "https://teknology-hub.com/software/tek-steamclient/releases/latest-1/win-x86_64-static/libtek-steamclient-1.dll");
 					return;
 				}
-				File.Move($"{TEKSteamClient.DllPath}.tmp", TEKSteamClient.DllPath);
+				File.WriteAllBytes(TEKSteamClient.DllPath, data);
 			}
 			if (updated)
 			{
-				Dispatcher.Invoke(delegate
-				{
-					Messages.Show("Info", "Launcher has to be restarted to load new version of tek-steamclient");
-					Application.Current.Shutdown();
-				});
+				Messages.Show("Info", "Launcher has to be restarted to load new version of tek-steamclient");
+				Application.Current.Shutdown();
 				return;
 			}
 			nint handle = 0;
@@ -106,7 +99,14 @@ partial class MainWindow : TEKWindow
 				File.Delete(TEKSteamClient.DllPath);
 				continue;
 			}
-			if (latestTscVer is not null && Version.Parse(latestTscVer) > Version.Parse(Marshal.PtrToStringUTF8(TEKSteamClient.GetVersion())!))
+			if (latestTscVer is null)
+				break;
+			if (latestTscVer.Contains('-'))
+				latestTscVer = latestTscVer.Split('-')[0];
+			var curTscVer = Marshal.PtrToStringUTF8(TEKSteamClient.GetVersion())!;
+			if (curTscVer.Contains('-'))
+				curTscVer = curTscVer.Split('-')[0];
+			if (Version.TryParse(latestTscVer, out var ltv) && Version.TryParse(curTscVer, out var ctv) && ltv > ctv)
 			{
 				try
 				{
@@ -116,11 +116,9 @@ partial class MainWindow : TEKWindow
 				catch { }
 				File.Delete(TEKSteamClient.DllPath);
 				updated = true;
+				continue;
 			}
-			else
-			{
-				break;
-			}
+			break;
 		}
 		TEKSteamClient.Ctx = new();
 		TEKSteamClient.AppMng = new(TEKSteamClient.Ctx, Game.Path!);
@@ -129,17 +127,17 @@ partial class MainWindow : TEKWindow
 		var res = TEKSteamClient.AppMng.SetWorkshopDir($@"{Game.Path}\Mods");
 		if (!res.Success)
 			throw new TEKSteamClient.Exception(res.Message);
-		res = TEKSteamClient.Ctx.SyncS3Manifest("https://api.teknology-hub.com/s3");
+		res = await Task.Run(() => TEKSteamClient.Ctx.SyncS3Manifest("https://api.teknology-hub.com/s3"));
 		if (!res.Success)
 		{
 			if (res.Uri != 0)
 				Marshal.FreeHGlobal(res.Uri);
-			res = TEKSteamClient.Ctx.SyncS3Manifest("https://de.api.teknology-hub.com/s3");
+			res = await Task.Run(() => TEKSteamClient.Ctx.SyncS3Manifest("https://de.api.teknology-hub.com/s3"));
 		}
 		if (!res.Success)
-			Dispatcher.Invoke(() => Notifications.Add("Failed to synchronize tek-s3 manifest", "NError"));
+			Notifications.Add("Failed to synchronize tek-s3 manifest", "NError");
 		//Check for updates
-		if (await Task.Run(() => TEKSteamClient.AppMng.CheckForUpdates(20000).Success).ConfigureAwait(false))
+		if (await Task.Run(() => TEKSteamClient.AppMng.CheckForUpdates(20000).Success))
 		{
 			unsafe
 			{
@@ -151,22 +149,19 @@ partial class MainWindow : TEKWindow
 				var desc = getDesc(346111);
 				if (desc != null && desc->CurrentManifestId != 0)
 				{
-					Dispatcher.Invoke(delegate
-					{
-						bool updAvailable = Settings.PreAquatica ? desc->CurrentManifestId != 8075379529797638112 : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
-						GameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
-						GameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
-						if (updAvailable)
-							Notifications.Add(LocManager.GetString(LocCode.GameUpdateAvailable), LocManager.GetString(LocCode.Update), delegate
+					bool updAvailable = Settings.PreAquatica ? desc->CurrentManifestId != 8075379529797638112 : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
+					GameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
+					GameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
+					if (updAvailable)
+						Notifications.Add(LocManager.GetString(LocCode.GameUpdateAvailable), LocManager.GetString(LocCode.Update), delegate
+						{
+							if (TabFrame.Child is not GameOptionsTab)
 							{
-								if (TabFrame.Child is not GameOptionsTab)
-								{
-									s_gameOptionsTab ??= new GameOptionsTab();
-									Navigate(s_gameOptionsTab);
-								}
-								s_gameOptionsTab!.RunTask(false);
-							});
-					});
+								s_gameOptionsTab ??= new GameOptionsTab();
+								Navigate(s_gameOptionsTab);
+							}
+							s_gameOptionsTab!.RunTask(false);
+						});
 				}
 				foreach (var dlc in ARK.DLC.List)
 				{
@@ -193,11 +188,11 @@ partial class MainWindow : TEKWindow
 				}
 			}
 			if (Array.Exists(ARK.DLC.List, d => d.CurrentStatus == ARK.DLC.Status.UpdateAvailable))
-				Dispatcher.Invoke(() => Notifications.Add(LocManager.GetString(LocCode.DLCUpdatesAvailable), LocManager.GetString(LocCode.Update), delegate
+				Notifications.Add(LocManager.GetString(LocCode.DLCUpdatesAvailable), LocManager.GetString(LocCode.Update), delegate
 				{
 					if (TabFrame.Child is not DLCTab)
 						Navigate(new DLCTab());
-				}));
+				});
 		}
 	}
 	/// <summary>Checks whether the window is eligible for closing.</summary>

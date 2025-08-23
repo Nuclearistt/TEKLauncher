@@ -1,6 +1,6 @@
 ﻿<tlw:TEKWindow xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:tlw="clr-namespace:TEKLauncher.Windows"
                xmlns:ui="clr-namespace:TEKLauncher.UI" x:Class="TEKLauncher.Windows.MainWindow" WindowStartupLocation="CenterScreen" Title="TEK Launcher" MinWidth="1350" MinHeight="720"
-               Closing="ClosingHandler">
+               Loaded="LoadedHandler" Closing="ClosingHandler">
     <tlw:TEKWindow.TaskbarItemInfo>
         <TaskbarItemInfo/>
     </tlw:TEKWindow.TaskbarItemInfo>

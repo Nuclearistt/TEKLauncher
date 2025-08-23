@@ -22,7 +22,7 @@ partial class UpdaterWindow : TEKWindow
 	/// <summary>Steam client task thread.</summary>
 	Thread _taskThread;
 	/// <summary>Indicates whether validation should be preferred over update.</summary>
-	readonly bool _validate;
+	bool _validate;
 	/// <summary>The last status that DLC/mod had before creating the window.</summary>
 	readonly int _lastStatus;
 	/// <summary>Initializes a new Updater window for specified item.</summary>
@@ -132,6 +132,7 @@ partial class UpdaterWindow : TEKWindow
 		else
 		{
 			TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+			_currentStage = null;
 			Stages.Children.Clear();
 			_taskThread = new(TaskProcedure);
 			PauseRetryButton.Content = LocManager.GetString(LocCode.Pause);
@@ -246,6 +247,7 @@ partial class UpdaterWindow : TEKWindow
 				{
 					Title = string.Format(LocManager.GetString(LocCode.SteamUpdater), $"{details.Name} [{_newStatus + 1}/{array.Length}]");
 					TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+					_currentStage = null;
 					Stages.Children.Clear();
 				});
 				itemId.WorkshopItemId = details.Id;
@@ -366,6 +368,24 @@ partial class UpdaterWindow : TEKWindow
 		}
 		else if (!res.Success && res.Primary != 82)
 		{
+			if (_desc->Job.Stage == TEKSteamClient.AmJobStage.Pathcing && res.Type == 3 && res.Primary == 6 && (res.Auxiliary == 2 || res.Auxiliary == 38))
+			{
+				if (res.Uri != 0)
+					Marshal.FreeHGlobal(res.Uri);
+				res = TEKSteamClient.AppMng!.CancelJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(_desc));
+				if (res.Success)
+				{
+					Dispatcher.Invoke(delegate
+					{
+						ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
+						_currentStage = null;
+						Stages.Children.Clear();
+					});
+					_validate = true;
+					TaskProcedure();
+					return;
+				}
+			}
 			Dispatcher.Invoke(delegate
 			{
 				ProgressBar.Reset(Controls.ProgressBar.Mode.Done);

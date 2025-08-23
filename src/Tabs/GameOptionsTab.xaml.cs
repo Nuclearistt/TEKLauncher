@@ -224,6 +224,23 @@ partial class GameOptionsTab : ContentControl
         }
         else if (!res.Success && res.Primary != 82)
         {
+            if (s_desc->Job.Stage == TEKSteamClient.AmJobStage.Pathcing && res.Type == 3 && res.Primary == 6 && (res.Auxiliary == 2 || res.Auxiliary == 38))
+			{
+				if (res.Uri != 0)
+					Marshal.FreeHGlobal(res.Uri);
+				res = TEKSteamClient.AppMng.CancelJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(s_desc));
+                if (res.Success)
+				{
+					Dispatcher.Invoke(delegate
+					{
+						ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
+						_currentStage = null;
+                        Stages.Children.Clear();
+					});
+					TaskProcedure(true);
+                    return;
+                }
+            }
 			Dispatcher.Invoke(delegate
 			{
                 ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
@@ -318,7 +335,7 @@ partial class GameOptionsTab : ContentControl
     {
         if (TEKSteamClient.Ctx == null)
         {
-            Messages.Show("Error", "tek-steamclient library hasn't been downloaded yet, try again later");
+            Messages.Show("Error", "tek-steamclient library is not loaded");
             return;
         }
         if (IsSteamTaskActive)
@@ -331,6 +348,7 @@ partial class GameOptionsTab : ContentControl
         }
         _taskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
         Stages.Children.Clear();
+        _currentStage = null;
         s_taskThread = new(TaskProcedure);
         SwitchButtons(false, true);
         s_taskThread.Start(validate);

@@ -13,4 +13,5 @@ class Messages
     /// <param name="type">Type of the message as well as name of the icon and title.</param>
     /// <param name="message">Message text displayed in the window.</param>
     public static bool ShowOptions(string type, string message) => new MessageWindow(type, message, true).ShowDialog() ?? false;
+    public static void ShowDownloadErr(string name, string url) => new MessageWindow(name, url).ShowDialog();
 }

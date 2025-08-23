@@ -70,17 +70,12 @@ class Mod
 		var desc = TEKSteamClient.AppMng!.GetItemDesc(&itemId);
         var prevStatus = _status;
 		CurrentStatus = Status.Deleting;
-        if (desc == null)
+		if (Directory.Exists(ModsFolderPath))
+			Directory.Delete(ModsFolderPath, true);
+		if (File.Exists(ModFilePath))
+			File.Delete(ModFilePath);
+		if (desc != null)
 		{
-			if (Directory.Exists(CompressedFolderPath))
-				Directory.Delete(CompressedFolderPath, true);
-			if (Directory.Exists(ModsFolderPath))
-				Directory.Delete(ModsFolderPath, true);
-			if (File.Exists(ModFilePath))
-				File.Delete(ModFilePath);
-		}
-        else
-        {
 			if (desc->Status.HasFlag(TEKSteamClient.AmItemStatus.Job))
 			{
 				if (!TEKSteamClient.AppMng.CancelJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(desc)).Success)
@@ -98,7 +93,9 @@ class Mod
 				}
 			}
 		}
-        lock (List)
+		if (Directory.Exists(CompressedFolderPath))
+			Directory.Delete(CompressedFolderPath, true);
+		lock (List)
             List.Remove(this);
     }
     /// <summary>Finds all installed mods, gets their details, checks for updates and populates the <see cref="List"/>.</summary>

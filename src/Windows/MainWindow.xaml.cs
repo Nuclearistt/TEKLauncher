@@ -198,11 +198,6 @@ partial class MainWindow : TEKWindow
 	/// <summary>Checks whether the window is eligible for closing.</summary>
 	void ClosingHandler(object sender, CancelEventArgs e)
 	{
-		if ((Steam.App.CurrentUserStatus.GameStatus != Game.Status.OwnedAndInstalled || Game.UseSpacewar) && Game.IsRunning && !Messages.ShowOptions("Warning", LocManager.GetString(LocCode.LauncherCloseWarning)))
-		{
-			e.Cancel = true;
-			return;
-		}
 		bool activeTasksPresent = GameOptionsTab.IsSteamTaskActive;
 		if (!activeTasksPresent)
 			foreach (var window in Application.Current.Windows)

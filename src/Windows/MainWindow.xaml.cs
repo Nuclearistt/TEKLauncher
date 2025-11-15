@@ -14,6 +14,7 @@ namespace TEKLauncher.Windows;
 /// <summary>Main window of the launcher.</summary>
 partial class MainWindow : TEKWindow
 {
+	bool _beginInstallation;
 	/// <summary>Index of the current tab.</summary>
 	int _currentTabIndex;
 	/// <summary>Height of a menu button.</summary>
@@ -23,7 +24,7 @@ partial class MainWindow : TEKWindow
 	/// <summary>Singleton instance of tab navigation animation.</summary>
 	static readonly DoubleAnimation s_naviagtionAnimation = new(0, TimeSpan.FromMilliseconds(250)) { EasingFunction = new QuadraticEase() };
 	/// <summary>Initializes a new main window.</summary>
-	public MainWindow()
+	public MainWindow(bool beginInstallation)
 	{
 		InitializeComponent();
 		if (Settings.CommunismMode)
@@ -39,6 +40,7 @@ partial class MainWindow : TEKWindow
 		Notifications.Initialize(NotificationStack.Children);
 		LauncherVersion.Text = App.Version;
 		TabFrame.Child = new PlayTab();
+		_beginInstallation = beginInstallation;
 	}
 	/// <summary>Checks for launcher, game and DLC updates.</summary>
 	async void LoadedHandler(object sender, RoutedEventArgs e)
@@ -69,16 +71,16 @@ partial class MainWindow : TEKWindow
 		}
 		LauncherVersionBlock.Inlines.Remove(LauncherVersionBlock.Inlines.LastInline);
 		//Initialize tek-steamclient
-		var latestTscVer = await Downloader.DownloadStringAsync("https://teknology-hub.com/software/tek-steamclient/version-1", "https://de.teknology-hub.com/software/tek-steamclient/version-1");
+		var latestTscVer = await Downloader.DownloadStringAsync("https://teknology-hub.com/software/tek-steamclient/version-2", "https://de.teknology-hub.com/software/tek-steamclient/version-2");
 		for (bool updated = false;; )
 		{
 			if (!File.Exists(TEKSteamClient.DllPath))
 			{
 				Notifications.Add("Downloading tek-steamclient library...", "", () => { });
-				var data = await Downloader.DownloadBytesAsync("https://teknology-hub.com/software/tek-steamclient/releases/latest-1/win-x86_64-static/libtek-steamclient-1.dll", "https://de.teknology-hub.com/software/tek-steamclient/releases/latest-1/win-x86_64-static/libtek-steamclient-1.dll");
+				var data = await Downloader.DownloadBytesAsync("https://teknology-hub.com/software/tek-steamclient/releases/latest-2/win-x86_64-static/libtek-steamclient-2.dll", "https://de.teknology-hub.com/software/tek-steamclient/releases/latest-2/win-x86_64-static/libtek-steamclient-2.dll");
 				if (data is null)
 				{
-					Messages.ShowDownloadErr("libtek-steamclient-1.dll", "https://teknology-hub.com/software/tek-steamclient/releases/latest-1/win-x86_64-static/libtek-steamclient-1.dll");
+					Messages.ShowDownloadErr("libtek-steamclient-2.dll", "https://teknology-hub.com/software/tek-steamclient/releases/latest-2/win-x86_64-static/libtek-steamclient-2.dll");
 					return;
 				}
 				File.WriteAllBytes(TEKSteamClient.DllPath, data);
@@ -124,6 +126,12 @@ partial class MainWindow : TEKWindow
 		TEKSteamClient.AppMng = new(TEKSteamClient.Ctx, Game.Path!);
 		if (TEKSteamClient.AppMng.IsInvalid)
 			throw new TEKSteamClient.Exception(TEKSteamClient.AppMng.CreationError.Message);
+		var modsDir = $@"{Game.Path}\Mods";
+		try
+		{
+			if (!Directory.Exists(modsDir))
+				Directory.CreateDirectory(modsDir);
+		} catch { }
 		var res = TEKSteamClient.AppMng.SetWorkshopDir($@"{Game.Path}\Mods");
 		if (!res.Success)
 			throw new TEKSteamClient.Exception(res.Message);
@@ -136,9 +144,18 @@ partial class MainWindow : TEKWindow
 		}
 		if (!res.Success)
 			Notifications.Add("Failed to synchronize tek-s3 manifest", "NError");
-		//Check for updates
-		if (await Task.Run(() => TEKSteamClient.AppMng.CheckForUpdates(20000).Success))
+		if (_beginInstallation)
 		{
+			if (TabFrame.Child is not GameOptionsTab)
+			{
+				s_gameOptionsTab ??= new GameOptionsTab();
+				Navigate(s_gameOptionsTab);
+			}
+			s_gameOptionsTab!.RunTask(false);
+		}
+		else if (await Task.Run(() => TEKSteamClient.AppMng.CheckForUpdates(20000).Success))
+		{
+			//Check for updates
 			unsafe
 			{
 				static TEKSteamClient.AmItemDesc* getDesc(uint depotId)

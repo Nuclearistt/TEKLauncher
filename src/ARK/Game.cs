@@ -119,7 +119,7 @@ static class Game
                 [1691800] = "Lost Island – ARK Expansion Map",
                 [1887560] = "Fjordur – ARK Expansion Map",
                 [3537070] = "Aquatica – ARK Expansion Map"
-            }, [.. instDlc], $@"{Path}\Mods");
+            }, [.. instDlc], $@"{Path}\Mods", Path!);
 			var data = JsonSerializer.SerializeToUtf8Bytes(settings, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower });
             fixed (byte *dataPtr = data)
 			{
@@ -178,5 +178,5 @@ static class Game
         Owned,
         OwnedAndInstalled
     }
-    readonly record struct TekGameRuntimeSettings(string Store, uint AppId, uint SpoofAppId, Dictionary<uint, string> Dlc, uint[] InstalledDlc, string WorkshopDirPath);
+    readonly record struct TekGameRuntimeSettings(string Store, uint AppId, uint SpoofAppId, Dictionary<uint, string> Dlc, uint[] InstalledDlc, string WorkshopDirPath, string WorkshopAmPath);
 }

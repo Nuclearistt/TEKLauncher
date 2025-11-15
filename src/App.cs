@@ -101,12 +101,12 @@ partial class App : Application
     /// <summary>Handles exceptions that could not be caught by any other means.</summary>
     static void DomainExceptionHandler(object sender, UnhandledExceptionEventArgs e) => File.WriteAllText($@"{AppDataFolder}\DomainException.txt", e.ExceptionObject.ToString());
     /// <summary>Loads all remaining data that wasn't loaded in contructor and creates main window.</summary>
-    public static void Initialize()
+    public static void Initialize(bool beginInstallation = false)
     {
         Game.Initialize();
         Task.Run(Mod.InitializeList);
         Task.Run(Cluster.ReloadLists);
-        new MainWindow().Show();
+        new MainWindow(beginInstallation).Show();
         object? lastLaunchedVersion = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\TEKLauncher")?.GetValue("LastLaunchedVersion");
         if ((string?)lastLaunchedVersion != Version)
         {

@@ -32,7 +32,7 @@ partial class FirstLaunchWindow : TEKWindow
         Game.Path = _path;
         Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
         Close();
-        App.Initialize();
+        App.Initialize(sender == _beginInstallationButton);
         Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
     }
     /// <summary>Initializes Game installation tab.</summary>

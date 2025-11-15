@@ -1,48 +1,51 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace TEKLauncher.Utils;
 
 /// <summary>Bindings for tek-steamclient library.</summary>
 static partial class TEKSteamClient
 {
-	public static readonly string DllPath = $@"{App.AppDataFolder}\libtek-steamclient-1.dll";
+	public static readonly string DllPath = $@"{App.AppDataFolder}\libtek-steamclient-2.dll";
 	public static LibCtx? Ctx = null;
 	public static AppManager? AppMng = null;
 
 	#region Native Functions
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_version")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_version")]
 	public static partial nint GetVersion();
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_lib_init")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_lib_init")]
 	private static partial nint LibInit([MarshalAs(UnmanagedType.I1)] bool useFileCache, [MarshalAs(UnmanagedType.I1)] bool disableLwsLogs);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_lib_cleanup")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_lib_cleanup")]
 	private static partial void LibCleanup(nint libCtx);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_err_get_msgs")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_err_get_msgs")]
 	private static partial ErrorMessages GetErrorMsgs(in Error err);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_err_release_msgs")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_err_release_msgs")]
 	private static partial void ReleaseMsgs(ref ErrorMessages errMsgs);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_s3c_fetch_manifest", StringMarshalling = StringMarshalling.Utf8)]
-	private static partial Error S3CFetchManifest(nint libCtx, string url, int timeoutMs);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_dd_estimate_disk_space")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_s3c_sync_manifest", StringMarshalling = StringMarshalling.Utf8)]
+	private static partial Error S3CSyncManifest(nint libCtx, string url, int timeoutMs);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_dd_estimate_disk_space")]
 	public static partial long DeltaEstimateDiskSpace(nint delta);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_create", StringMarshalling = StringMarshalling.Utf16)]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_create", StringMarshalling = StringMarshalling.Utf16)]
 	private static partial nint AmCreate(nint libCtx, string dir, out Error err);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_destroy")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_destroy")]
 	private static partial void AmDestroy(nint am);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_set_ws_dir", StringMarshalling = StringMarshalling.Utf16)]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_set_ws_dir", StringMarshalling = StringMarshalling.Utf16)]
 	private static partial Error AmSetWorkshopDir(nint am, string wsDir);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_get_item_desc")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_get_item_desc")]
 	private static unsafe partial AmItemDesc* AmGetItemDesc(nint am, ItemId *itemId);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_item_descs_lock")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_item_descs_lock")]
 	private static partial void AmItemDescsLock(nint am);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_item_descs_unlock")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_item_descs_unlock")]
 	private static partial void AmItemDescsUnlock(nint am);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_check_for_upds")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_check_for_upds")]
 	private static partial Error AmCheckForUpdates(nint am, int timeoutMs);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_run_job")]
-	private static unsafe partial Error AmRunJob(nint am, in AmJobArgs args, out AmItemDesc *itemDesc);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_pause_job")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_create_job")]
+	private static unsafe partial Error AmCreateJob(nint am, ItemId* itemId, ulong manifestId, [MarshalAs(UnmanagedType.I1)] bool forceVerify, out AmItemDesc* itemDesc);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_run_job")]
+	private static unsafe partial Error AmRunJob(nint am, ref AmItemDesc itemDesc, nint updHandler);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_pause_job")]
 	private static partial void AmPauseJob(ref AmItemDesc itemDesc);
-	[LibraryImport("libtek-steamclient-1.dll", EntryPoint = "tek_sc_am_cancel_job")]
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_cancel_job")]
 	private static partial Error AmCancelJob(nint am, ref AmItemDesc itemDesc);
 	#endregion
 
@@ -152,14 +155,6 @@ static partial class TEKSteamClient
 		public ulong LatestManifestId;
 		public AmJobDesc Job;
 	}
-	[StructLayout (LayoutKind.Sequential)]
-	struct AmJobArgs
-	{
-		public unsafe ItemId* ItemId;
-		public ulong ManifestId;
-		public nint UpdHandler;
-		public byte ForceVerify;
-	}
 	public delegate void AmJobUpdFunc(ref AmItemDesc desc, AmUpdType upd_mask);
 	#endregion
 
@@ -178,7 +173,7 @@ static partial class TEKSteamClient
 			return true;
 		}
 
-		public Error SyncS3Manifest(string url) => S3CFetchManifest(handle, url, 16000);
+		public Error SyncS3Manifest(string url) => S3CSyncManifest(handle, url, 16000);
 	}
 	public class AppManager : SafeHandle
 	{
@@ -204,14 +199,18 @@ static partial class TEKSteamClient
 		{
 			fixed (ItemId* itemIdPtr = &itemId)
 			{
-				var args = new AmJobArgs
+				var desc = AmGetItemDesc(handle, itemIdPtr);
+				if (desc == null || !desc->Status.HasFlag(AmItemStatus.Job))
 				{
-					ItemId = itemIdPtr,
-					ManifestId = manifestId,
-					UpdHandler = updHandler is null ? 0 : Marshal.GetFunctionPointerForDelegate(updHandler),
-					ForceVerify = (byte)(forceVerify ? 1 : 0)
-				};
-				return AmRunJob(handle, in args, out itemDesc);
+					var res = AmCreateJob(handle, itemIdPtr, manifestId, forceVerify, out desc);
+					if (!res.Success)
+					{
+						itemDesc = null;
+						return res;
+					}
+				}
+				itemDesc = desc;
+				return AmRunJob(handle, ref Unsafe.AsRef<AmItemDesc>(desc), updHandler is null ? 0 : Marshal.GetFunctionPointerForDelegate(updHandler));
 			}
 		}
 		public static void PauseJob(ref AmItemDesc itemDesc) => AmPauseJob(ref itemDesc);

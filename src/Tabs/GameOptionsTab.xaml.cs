@@ -198,7 +198,7 @@ partial class GameOptionsTab : ContentControl
         bool forceVerify = (bool)obj!;
         var itemId = new TEKSteamClient.ItemId { AppId = 346110, DepotId = 346111, WorkshopItemId = 0 };
         var res = TEKSteamClient.AppMng!.RunJob(in itemId, Settings.PreAquatica ? 8075379529797638112ul : 0, forceVerify, UpdHandler, out s_desc);
-        if (res.Primary == 65)
+        if (res.Primary == 68)
         {
 			Dispatcher.Invoke(delegate
 			{
@@ -222,9 +222,9 @@ partial class GameOptionsTab : ContentControl
 				SwitchButtons(true, true);
 			});
         }
-        else if (!res.Success && res.Primary != 82)
+        else if (!res.Success && res.Primary != 85)
         {
-            if (s_desc->Job.Stage == TEKSteamClient.AmJobStage.Pathcing && res.Type == 3 && res.Primary == 6 && (res.Auxiliary == 2 || res.Auxiliary == 38))
+            if (s_desc->Job.Stage == TEKSteamClient.AmJobStage.Pathcing && ((res.Type == 3 && res.Primary == 6 && (res.Auxiliary == 2 || res.Auxiliary == 38)) || (res.Type == 1 && res.Primary == 78 && res.Auxiliary == 48)))
 			{
 				if (res.Uri != 0)
 					Marshal.FreeHGlobal(res.Uri);
@@ -258,7 +258,7 @@ partial class GameOptionsTab : ContentControl
 			Dispatcher.Invoke(delegate
 			{
                 ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
-				Status.Text = res.Primary == 82 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), "ARK") : LocManager.GetString(LocCode.UpdateFinished);
+				Status.Text = res.Primary == 85 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), "ARK") : LocManager.GetString(LocCode.UpdateFinished);
 				Status.Foreground = new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
 				_taskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
 				_currentStage?.Finish(true);

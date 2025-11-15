@@ -252,12 +252,12 @@ partial class UpdaterWindow : TEKWindow
 				});
 				itemId.WorkshopItemId = details.Id;
 				res = TEKSteamClient.AppMng!.RunJob(in itemId, 0, _validate, UpdHandler, out _desc);
-				if (!res.Success && res.Primary != 82)
+				if (!res.Success && res.Primary != 85)
 					break;
 				Dispatcher.Invoke(delegate
 				{
 					ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
-					Status.Text = res.Primary == 82 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), details.Name) : string.Format(LocManager.GetString(LocCode.ModInstallSuccess), details.Name);
+					Status.Text = res.Primary == 85 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), details.Name) : string.Format(LocManager.GetString(LocCode.ModInstallSuccess), details.Name);
 					Status.Foreground = new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
 				});
 				lock (Mod.List)
@@ -303,16 +303,16 @@ partial class UpdaterWindow : TEKWindow
 				_ => 0
 			};
 			res = TEKSteamClient.AppMng!.RunJob(in itemId, Settings.PreAquatica ? preAquaticaId : 0, _validate, UpdHandler, out _desc);
-			if (res.Success || res.Primary == 82)
+			if (res.Success || res.Primary == 85)
 			{
 				_newStatus = depotId == 346110 ? (int)Mod.Status.Installed : (Settings.PreAquatica ? (_desc->CurrentManifestId == preAquaticaId ? (int)DLC.Status.Installed : (int)DLC.Status.UpdateAvailable) : (int)DLC.Status.Installed);
 				Dispatcher.Invoke(delegate
 				{
 					ProgressBar.Reset(Controls.ProgressBar.Mode.Done);
 					if (Item is Mod.ModDetails details)
-						Status.Text = res.Primary == 82 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), details.Name) : string.Format(LocManager.GetString(LocCode.ModInstallSuccess), details.Name);
+						Status.Text = res.Primary == 85 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), details.Name) : string.Format(LocManager.GetString(LocCode.ModInstallSuccess), details.Name);
 					else
-						Status.Text = res.Primary == 82 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), ((DLC)Item).Name) : LocManager.GetString(LocCode.UpdateFinished);
+						Status.Text = res.Primary == 85 ? string.Format(LocManager.GetString(LocCode.AlreadyUpToDate), ((DLC)Item).Name) : LocManager.GetString(LocCode.UpdateFinished);
 					Status.Foreground = new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
 				});
 				if (Item is Mod.ModDetails detail)
@@ -341,7 +341,7 @@ partial class UpdaterWindow : TEKWindow
 					}
 			}
 		}
-		if (res.Primary == 65)
+		if (res.Primary == 68)
 		{
 			Dispatcher.Invoke(delegate
 			{
@@ -366,9 +366,9 @@ partial class UpdaterWindow : TEKWindow
 				PauseRetryButton.Tag = FindResource("Retry");
 			});
 		}
-		else if (!res.Success && res.Primary != 82)
+		else if (!res.Success && res.Primary != 85)
 		{
-			if (_desc->Job.Stage == TEKSteamClient.AmJobStage.Pathcing && res.Type == 3 && res.Primary == 6 && (res.Auxiliary == 2 || res.Auxiliary == 38))
+			if (_desc->Job.Stage == TEKSteamClient.AmJobStage.Pathcing && ((res.Type == 3 && res.Primary == 6 && (res.Auxiliary == 2 || res.Auxiliary == 38)) || (res.Type == 1 && res.Primary == 78 && res.Auxiliary == 48)))
 			{
 				if (res.Uri != 0)
 					Marshal.FreeHGlobal(res.Uri);

@@ -96,7 +96,9 @@ partial class App : Application
         Steam.ServerBrowser.Shutdown();
         Steam.CM.Client.Disconnect();
         Settings.Save();
-        IPC.Dispose();
+        TEKSteamClient.AppMng?.Close();
+        TEKSteamClient.Ctx?.Close();
+		IPC.Dispose();
     }
     /// <summary>Handles exceptions that could not be caught by any other means.</summary>
     static void DomainExceptionHandler(object sender, UnhandledExceptionEventArgs e) => File.WriteAllText($@"{AppDataFolder}\DomainException.txt", e.ExceptionObject.ToString());

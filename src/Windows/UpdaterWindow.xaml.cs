@@ -182,7 +182,7 @@ partial class UpdaterWindow : TEKWindow
 						code = LocCode.DownloadingFiles;
 						break;
 					case TEKSteamClient.AmJobStage.Pathcing:
-						ProgressBar.Reset(Controls.ProgressBar.Mode.Numbers);
+						ProgressBar.Reset(Controls.ProgressBar.Mode.Percentage);
 						code = LocCode.Patching;
 						break;
 					case TEKSteamClient.AmJobStage.Installing:
@@ -230,8 +230,11 @@ partial class UpdaterWindow : TEKWindow
 		uint depotId = Item is DLC dlc ? dlc.DepotId : 346110;
 		if (Item is ulong[] modIds)
 		{
-			Status.Text = LocManager.GetString(LocCode.RequestingModDetails);
-			Status.Foreground = Brushes.Yellow;
+			Dispatcher.Invoke(delegate
+			{
+				Status.Text = LocManager.GetString(LocCode.RequestingModDetails);
+				Status.Foreground = Brushes.Yellow;
+			});
 			var details = Steam.CM.Client.GetModDetails(modIds);
 			if (details.Length == 0)
 				throw new SteamException(LocManager.GetString(LocCode.RequestingModDetailsFail));

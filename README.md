@@ -8,7 +8,7 @@ TEK Launcher is a launcher for ARK: Survival Evolved that can manage game files,
 
 ## Requirements
 
-+ [.NET 9 Desktop Runtime](https://dotnetcli.azureedge.net/dotnet/WindowsDesktop/9.0.7/windowsdesktop-runtime-9.0.7-win-x64.exe)
++ [.NET 10 Desktop Runtime](https://dotnetcli.azureedge.net/dotnet/WindowsDesktop/10.0.1/windowsdesktop-runtime-10.0.1-win-x64.exe)
 + [Steam app](https://store.steampowered.com/about/)
 
 ## Key features

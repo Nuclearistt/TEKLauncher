@@ -149,7 +149,7 @@ partial class GameOptionsTab : ContentControl
                         code = LocCode.DownloadingFiles;
 						break;
 					case TEKSteamClient.AmJobStage.Pathcing:
-                        ProgressBar.Reset(Controls.ProgressBar.Mode.Numbers);
+                        ProgressBar.Reset(Controls.ProgressBar.Mode.Percentage);
                         code = LocCode.Patching;
 						break;
 					case TEKSteamClient.AmJobStage.Installing:

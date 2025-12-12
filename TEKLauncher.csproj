@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <Platform>x64</Platform>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <OutputType>WinExe</OutputType>
     <UseWPF>True</UseWPF>
-    <Version>9.6.90</Version>
+    <Version>9.6.91</Version>
     <ApplicationManifest>TEKLauncher.manifest</ApplicationManifest>
     <ApplicationIcon>res\Icon.ico</ApplicationIcon>
     <Authors>Nuclearist</Authors>
@@ -26,8 +26,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.33.1" />
-    <PackageReference Include="Google.Protobuf.Tools" Version="3.33.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.33.2" />
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.33.2" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="res\**" />
@@ -36,6 +36,6 @@
     <Protos Include="protos\**" />
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.33.1\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))" />
+    <Exec Command="$(NuGetPackageRoot)google.protobuf.tools\3.33.2\tools\windows_x64\protoc.exe --proto_path=$(ProjectDir)protos\ --csharp_out=$(ProjectDir)src\ --csharp_opt=file_extension=.g.cs --csharp_opt=base_namespace=TEKLauncher $([System.IO.Path]::GetFullPath(%(Protos.Identity)))" />
   </Target>
 </Project>

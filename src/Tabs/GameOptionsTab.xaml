@@ -59,10 +59,8 @@
                         <CheckBox ToolTip="{ui:LocString DisableVSyncDesc}" Content="{ui:LocString DisableVSync}" Tag="-novsync"/>
                         <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-novsync"/>
                         <CheckBox ToolTip="{ui:LocString DisableSPHibernationDesc}" Content="{ui:LocString DisableSPHibernation}" Tag="-preventhibernation"/>
-                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-preventhibernation"/>
-                        <CheckBox ToolTip="{ui:LocString EnableAnselSupportDesc}" Content="{ui:LocString EnableAnselSupport}" Tag="-allowansel"/>
-                        <TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-allowansel"/>
-                    </StackPanel>
+						<TextBlock Margin="40, -15, 0, 0" Foreground="#52556B" FontSize="18" Text="-preventhibernation"/>
+					</StackPanel>
                 </Grid>
             </Border>
             <Grid Margin="50, 20, 50, 0">

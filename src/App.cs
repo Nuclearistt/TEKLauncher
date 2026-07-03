@@ -107,7 +107,7 @@ partial class App : Application
     {
         Game.Initialize();
         Task.Run(Mod.InitializeList);
-        Task.Run(Cluster.ReloadLists);
+        Task.Delay(2000).ContinueWith(delegate{ Cluster.ReloadLists(); });
         new MainWindow(beginInstallation).Show();
         object? lastLaunchedVersion = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\TEKLauncher")?.GetValue("LastLaunchedVersion");
         if ((string?)lastLaunchedVersion != Version)

@@ -91,19 +91,19 @@ class Cluster
             return;
         }
         //Retrieve new server lists from Steam API
-        var lanServers = Steam.ServerBrowser.GetServers(Steam.ServerBrowser.ServerListType.LAN);
+        var lanServers = Steam.Api.GetServers(Steam.Api.ServerListType.LAN);
         if (lanServers is null)
         {
             CurrentStatus = 2;
             return;
         }
-        var favoritesServers = Steam.ServerBrowser.GetServers(Steam.ServerBrowser.ServerListType.Favorites);
+        var favoritesServers = Steam.Api.GetServers(Steam.Api.ServerListType.Favorites);
         if (favoritesServers is null)
         {
             CurrentStatus = 2;
             return;
         }
-        var onlineServers = Steam.ServerBrowser.GetServers(Steam.ServerBrowser.ServerListType.Online);
+        var onlineServers = Steam.Api.GetServers(Steam.Api.ServerListType.Online);
         if (onlineServers is null)
         {
             CurrentStatus = 2;

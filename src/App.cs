@@ -93,7 +93,7 @@ partial class App : Application
                 break;
             }
         UdpClient.Dispose();
-        Steam.ServerBrowser.Shutdown();
+        Steam.Api.Shutdown();
         Steam.CM.Client.Disconnect();
         Settings.Save();
         TEKSteamClient.AppMng?.Close();

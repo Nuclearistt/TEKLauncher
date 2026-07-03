@@ -266,7 +266,10 @@ partial class GameOptionsTab : ContentControl
 				SwitchButtons(true, true);
 			    bool updAvailable = Settings.PreAquatica ? s_desc->CurrentManifestId != 8075379529797638112 : s_desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
 				var gameVersion = ((MainWindow)Application.Current.MainWindow).GameVersion;
-				gameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
+				if (!updAvailable && Settings.PreAquatica)
+					gameVersion.Text = "Pre-Aquatica";
+				else
+					gameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
 				gameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
 			});
 		}

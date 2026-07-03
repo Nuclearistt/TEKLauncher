@@ -91,6 +91,7 @@ partial class FirstLaunchWindow : TEKWindow
 		_continueButton = (Button)template.FindName("ContinueButton", Root);
 		_steamIcon = (Image)template.FindName("SteamIcon", Root);
 		_status = (TextBlock)template.FindName("Status", Root);
+		Steam.App.UpdateUserStatus();
 		string? steamGamePath = Steam.App.GamePath;
 		if (steamGamePath is not null)
 		{

@@ -47,7 +47,7 @@ partial class ModInstallerTab : ContentControl
 			Messages.Show("Error", "tek-steamclient library is not loaded");
 			return;
 		}
-		new UpdaterWindow(in _modDetails, false).Show();
+		new UpdaterWindow(in _modDetails, true).Show();
     }
     /// <summary>Sets up copying/pasting handlers, starts the timer and loads initial workshop page.</summary>
     void LoadedHandler(object sender, RoutedEventArgs e)

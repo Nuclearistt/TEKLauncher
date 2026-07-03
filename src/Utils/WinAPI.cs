@@ -9,8 +9,6 @@ static class WinAPI
     #region kernel32.dll
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     static extern bool GetDiskFreeSpaceExW(string lpDirectoryName, out long lpFreeBytesAvailableToCaller, out long lpTotalNumberOfBytes, out long lpTotalNumberOfFreeBytes);
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-    public static extern IntPtr LoadLibraryExW(string lpLibFileName, IntPtr hFile, uint dwFlags);
     #endregion
     #region user32.dll
     [DllImport("user32.dll")]

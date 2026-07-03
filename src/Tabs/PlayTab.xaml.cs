@@ -12,9 +12,9 @@ partial class PlayTab : ContentControl
         InitializeComponent();
         string cmImagePath = $@"{App.AppDataFolder}\CM\Image.jpg";
         Image.Source = new BitmapImage(new(Settings.CommunismMode && File.Exists(cmImagePath) ? cmImagePath : "pack://application:,,,/res/img/PlayTab.jpg"));
-        if (Steam.App.CurrentUserStatus.GameStatus != Game.Status.NotOwned)
-            UseSpacewarCheckbox.Visibility = Visibility.Visible;
-    }
+		UpdateUseSpacewar();
+
+	}
     /// <summary>Launches the game.</summary>
     void Launch(object sender, RoutedEventArgs e) => Game.Launch(null);
     /// <summary>Sets new game or launcher language.</summary>
@@ -43,4 +43,9 @@ partial class PlayTab : ContentControl
             case '1': Game.UseSpacewar = newValue; break;
         }
     }
+    public void UpdateUseSpacewar()
+    {
+		if (Steam.App.CurrentUserStatus.GameStatus != Game.Status.NotOwned)
+			UseSpacewarCheckbox.Visibility = Visibility.Visible;
+	}
 }

@@ -14,7 +14,7 @@ static class App
     {
         get
         {
-            int? pid = (int?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("SteamPID");
+            int? pid = (int?)Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess")?.GetValue("pid");
             if (!pid.HasValue || pid.Value == 0)
                 return false;
             Process? steamProcess;
@@ -31,7 +31,7 @@ static class App
     /// <summary>Retrieves primary data from Steam config files.</summary>
     public static void Initialize()
     {
-        string? path = (string?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("InstallPath");
+        string? path = (string?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Valve\Steam")?.GetValue("InstallPath");
         if (path is null)
         {
             Messages.Show("Error", LocManager.GetString(LocCode.SteamMissing));
@@ -58,41 +58,25 @@ static class App
                 }
             }
         }
-        UpdateUserStatus();
     }
     public static void UpdateUserStatus()
     {
-        ulong steamId64 = 0;
-        string loginUsersFile = $@"{s_path}\config\loginusers.vdf";
-        if (File.Exists(loginUsersFile))
-        {
-            using var reader = new StreamReader(loginUsersFile);
-            var users = new VDFNode(reader)?.Children;
-            if (users is not null)
-                foreach (var user in users)
-                    if (user["MostRecent"]?.Value == "1")
-                    {
-                        _ = ulong.TryParse(user.Key, out steamId64);
-                        break;
-                    }
-        }
+        if (!Api.Initialize())
+		{
+			CurrentUserStatus = new(0, Game.Status.NotOwned);
+			return;
+		}
+		ulong steamId64 = Api.GetCurrentSteamId();
         if (steamId64 == 0)
         {
             CurrentUserStatus = new(0, Game.Status.NotOwned);
             return;
         }
         Game.Status status = Game.Status.NotOwned;
-        string configFile = $@"{s_path}\userdata\{(uint)steamId64}\config\localconfig.vdf";
-        if (File.Exists(configFile))
-        {
-            using var reader = new StreamReader(configFile);
-            var vdf = new VDFNode(reader)["apptickets"]?["346110"];
-            if (vdf is not null)
-                status = Game.Status.Owned;
-        }
-        if (status == Game.Status.Owned)
-        {
-            string libraryFoldersFile = $@"{s_path}\config\libraryfolders.vdf";
+        if (Api.IsAppOwned(346110))
+		{
+			status = Game.Status.Owned;
+			string libraryFoldersFile = $@"{s_path}\config\libraryfolders.vdf";
             if (File.Exists(libraryFoldersFile))
             {
                 using var reader = new StreamReader(libraryFoldersFile);

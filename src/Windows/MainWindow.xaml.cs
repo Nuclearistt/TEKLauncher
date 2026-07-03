@@ -70,6 +70,12 @@ partial class MainWindow : TEKWindow
 			}
 		}
 		LauncherVersionBlock.Inlines.Remove(LauncherVersionBlock.Inlines.LastInline);
+        Steam.App.UpdateUserStatus();
+		Dispatcher.Invoke(delegate
+		{
+			if (TabFrame.Child is PlayTab tab)
+				tab.UpdateUseSpacewar();
+		});
 		//Initialize tek-steamclient
 		var latestTscVer = await Downloader.DownloadStringAsync("https://teknology-hub.com/software/tek-steamclient/version-2", "https://de.teknology-hub.com/software/tek-steamclient/version-2");
 		for (bool updated = false;; )
@@ -177,7 +183,10 @@ partial class MainWindow : TEKWindow
 				if (desc != null && desc->CurrentManifestId != 0)
 				{
 					bool updAvailable = Settings.PreAquatica ? desc->CurrentManifestId != 8075379529797638112 : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
-					GameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
+					if (!updAvailable && Settings.PreAquatica)
+						GameVersion.Text = "Pre-Aquatica";
+					else
+						GameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
 					GameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
 					if (updAvailable)
 						Notifications.Add(LocManager.GetString(LocCode.GameUpdateAvailable), LocManager.GetString(LocCode.Update), delegate

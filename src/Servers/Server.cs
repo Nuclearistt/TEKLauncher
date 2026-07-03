@@ -46,7 +46,7 @@ class Server
     /// <summary>Adds the server to Steam favorites list.</summary>
     public void AddFavorite()
     {
-        Steam.ServerBrowser.AddFavorite(_endpoint);
+        Steam.Api.AddFavorite(_endpoint);
         if (!Cluster.Favorites.Servers.Contains(this))
             Cluster.Favorites.Servers.Add(this);
         Application.Current.Dispatcher.Invoke(delegate
@@ -61,7 +61,7 @@ class Server
     /// <summary>Removes the server from Steam favorites list.</summary>
     public void RemoveFavorite()
     {
-        Steam.ServerBrowser.RemoveFavorite(_endpoint);
+        Steam.Api.RemoveFavorite(_endpoint);
         Cluster.Favorites.Servers.Remove(this);
         Application.Current.Dispatcher.Invoke(delegate
         {

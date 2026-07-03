@@ -126,7 +126,10 @@ partial class LauncherSettingsTab : ContentControl
                 {
 					bool updAvailable = Settings.PreAquatica ? desc->CurrentManifestId != 8075379529797638112 : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable);
 					var gameVersion = ((MainWindow)Application.Current.MainWindow).GameVersion;
-					gameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
+					if (!updAvailable && Settings.PreAquatica)
+						gameVersion.Text = "Pre-Aquatica";
+					else
+						gameVersion.Text = LocManager.GetString(updAvailable ? LocCode.Outdated : LocCode.Latest);
 					gameVersion.Foreground = updAvailable ? Brushes.Yellow : new SolidColorBrush(Color.FromRgb(0x0A, 0xA6, 0x3E));
 				}
 				foreach (var dlc in ARK.DLC.List)

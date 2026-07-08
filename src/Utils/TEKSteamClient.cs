@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace TEKLauncher.Utils;
 
@@ -9,6 +10,7 @@ static partial class TEKSteamClient
 	public static readonly string DllPath = $@"{App.AppDataFolder}\libtek-steamclient-2.dll";
 	public static LibCtx? Ctx = null;
 	public static AppManager? AppMng = null;
+	public static CmClient? Cm = null;
 
 	#region Native Functions
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_version")]
@@ -25,6 +27,22 @@ static partial class TEKSteamClient
 	private static partial void ReleaseMsgs(ref ErrorMessages errMsgs);
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_s3c_sync_manifest", StringMarshalling = StringMarshalling.Utf8)]
 	private static partial Error S3CSyncManifest(nint libCtx, string url, int timeoutMs);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_cm_client_create")]
+	private static partial nint CmClientCreate(nint libCtx, nint userData);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_cm_client_destroy")]
+	private static partial void CmClientDestroy(nint client);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_cm_set_user_data")]
+	private static unsafe partial void CmSetUserData(nint client, void* userData);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_cm_connect")]
+	private static partial void CmConnect(nint client, nint connectionCb, int fetchTimeoutMs, nint disconnectionCb);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_cm_disconnect")]
+	private static partial void CmDisconnect(nint client);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_cm_sign_in_anon")]
+	private static partial void CmSignInAnon(nint client, nint cb, int timeoutMs);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_cm_ws_get_details")]
+	private static partial void CmWsGetDetails(nint client, ref CmDataWs data, nint cb, int timeoutMs);
+	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_cm_ws_query_items", StringMarshalling = StringMarshalling.Utf8)]
+	private static partial void CmWsQueryItems(nint client, ref CmDataWs data, uint appId, int page, string? searchQuery, nint cb, int timeoutMs);
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_dd_estimate_disk_space")]
 	public static partial long DeltaEstimateDiskSpace(nint delta);
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_create", StringMarshalling = StringMarshalling.Utf16)]
@@ -34,7 +52,7 @@ static partial class TEKSteamClient
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_set_ws_dir", StringMarshalling = StringMarshalling.Utf16)]
 	private static partial Error AmSetWorkshopDir(nint am, string wsDir);
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_get_item_desc")]
-	private static unsafe partial AmItemDesc* AmGetItemDesc(nint am, ItemId *itemId);
+	private static unsafe partial AmItemDesc* AmGetItemDesc(nint am, ItemId* itemId);
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_item_descs_lock")]
 	private static partial void AmItemDescsLock(nint am);
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_am_item_descs_unlock")]
@@ -61,7 +79,7 @@ static partial class TEKSteamClient
 		public int Extra;
 		public nint Uri;
 		public readonly bool Success => Primary == 0;
-		public readonly string Message 
+		public readonly string Message
 		{
 			get
 			{
@@ -113,6 +131,29 @@ static partial class TEKSteamClient
 		public uint DepotId;
 		public ulong WorkshopItemId;
 	}
+	[StructLayout(LayoutKind.Sequential)]
+	private struct CmWsItemDetails
+	{
+		public ulong Id;
+		public ulong ManifestId;
+		public long LastUpdated;
+		public nint Name;
+		public nint PreviewUrl;
+		public nint Children;
+		public int NumChildren;
+		public uint AppId;
+		public Error Result;
+	}
+	[StructLayout(LayoutKind.Sequential)]
+	private unsafe struct CmDataWs
+	{
+		public CmWsItemDetails* Details;
+		public int NumDetails;
+		public int NumReturnedDetails;
+		public int TotalItems;
+		public Error Result;
+		public nint Event;
+	}
 	[Flags]
 	public enum AmItemStatus
 	{
@@ -138,7 +179,7 @@ static partial class TEKSteamClient
 		PausePending
 	}
 	public enum AmPatchStatus
-	{ 
+	{
 		Unknown,
 		Unused,
 		Used
@@ -151,7 +192,7 @@ static partial class TEKSteamClient
 		Progress = 1 << 2,
 		DeltaCreated = 1 << 3
 	}
-	[StructLayout (LayoutKind.Sequential)]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct AmJobDesc
 	{
 		public volatile AmJobState State;
@@ -163,7 +204,7 @@ static partial class TEKSteamClient
 		public AmPatchStatus PatchStatus;
 		public nint Delta;
 	}
-	[StructLayout (LayoutKind.Sequential)]
+	[StructLayout(LayoutKind.Sequential)]
 	public struct AmItemDesc
 	{
 		public unsafe AmItemDesc* Next;
@@ -173,6 +214,7 @@ static partial class TEKSteamClient
 		public ulong LatestManifestId;
 		public AmJobDesc Job;
 	}
+	public unsafe delegate void CmCallbackFunc(nint client, void* data, void* userData);
 	public delegate void AmJobUpdFunc(ref AmItemDesc desc, AmUpdType upd_mask);
 	#endregion
 
@@ -193,6 +235,128 @@ static partial class TEKSteamClient
 
 		public Error SyncS3Manifest(string url) => S3CSyncManifest(handle, url, 16000);
 	}
+	public class CmClient : SafeHandle
+	{
+		public CmClient(LibCtx ctx) : base(0, true)
+		{
+			handle = CmClientCreate(ctx.DangerousGetHandle(), 0);
+			if (handle == 0)
+				throw new Exception("Failed to create a CM client");
+		}
+		public override bool IsInvalid => handle == 0;
+		protected override bool ReleaseHandle()
+		{
+			CmClientDestroy(handle);
+			return true;
+		}
+		private static unsafe void CbConn(nint client, void* data, void* userData)
+		{
+			ref var dataWs = ref Unsafe.AsRef<CmDataWs>(userData);
+			dataWs.Result = *(Error*)data;
+			GCHandle<AutoResetEvent>.FromIntPtr(dataWs.Event).Target.Set();
+		}
+		private static unsafe void CbDisconn(nint client, void* data, void* userData) { }
+		private static unsafe void CbSignedIn(nint client, void* data, void* userData)
+		{
+			ref var dataWs = ref Unsafe.AsRef<CmDataWs>(userData);
+			dataWs.Result = *(Error*)data;
+			GCHandle<AutoResetEvent>.FromIntPtr(dataWs.Event).Target.Set();
+		}
+		private static unsafe void CbMd(nint client, void* data, void* userData) => GCHandle<AutoResetEvent>.FromIntPtr(Unsafe.AsRef<CmDataWs>(data).Event).Target.Set();
+		public unsafe Mod.ModDetails[] GetModDetails(params ulong[] ids)
+		{
+			var entries = new CmWsItemDetails[ids.Length];
+			for (int i = 0; i < ids.Length; i++)
+				entries[i].Id = ids[i];
+			fixed (CmWsItemDetails* entriesPtr = entries)
+			{
+				using var ev = new GCHandle<AutoResetEvent>(new(false));
+				CmDataWs data = new()
+				{
+					Details = entriesPtr,
+					NumDetails = entries.Length,
+					Event = GCHandle<AutoResetEvent>.ToIntPtr(ev)
+				};
+				CmSetUserData(handle, &data);
+				for (; ; )
+				{
+					CmWsGetDetails(handle, ref data, Marshal.GetFunctionPointerForDelegate(CbMd), 10000);
+					ev.Target.WaitOne();
+					if (!data.Result.Success)
+					{
+						if (data.Result.Auxiliary != 30)
+							return [];
+						CmSignInAnon(handle, Marshal.GetFunctionPointerForDelegate(CbSignedIn), 10000);
+						ev.Target.WaitOne();
+						if (!data.Result.Success)
+						{
+							if (data.Result.Auxiliary != 29)
+								return [];
+							CmConnect(handle, Marshal.GetFunctionPointerForDelegate(CbConn), 10000, Marshal.GetFunctionPointerForDelegate(CbDisconn));
+							ev.Target.WaitOne();
+							if (!data.Result.Success)
+								return [];
+							continue;
+						}
+						continue;
+					}
+					break;
+				}
+			}
+			var result = new Mod.ModDetails[entries.Length];
+			for (int i = 0; i < entries.Length; i++)
+			{
+				var item = entries[i];
+				result[i] = new(item.AppId, item.Result.Success ? 1 : item.Result.Auxiliary == 9 ? 2 : 0, DateTimeOffset.FromUnixTimeSeconds(item.LastUpdated).Ticks, item.Id, item.ManifestId, Marshal.PtrToStringUTF8(item.Name)!, Marshal.PtrToStringUTF8(item.PreviewUrl)!);
+			}
+			return result;
+		}
+		public unsafe Mod.ModDetails[] QueryMods(uint page, string? search, out uint total)
+		{
+			total = 0;
+			var entries = stackalloc CmWsItemDetails[20];
+			using var ev = new GCHandle<AutoResetEvent>(new(false));
+			CmDataWs data = new()
+			{
+				Details = entries,
+				NumDetails = 20,
+				Event = GCHandle<AutoResetEvent>.ToIntPtr(ev)
+			};
+			CmSetUserData(handle, &data);
+			for (; ; )
+			{
+				CmWsQueryItems(handle, ref data, 346110, (int)page, search, Marshal.GetFunctionPointerForDelegate(CbMd), 10000);
+				ev.Target.WaitOne();
+				if (!data.Result.Success)
+				{
+					if (data.Result.Auxiliary != 30)
+						return [];
+					CmSignInAnon(handle, Marshal.GetFunctionPointerForDelegate(CbSignedIn), 10000);
+					ev.Target.WaitOne();
+					if (!data.Result.Success)
+					{
+						if (data.Result.Auxiliary != 29)
+							return [];
+						CmConnect(handle, Marshal.GetFunctionPointerForDelegate(CbConn), 10000, Marshal.GetFunctionPointerForDelegate(CbDisconn));
+						ev.Target.WaitOne();
+						if (!data.Result.Success)
+							return [];
+						continue;
+					}
+					continue;
+				}
+				break;
+			}
+			var result = new Mod.ModDetails[data.NumReturnedDetails];
+			for (int i = 0; i < result.Length; i++)
+			{
+				var item = entries[i];
+				result[i] = new(item.AppId, item.Result.Success ? 1 : item.Result.Auxiliary == 9 ? 2 : 0, DateTimeOffset.FromUnixTimeSeconds(item.LastUpdated).Ticks, item.Id, item.ManifestId, Marshal.PtrToStringUTF8(item.Name)!, Marshal.PtrToStringUTF8(item.PreviewUrl)!);
+			}
+			total = (uint)data.TotalItems;
+			return result;
+		}
+	}
 	public class AppManager : SafeHandle
 	{
 		readonly Error _err;
@@ -211,7 +375,7 @@ static partial class TEKSteamClient
 		public Error SetWorkshopDir(string path) => AmSetWorkshopDir(handle, path);
 		public void LockItemDescs() => AmItemDescsLock(handle);
 		public void UnlockItemDescs() => AmItemDescsUnlock(handle);
-		public unsafe AmItemDesc* GetItemDesc(ItemId *id) => AmGetItemDesc(handle, id);
+		public unsafe AmItemDesc* GetItemDesc(ItemId* id) => AmGetItemDesc(handle, id);
 		public Error CheckForUpdates(int timeoutMs) => AmCheckForUpdates(handle, timeoutMs);
 		public unsafe Error RunJob(in ItemId itemId, ulong manifestId, bool forceVerify, AmJobUpdFunc? updHandler, out AmItemDesc* itemDesc)
 		{
@@ -234,5 +398,5 @@ static partial class TEKSteamClient
 		public static void PauseJob(ref AmItemDesc itemDesc) => AmPauseJob(ref itemDesc);
 		public Error CancelJob(ref AmItemDesc itemDesc) => AmCancelJob(handle, ref itemDesc);
 	}
-	public class Exception(string message) : System.Exception(message) {}
+	public class Exception(string message) : System.Exception(message) { }
 }

@@ -70,7 +70,6 @@ partial class MainWindow : TEKWindow
 			}
 		}
 		LauncherVersionBlock.Inlines.Remove(LauncherVersionBlock.Inlines.LastInline);
-        Steam.App.UpdateUserStatus();
 		Dispatcher.Invoke(delegate
 		{
 			if (TabFrame.Child is PlayTab tab)
@@ -132,6 +131,7 @@ partial class MainWindow : TEKWindow
 		Directory.CreateDirectory($@"{App.AppDataFolder}\tsc-locale");
 		TEKSteamClient.LoadLocale($@"{App.AppDataFolder}\tsc-locale");
 		TEKSteamClient.Ctx = new();
+		TEKSteamClient.Cm = new(TEKSteamClient.Ctx);
 		TEKSteamClient.AppMng = new(TEKSteamClient.Ctx, Game.Path!);
 		if (TEKSteamClient.AppMng.IsInvalid)
 		{
@@ -152,6 +152,7 @@ partial class MainWindow : TEKWindow
 			Settings.Save();
 			throw new TEKSteamClient.Exception(res.Message);
 		}
+		_ = Task.Run(Mod.UpdateList);
 		res = await Task.Run(() => TEKSteamClient.Ctx.SyncS3Manifest("https://api.teknology-hub.com/s3"));
 		var deRes = await Task.Run(() => TEKSteamClient.Ctx.SyncS3Manifest("https://de.api.teknology-hub.com/s3"));
 		if (!res.Success && !deRes.Success)

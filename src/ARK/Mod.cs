@@ -99,7 +99,7 @@ class Mod
             List.Remove(this);
     }
     /// <summary>Finds all installed mods, gets their details, checks for updates and populates the <see cref="List"/>.</summary>
-    public static unsafe void InitializeList()
+    public static void InitializeList()
     {
         //Set up Mods directory
         CompressedModsDirectory = $@"{Game.Path}\Mods";
@@ -130,48 +130,54 @@ class Mod
             if (mainWindow.TabFrame.Child is ModsTab modsTab)
                 modsTab.ReloadList();
         });
-        //Try to get mod details from Steam
-        ulong[] ids;
-        lock (List)
-        {
-            ids = new ulong[List.Count];
-            for (int i = 0; i < ids.Length; i++)
-                ids[i] = List[i].Id;
-        }
-        var details = Steam.CM.Client.GetModDetails(ids);
-        bool updatesAvailable = false;
-        lock (List)
-        {
-            foreach (var item in details)
-                if (item.Status == 1)
-                    List.Find(m => m.Id == item.Id)!.Details = item;
+		UpdateList();
+	}
+    public static unsafe void UpdateList()
+	{
+        if (TEKSteamClient.Cm is null)
+            return;
+		//Try to get mod details from Steam
+		ulong[] ids;
+		lock (List)
+		{
+			ids = new ulong[List.Count];
+			for (int i = 0; i < ids.Length; i++)
+				ids[i] = List[i].Id;
+		}
+		var details = TEKSteamClient.Cm.GetModDetails(ids);
+		bool updatesAvailable = false;
+		lock (List)
+		{
+			foreach (var item in details)
+				if (item.Status == 1)
+					List.Find(m => m.Id == item.Id)!.Details = item;
 			//Check for updates
 			if (TEKSteamClient.AppMng != null)
 				foreach (var mod in List)
 				{
-                    var id = new TEKSteamClient.ItemId { AppId = 346110, DepotId = 346110, WorkshopItemId = mod.Id };
+					var id = new TEKSteamClient.ItemId { AppId = 346110, DepotId = 346110, WorkshopItemId = mod.Id };
 					var desc = TEKSteamClient.AppMng.GetItemDesc(&id);
-                    if (desc != null && desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable))
+					if (desc != null && desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable))
 					{
 						updatesAvailable = true;
 						mod.CurrentStatus = Status.UpdateAvailable;
 					}
 				}
 		}
-        //Update the GUI with the details
-        Application.Current.Dispatcher.InvokeAsync(delegate
-        {
-            var mainWindow = (MainWindow)Application.Current.MainWindow;
-            if (mainWindow.TabFrame.Child is ModsTab modsTab)
-                modsTab.UpdateDetails();
-            if (updatesAvailable)
-                Notifications.Add(LocManager.GetString(LocCode.ModUpdatesAvailable), LocManager.GetString(LocCode.Update), delegate
-                {
-                    if (mainWindow.TabFrame.Child is not ModsTab)
-                        mainWindow.Navigate(new ModsTab());
-                });
-        });
-    }
+		//Update the GUI with the details
+		Application.Current.Dispatcher.InvokeAsync(delegate
+		{
+			var mainWindow = (MainWindow)Application.Current.MainWindow;
+			if (mainWindow.TabFrame.Child is ModsTab modsTab)
+				modsTab.UpdateDetails();
+			if (updatesAvailable)
+				Notifications.Add(LocManager.GetString(LocCode.ModUpdatesAvailable), LocManager.GetString(LocCode.Update), delegate
+				{
+					if (mainWindow.TabFrame.Child is not ModsTab)
+						mainWindow.Navigate(new ModsTab());
+				});
+		});
+	}
     /// <summary>Defines mod status codes.</summary>
     public enum Status
     {

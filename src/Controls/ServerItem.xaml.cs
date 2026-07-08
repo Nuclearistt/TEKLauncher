@@ -95,7 +95,7 @@ partial class ServerItem : UserControl
         {
             detailsAvailable = true;
             ModsBlock.Visibility = Visibility.Visible;
-            var details = await Task.Run(() => Steam.CM.Client.GetModDetails(server.ModIds));
+            var details = TEKSteamClient.Cm is null ? [] : await Task.Run(() => TEKSteamClient.Cm.GetModDetails(server.ModIds));
             if (details.Length < server.ModIds.Length)
             {
                 details = new Mod.ModDetails[server.ModIds.Length];

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using Microsoft.Win32;
-using TEKLauncher.Steam.CM;
 
 namespace TEKLauncher.Steam;
 
@@ -39,25 +38,6 @@ static class App
             return;
         }
         s_path = path;
-        string configFile = $@"{path}\config\config.vdf";
-        if (File.Exists(configFile))
-        {
-            using var reader = new StreamReader(configFile);
-            var vdf = new VDFNode(reader)["Software"]?["Valve"]?["Steam"];
-            if (vdf is not null)
-            {
-                if (uint.TryParse(vdf["CurrentCellID"]?.Value, out uint cellId))
-                    CM.Client.CellId = cellId;
-                var cmList = vdf["CMWebSocket"];
-                if (cmList?.Children is not null)
-                {
-                    var urls = new Uri[cmList.Children.Count];
-                    for (int i = 0; i < urls.Length; i++)
-                        urls[i] =  new($"wss://{cmList.Children[i].Key}/cmsocket/");
-                    WebSocketConnection.ServerList = new(urls);
-                }
-            }
-        }
     }
     public static void UpdateUserStatus()
     {

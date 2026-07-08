@@ -82,7 +82,8 @@ partial class ModInstallerTab : ContentControl
     /// <param name="page">1-based index of the page.</param>
     void LoadWorkshopPage(uint page)
     {
-        var details = Steam.CM.Client.QueryMods(page, _currentSearch, out uint total);
+        uint total = 0;
+        var details = TEKSteamClient.Cm?.QueryMods(page, _currentSearch, out total) ?? [];
         if (details.Length == 0)
         {
             Dispatcher.Invoke(delegate
@@ -138,7 +139,7 @@ partial class ModInstallerTab : ContentControl
             _modDetails = default;
             if (ulong.TryParse(Dispatcher.Invoke(() => ModIdBox.Text), out ulong id))
             {
-                var response = Steam.CM.Client.GetModDetails(id);
+                var response = TEKSteamClient.Cm?.GetModDetails(id) ?? [];
                 var details = response.Length == 0 ? default : response[0];
                 Dispatcher.Invoke(delegate
                 {

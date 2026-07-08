@@ -104,7 +104,7 @@ static class Game
             foreach (var dlc in DLC.List)
                 if (dlc.IsInstalled)
                     instDlc.Add(dlc.AppId);
-            var settings = new TekGameRuntimeSettings("steam", 346110, UseSpacewar ? 480u : 0, new Dictionary<uint, string>
+            var settings = new TekGameRuntimeSettings("steam", 346110, (UseSpacewar || !Steam.Api.IsAppOwned(346110)) ? 480u : 0, new Dictionary<uint, string>
             {
                 [473850] = "The Center – ARK Expansion Map",
                 [508150] = "Primitive+ – ARK Total Conversion",

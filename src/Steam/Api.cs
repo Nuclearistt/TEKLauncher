@@ -75,26 +75,53 @@ static partial class Api
 	/// <summary>Attempts to create Steam client API interfaces and get function pointers.</summary>
 	public static bool Initialize()
 	{
-		if (s_steamClient != 0)
+		if (s_user != 0)
 			return true;
 		if (!App.IsRunning)
 			return false;
 		string? dllPath = (string?)Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Valve\Steam\ActiveProcess")?.GetValue("SteamClientDll64");
 		if (dllPath is null)
 			return false;
-		//Load steamclient64.dll module into process
-		if (NativeLibrary.Load(dllPath) == 0)
-			return false;
-		s_steamClient = CreateInterface("SteamClient023", 0); //Create ISteamClient interface
-		var vfptr = Marshal.ReadIntPtr(s_steamClient); //, get its virtual function poiter table
-													   //and compute its function addresses
-		s_pipe = Marshal.GetDelegateForFunctionPointer<CreateSteamPipe>(Marshal.ReadIntPtr(vfptr))(s_steamClient);
-		s_bReleaseSteamPipe = Marshal.GetDelegateForFunctionPointer<BReleaseSteamPipe>(Marshal.ReadIntPtr(vfptr, 0x8));
-		s_user = Marshal.GetDelegateForFunctionPointer<ConnectToGlobalUser>(Marshal.ReadIntPtr(vfptr, 0x10))(s_steamClient, s_pipe);
+		nint vfptr;
+		for (uint app_id = 0; ;)
+		{
+			Environment.SetEnvironmentVariable("SteamAppId", app_id.ToString());
+			nint lib = NativeLibrary.Load(dllPath);
+			if (lib == 0)
+				return false;
+			s_steamClient = CreateInterface("SteamClient023", 0);
+			if (s_steamClient == 0)
+				return false;
+			vfptr = Marshal.ReadIntPtr(s_steamClient);
+			s_bShutdownIfAllPipesClosed = Marshal.GetDelegateForFunctionPointer<BShutdownIfAllPipesClosed>(Marshal.ReadIntPtr(vfptr, 0xB8));
+			s_pipe = Marshal.GetDelegateForFunctionPointer<CreateSteamPipe>(Marshal.ReadIntPtr(vfptr))(s_steamClient);
+			if (s_pipe == 0)
+				return false;
+			s_bReleaseSteamPipe = Marshal.GetDelegateForFunctionPointer<BReleaseSteamPipe>(Marshal.ReadIntPtr(vfptr, 0x8));
+			s_user = Marshal.GetDelegateForFunctionPointer<ConnectToGlobalUser>(Marshal.ReadIntPtr(vfptr, 0x10))(s_steamClient, s_pipe);
+			if (s_user != 0)
+				break;
+			s_bReleaseSteamPipe(s_steamClient, s_pipe);
+			s_bShutdownIfAllPipesClosed(s_steamClient);
+			for (;;)
+			{
+				try { NativeLibrary.Free(lib); }
+				catch { break; }
+			}
+			switch (app_id)
+			{
+				case 0:
+					app_id = 346110;
+					break;
+				case 346110:
+					app_id = 480;
+					break;
+				default:
+					return false;
+			}
+		}
 		s_releaseUser = Marshal.GetDelegateForFunctionPointer<ReleaseUser>(Marshal.ReadIntPtr(vfptr, 0x20));
 		var getISteamGenericInterface = Marshal.GetDelegateForFunctionPointer<GetISteamGenericInterface>(Marshal.ReadIntPtr(vfptr, 0x60));
-		s_bShutdownIfAllPipesClosed = Marshal.GetDelegateForFunctionPointer<BShutdownIfAllPipesClosed>(Marshal.ReadIntPtr(vfptr, 0xB8));
-		//Create the rest of interfaces and get their function pointers
 		s_steamApps = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "STEAMAPPS_INTERFACE_VERSION009");
 		s_steamMatchmaking = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamMatchMaking009");
 		s_steamMatchmakingServers = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamMatchMakingServers002");
@@ -135,11 +162,12 @@ static partial class Api
 	/// <summary>Shuts down Steam client API interfaces and releases their resources.</summary>
 	public static void Shutdown()
 	{
-		if (s_steamClient == IntPtr.Zero)
-			return;
-		s_releaseUser(s_steamClient, s_pipe, s_user);
-		s_bReleaseSteamPipe(s_steamClient, s_pipe);
-		s_bShutdownIfAllPipesClosed(s_steamClient);
+		if (s_user != 0)
+			s_releaseUser(s_steamClient, s_pipe, s_user);
+		if (s_pipe != 0)
+			s_bReleaseSteamPipe(s_steamClient, s_pipe);
+		if (s_steamClient != 0)
+			s_bShutdownIfAllPipesClosed(s_steamClient);
 	}
 	public static bool IsAppOwned(uint appId) => s_bIsSubscribedApp(s_steamApps, appId);
 	/// <summary>Gets specified server list via Steam client API.</summary>

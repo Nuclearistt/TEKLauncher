@@ -94,10 +94,10 @@ partial class App : Application
             }
         UdpClient.Dispose();
         Steam.Api.Shutdown();
-        Steam.CM.Client.Disconnect();
         Settings.Save();
         TEKSteamClient.AppMng?.Close();
-        TEKSteamClient.Ctx?.Close();
+        TEKSteamClient.Cm?.Close();
+		TEKSteamClient.Ctx?.Close();
 		IPC.Dispose();
     }
     /// <summary>Handles exceptions that could not be caught by any other means.</summary>
@@ -106,7 +106,8 @@ partial class App : Application
     public static void Initialize(bool beginInstallation = false)
     {
         Game.Initialize();
-        Task.Run(Mod.InitializeList);
+		Steam.App.UpdateUserStatus();
+		Task.Run(Mod.InitializeList);
         Task.Delay(2000).ContinueWith(delegate{ Cluster.ReloadLists(); });
         new MainWindow(beginInstallation).Show();
         object? lastLaunchedVersion = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\TEKLauncher")?.GetValue("LastLaunchedVersion");

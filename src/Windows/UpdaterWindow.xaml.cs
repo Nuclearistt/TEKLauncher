@@ -235,7 +235,7 @@ partial class UpdaterWindow : TEKWindow
 				Status.Text = LocManager.GetString(LocCode.RequestingModDetails);
 				Status.Foreground = Brushes.Yellow;
 			});
-			var details = Steam.CM.Client.GetModDetails(modIds);
+			var details = TEKSteamClient.Cm?.GetModDetails(modIds) ?? [];
 			if (details.Length == 0)
 				throw new SteamException(LocManager.GetString(LocCode.RequestingModDetailsFail));
 			Item = details;

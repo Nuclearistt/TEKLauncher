@@ -135,7 +135,9 @@ static class Game
                     DataSize = (uint)data.Length,
                     Data = (nint)dataPtr
 				};
+                Steam.Api.Shutdown();
                 TEKInjector.RunGame(ref injArgs);
+                Steam.Api.Initialize();
                 foreach (var ptr in argv)
                     Marshal.FreeHGlobal(ptr);
                 Marshal.FreeHGlobal(argvNative);

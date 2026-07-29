@@ -7,22 +7,23 @@ namespace TEKLauncher.Steam;
 
 static partial class Api
 {
+	static nint s_lib;
 	/// <summary>Steam pipe handle.</summary>
 	static int s_pipe;
 	/// <summary>Steam user handle.</summary>
 	static int s_user;
 	/// <summary>ISteamApps interface handle.</summary>
-	static IntPtr s_steamApps;
+	static nint s_steamApps;
 	/// <summary>ISteamClient interface handle.</summary>
-	static IntPtr s_steamClient;
+	static nint s_steamClient;
 	/// <summary>ISteamMatchmaking interface handle.</summary>
-	static IntPtr s_steamMatchmaking;
+	static nint s_steamMatchmaking;
 	/// <summary>ISteamMatchmakingServers interface handle.</summary>
-	static IntPtr s_steamMatchmakingServers;
+	static nint s_steamMatchmakingServers;
 	/// <summary>ISteamUser interface handle.</summary>
-	static IntPtr s_steamUser;
+	static nint s_steamUser;
 	/// <summary>ISteamUtils interface handle.</summary>
-	static IntPtr s_steamUtils;
+	static nint s_steamUtils;
 	/// <summary>ISteamApps::BReleaseSteamPipe function pointer.</summary>
 	static BIsSubscribedApp s_bIsSubscribedApp = null!;
 	/// <summary>ISteamClient::BReleaseSteamPipe function pointer.</summary>
@@ -86,9 +87,12 @@ static partial class Api
 		for (uint app_id = 0; ;)
 		{
 			Environment.SetEnvironmentVariable("SteamAppId", app_id.ToString());
-			nint lib = NativeLibrary.Load(dllPath);
-			if (lib == 0)
-				return false;
+			if (s_lib == 0)
+			{
+				s_lib = NativeLibrary.Load(dllPath);
+				if (s_lib == 0)
+					return false;
+			}
 			s_steamClient = CreateInterface("SteamClient023", 0);
 			if (s_steamClient == 0)
 				return false;
@@ -100,14 +104,36 @@ static partial class Api
 			s_bReleaseSteamPipe = Marshal.GetDelegateForFunctionPointer<BReleaseSteamPipe>(Marshal.ReadIntPtr(vfptr, 0x8));
 			s_user = Marshal.GetDelegateForFunctionPointer<ConnectToGlobalUser>(Marshal.ReadIntPtr(vfptr, 0x10))(s_steamClient, s_pipe);
 			if (s_user != 0)
+			{
+				s_releaseUser = Marshal.GetDelegateForFunctionPointer<ReleaseUser>(Marshal.ReadIntPtr(vfptr, 0x20));
+				var getISteamGenericInterface = Marshal.GetDelegateForFunctionPointer<GetISteamGenericInterface>(Marshal.ReadIntPtr(vfptr, 0x60));
+				s_steamApps = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "STEAMAPPS_INTERFACE_VERSION009");
+				s_steamMatchmaking = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamMatchMaking009");
+				s_steamMatchmakingServers = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamMatchMakingServers002");
+				s_steamUser = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamUser023");
+				s_steamUtils = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamUtils010");
+				if (s_steamApps == 0 || s_steamMatchmaking == 0 || s_steamMatchmakingServers == 0 || s_steamUser == 0 || s_steamUtils == 0)
+				{
+					Messages.Show("Error", "Your version of Steam client is too old and unsupported by the launcher.");
+					return false;
+				}
 				break;
+			}
+			if (s_user != 0)
+			{
+				s_releaseUser(s_steamClient, s_pipe, s_user);
+				s_user = 0;
+			}
 			s_bReleaseSteamPipe(s_steamClient, s_pipe);
+			s_pipe = 0;
 			s_bShutdownIfAllPipesClosed(s_steamClient);
+			s_steamClient = 0;
 			for (;;)
 			{
-				try { NativeLibrary.Free(lib); }
+				try { NativeLibrary.Free(s_lib); }
 				catch { break; }
 			}
+			s_lib = 0;
 			switch (app_id)
 			{
 				case 0:
@@ -120,13 +146,6 @@ static partial class Api
 					return false;
 			}
 		}
-		s_releaseUser = Marshal.GetDelegateForFunctionPointer<ReleaseUser>(Marshal.ReadIntPtr(vfptr, 0x20));
-		var getISteamGenericInterface = Marshal.GetDelegateForFunctionPointer<GetISteamGenericInterface>(Marshal.ReadIntPtr(vfptr, 0x60));
-		s_steamApps = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "STEAMAPPS_INTERFACE_VERSION009");
-		s_steamMatchmaking = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamMatchMaking009");
-		s_steamMatchmakingServers = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamMatchMakingServers002");
-		s_steamUser = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamUser023");
-		s_steamUtils = getISteamGenericInterface(s_steamClient, s_user, s_pipe, "SteamUtils010");
 		s_bIsSubscribedApp = Marshal.GetDelegateForFunctionPointer<BIsSubscribedApp>(Marshal.ReadIntPtr(Marshal.ReadIntPtr(s_steamApps), 0x30));
 		vfptr = Marshal.ReadIntPtr(s_steamMatchmaking);
 		s_addFavoriteGame = Marshal.GetDelegateForFunctionPointer<AddFavoriteGame>(Marshal.ReadIntPtr(vfptr, 0x10));
@@ -163,11 +182,20 @@ static partial class Api
 	public static void Shutdown()
 	{
 		if (s_user != 0)
+		{
 			s_releaseUser(s_steamClient, s_pipe, s_user);
+			s_user = 0;
+		}
 		if (s_pipe != 0)
+		{
 			s_bReleaseSteamPipe(s_steamClient, s_pipe);
+			s_pipe = 0;
+		}
 		if (s_steamClient != 0)
+		{
 			s_bShutdownIfAllPipesClosed(s_steamClient);
+			s_steamClient = 0;
+		}
 	}
 	public static bool IsAppOwned(uint appId) => s_bIsSubscribedApp(s_steamApps, appId);
 	/// <summary>Gets specified server list via Steam client API.</summary>
@@ -213,7 +241,7 @@ static partial class Api
 		return id;
 	}
 	[LibraryImport("steamclient64.dll", StringMarshalling = StringMarshalling.Utf8)]
-	static private partial IntPtr CreateInterface(string pchVersion, int cbSize);
+	static private partial nint CreateInterface(string pchVersion, int cbSize);
 	/// <summary>Defines types of server lists that may be retrieved by <see cref="GetServers(ServerListType)"/>.</summary>
 	public enum ServerListType
 	{

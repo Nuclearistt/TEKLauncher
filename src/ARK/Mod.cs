@@ -67,7 +67,7 @@ class Mod
     public unsafe void Delete()
 	{
 		var itemId = new TEKSteamClient.ItemId { AppId = 346110, DepotId = 346110, WorkshopItemId = Id };
-		var desc = TEKSteamClient.AppMng!.GetItemDesc(&itemId);
+		var desc = TEKSteamClient.AppMng?.GetItemDesc(&itemId);
         var prevStatus = _status;
 		CurrentStatus = Status.Deleting;
 		if (Directory.Exists(ModsFolderPath))
@@ -78,7 +78,7 @@ class Mod
 		{
 			if (desc->Status.HasFlag(TEKSteamClient.AmItemStatus.Job))
 			{
-				if (!TEKSteamClient.AppMng.CancelJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(desc)).Success)
+				if (!TEKSteamClient.AppMng!.CancelJob(ref Unsafe.AsRef<TEKSteamClient.AmItemDesc>(desc)).Success)
 				{
 					CurrentStatus = prevStatus;
 					return;
@@ -86,7 +86,7 @@ class Mod
 			}
 			if (desc->CurrentManifestId != 0)
 			{
-				if (!TEKSteamClient.AppMng.RunJob(in itemId, ulong.MaxValue, false, null, out desc).Success)
+				if (!TEKSteamClient.AppMng!.RunJob(in itemId, ulong.MaxValue, false, null, out desc).Success)
 				{
 					CurrentStatus = prevStatus;
 					return;

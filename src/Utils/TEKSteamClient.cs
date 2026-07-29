@@ -8,9 +8,17 @@ namespace TEKLauncher.Utils;
 static partial class TEKSteamClient
 {
 	public static readonly string DllPath = $@"{App.AppDataFolder}\libtek-steamclient-2.dll";
+	public static nint LibHandle;
 	public static LibCtx? Ctx = null;
 	public static AppManager? AppMng = null;
 	public static CmClient? Cm = null;
+
+	static TEKSteamClient() => NativeLibrary.SetDllImportResolver(typeof(TEKSteamClient).Assembly, (name, assembly, path) =>
+	{
+		if (name == "libtek-steamclient-2.dll")
+			return LibHandle;
+		return NativeLibrary.Load(name, assembly, path);
+	});
 
 	#region Native Functions
 	[LibraryImport("libtek-steamclient-2.dll", EntryPoint = "tek_sc_version")]

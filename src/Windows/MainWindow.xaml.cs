@@ -96,10 +96,9 @@ partial class MainWindow : TEKWindow
 				Application.Current.Shutdown();
 				return;
 			}
-			nint handle = 0;
 			try
 			{
-				handle = NativeLibrary.Load(TEKSteamClient.DllPath);
+				TEKSteamClient.LibHandle = NativeLibrary.Load(TEKSteamClient.DllPath);
 			}
 			catch (BadImageFormatException)
 			{
@@ -117,12 +116,10 @@ partial class MainWindow : TEKWindow
 			{
 				try
 				{
-					NativeLibrary.Free(handle);
-					NativeLibrary.Free(handle);
-					File.Delete($@"{System.IO.Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory}\libtek-steamclient-2.dll");
+					NativeLibrary.Free(TEKSteamClient.LibHandle);
+					File.Delete(TEKSteamClient.DllPath);
 				}
 				catch { }
-				File.Delete(TEKSteamClient.DllPath);
 				updated = true;
 				continue;
 			}

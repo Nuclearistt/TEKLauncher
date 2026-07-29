@@ -30,8 +30,9 @@ static class App
     /// <summary>Retrieves primary data from Steam config files.</summary>
     public static void Initialize()
     {
-        string? path = (string?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Valve\Steam")?.GetValue("InstallPath");
-        if (path is null)
+        var path = (string?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Valve\Steam")?.GetValue("InstallPath");
+		path ??= (string?)Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Valve\Steam")?.GetValue("InstallPath");
+		if (path is null)
         {
             Messages.Show("Error", LocManager.GetString(LocCode.SteamMissing));
             Application.Current.Shutdown();

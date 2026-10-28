@@ -12,6 +12,7 @@
         <CheckBox Content="{ui:LocString CloseOnGameLaunch}" IsChecked="{x:Static tld:Settings.CloseOnGameLaunch}" Tag="1" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
 		<CheckBox Content="{ui:LocString CommunismMode}" IsChecked="{x:Static tld:Settings.CommunismMode}" Tag="2" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
 		<CheckBox Content="Pre-Aquatica mode" IsChecked="{x:Static tld:Settings.PreAquatica}" Tag="3" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
+		<CheckBox Content="Unload Steam API during game launch" IsChecked="{x:Static tld:Settings.UnloadSteamApi}" Tag="4" Checked="UpdateSetting" Unchecked="UpdateSetting"/>
 		<Grid Margin="0, 20, 0, 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>

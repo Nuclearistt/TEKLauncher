@@ -225,7 +225,11 @@ partial class GameOptionsTab : ContentControl
         }
         else if (!res.Success && res.Primary != 85)
         {
-            if (s_desc->Job.Stage == TEKSteamClient.AmJobStage.Pathcing && ((res.Type == 3 && res.Primary == 6 && (res.Auxiliary == 2 || res.Auxiliary == 38)) || (res.Type == 1 && res.Primary == 78 && res.Auxiliary == 48)))
+            if ((s_desc->Job.Stage == TEKSteamClient.AmJobStage.Pathcing &&
+                ((res.Type == 3 && res.Primary == 6 && (res.Auxiliary == 2 || res.Auxiliary == 38))
+                 || (res.Type == 1 && res.Primary == 78 && res.Auxiliary == 48))) ||
+                 (res.Type == 1 && res.Primary == 52 && res.Auxiliary == 48)
+               )
 			{
 				if (res.Uri != 0)
 					Marshal.FreeHGlobal(res.Uri);

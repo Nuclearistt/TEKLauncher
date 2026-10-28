@@ -68,7 +68,7 @@ partial class MessageWindow : TEKWindow
         link.Click += (sender, e) => Process.Start(new ProcessStartInfo(((Hyperlink)sender).NavigateUri.ToString()) { UseShellExecute = true });
         link.Inlines.Add("here");
 		Message.Inlines.Add(link);
-        Message.Inlines.Add($", then put the downloaded file into \"%appdata%\\TEK Launcher\" folder, then restart the launcher. Some functionality may not work until you do that.");
+        Message.Inlines.Add($", then put the downloaded file into \"{App.AppDataFolder}\" folder, then restart the launcher. Some functionality may not work until you do that.");
 		var okButton = new Button
 		{
 			MinWidth = 70,

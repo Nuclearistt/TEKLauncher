@@ -155,6 +155,9 @@ partial class LauncherSettingsTab : ContentControl
 					} : desc->Status.HasFlag(TEKSteamClient.AmItemStatus.UpdAvailable)) ? ARK.DLC.Status.UpdateAvailable : ARK.DLC.Status.Installed;
 				}
 				break;
-        }
+			case '4':
+				Settings.UnloadSteamApi = newValue;
+                break;
+		}
     }
 }
